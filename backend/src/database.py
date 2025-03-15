@@ -1,20 +1,17 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-from asyncpg.exceptions import DuplicateDatabaseError
+from sqlalchemy.orm import DeclarativeBase
 
-from config import settings
+from src.config import settings
 
 
 # we create async engine
 async_engine = create_async_engine(
     url = settings.DATABASE_URL_asyncpg,
-    echo = False,
+    echo = True,
 )
 
 async_session_factory = async_sessionmaker(async_engine)
 
-# we create BaseModel
-BaseModel = declarative_base()
 
-class Base(BaseModel):
+class Base(DeclarativeBase):
     __abstract__ = True

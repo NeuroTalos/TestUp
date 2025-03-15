@@ -7,11 +7,12 @@ from sqlalchemy import (
     Column,
     String,
     Integer,
-    CheckConstraint
+    CheckConstraint,
+    ForeignKey
 )
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from database import Base
+from src.database import Base
 
 
 # date type for id
@@ -26,6 +27,41 @@ class Gender(enum.Enum):
     female = "female"
 
 
+class ContactsOrm(Base):
+    __tablename__ = "contacts"
+
+    id: Mapped[int_pk]
+    student_id: Mapped[int] = mapped_column(ForeignKey("students.id", ondelete="CASCADE"))
+    email: Mapped[str] = Column(String(100), unique=True)
+    phone: Mapped[str] = Column(String(11), unique=True)
+
+    student: Mapped["StudentOrm"] = relationship(
+        back_populates = "contacts"
+    )
+
+
+class FacultiesOrm(Base):
+    __tablename__ = 'faculties'
+
+    id: Mapped[int_pk]
+    name: Mapped[str] = Column(String(100), unique=True)
+
+    majors: Mapped[list["MajorsOrm"]] = relationship(
+        back_populates = "faculty"
+    )
+
+
+class MajorsOrm(Base):
+    __tablename__ = 'majors'
+
+    id: Mapped[int_pk]
+    name: Mapped[str] = Column(String(100), unique=True)
+    faculty_id: Mapped[int] = mapped_column(ForeignKey("faculties.id", ondelete = "CASCADE"))
+
+    faculty: Mapped["FacultiesOrm"] = relationship(
+        back_populates = "majors"
+    )
+
 class StudentOrm(Base):
     __tablename__ = "students"
 
@@ -34,16 +70,16 @@ class StudentOrm(Base):
     last_name: Mapped[str_100]
     middle_name: Mapped[Optional[str_100]]
     date_of_birth: Mapped[date] = Column(Date)
-    email: Mapped[str_100]
-    phone: Mapped[str] = Column(String(11))
     gender: Mapped[Gender]
     cours: Mapped[int] = Column(Integer)
-    faculty: Mapped[str_100]
-    major: Mapped[str_100]
+    
+    faculty_id: Mapped[int] = mapped_column(ForeignKey("faculties.id", ondelete="CASCADE"))
+    major_id: Mapped[int] = mapped_column(ForeignKey("majors.id", ondelete="CASCADE"))
 
-    __table_args__ = (
-        CheckConstraint("cours > 0 AND cours < 6", name='check_cours_range')
+    contacs: Mapped["ContactsOrm"] = relationship(
+        back_populates = "student"
     )
-
-# TODO
-# Normalize student model
+    
+    __table_args__ = (
+        CheckConstraint("cours > 0 AND cours < 6", name="check_cours_range"),
+    )
