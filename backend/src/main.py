@@ -11,5 +11,14 @@ from src.queries.orm import AsyncORM
 async def main():
     await AsyncORM.create_tables()
 
+    await AsyncORM.insert_faculties()
+    await AsyncORM.insert_majors()
+    await AsyncORM.insert_students()
+
+    await AsyncORM.select_faculties()
+    await AsyncORM.select_majors()
+    await AsyncORM.select_students()
+
+
 if __name__ == "__main__":
     asyncio.run(main())

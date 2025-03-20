@@ -27,19 +27,6 @@ class Gender(enum.Enum):
     female = "female"
 
 
-class ContactsOrm(Base):
-    __tablename__ = "contacts"
-
-    id: Mapped[int_pk]
-    student_id: Mapped[int] = mapped_column(ForeignKey("students.id", ondelete="CASCADE"))
-    email: Mapped[str] = Column(String(100), unique=True)
-    phone: Mapped[str] = Column(String(11), unique=True)
-
-    student: Mapped["StudentOrm"] = relationship(
-        back_populates = "contacts"
-    )
-
-
 class FacultiesOrm(Base):
     __tablename__ = 'faculties'
 
@@ -62,7 +49,7 @@ class MajorsOrm(Base):
         back_populates = "majors"
     )
 
-class StudentOrm(Base):
+class StudentsOrm(Base):
     __tablename__ = "students"
 
     id: Mapped[int_pk]
@@ -70,15 +57,13 @@ class StudentOrm(Base):
     last_name: Mapped[str_100]
     middle_name: Mapped[Optional[str_100]]
     date_of_birth: Mapped[date] = Column(Date)
+    email: Mapped[str] = Column(String(100), unique=True)
+    phone: Mapped[str] = Column(String(11), unique=True)
     gender: Mapped[Gender]
     cours: Mapped[int] = Column(Integer)
     
     faculty_id: Mapped[int] = mapped_column(ForeignKey("faculties.id", ondelete="CASCADE"))
     major_id: Mapped[int] = mapped_column(ForeignKey("majors.id", ondelete="CASCADE"))
-
-    contacs: Mapped["ContactsOrm"] = relationship(
-        back_populates = "student"
-    )
     
     __table_args__ = (
         CheckConstraint("cours > 0 AND cours < 6", name="check_cours_range"),
