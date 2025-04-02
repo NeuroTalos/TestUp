@@ -1,4 +1,5 @@
 from sqlalchemy import select, insert
+from sqlalchemy.orm import selectinload
 
 from src.database import (
     async_engine, 
@@ -7,7 +8,8 @@ from src.database import (
     
 )
 from src.models import Gender, StudentsOrm, FacultiesOrm, MajorsOrm
-from src.queries.values import faculties, majors, stundents
+from src.queries.values import faculties, majors
+from src.schemas import StudentSchema, MajorSchema, FacultySchema
 
 
 class AsyncORM:
@@ -24,15 +26,17 @@ class AsyncORM:
             await session.execute(insert_faculties)
             await session.commit()
 
-
     @staticmethod
     async def select_faculties():
         async with async_session_factory() as session:
-            query = select(FacultiesOrm)
+            query = (
+                select(FacultiesOrm)
+                .options(selectinload(FacultiesOrm.majors))
+            )
             result = await session.execute(query)
             faculties = result.scalars().all()
-            faculties_name = [faculty.name for faculty in faculties]
-            print(faculties_name)
+            faculties_schemas = [FacultySchema.model_validate(faculty) for faculty in faculties]
+            return faculties_schemas
 
     @staticmethod
     async def insert_majors():
@@ -41,20 +45,19 @@ class AsyncORM:
             await session.execute(insert_majors)
             await session.commit()
     
-    # TODO Make function to show majors of selected faculty 
     @staticmethod
     async def select_majors():
         async with async_session_factory() as session:
             query = select(MajorsOrm)
             result = await session.execute(query)
             majors = result.scalars().all()
-            majors_info = [(majors.faculty_id, majors.name) for majors in majors]
-            print(majors_info)
+            majors_schemas = [MajorSchema.model_validate(major) for major in majors]
+            return majors_schemas
     
     @staticmethod
-    async def insert_students():
+    async def insert_students(students: list[StudentsOrm]):
         async with async_session_factory() as session:
-            insert_students = insert(StudentsOrm).values(stundents)
+            insert_students = insert(StudentsOrm).values(students)
             await session.execute(insert_students)
             await session.commit()
 
@@ -65,6 +68,8 @@ class AsyncORM:
             query = select(StudentsOrm)
             result = await session.execute(query)
             students = result.scalars().all()
-            for student in students:
-                student_attributes = {key: value for key, value in student.__dict__.items() if key != '_sa_instance_state'}
-                print(student_attributes)
+            students_schemas = [StudentSchema.model_validate(student) for student in students]
+            return students_schemas
+            # for student in students:
+            #     student_attributes = {key: value for key, value in student.__dict__.items() if key != '_sa_instance_state'}
+            #     print(student_attributes)

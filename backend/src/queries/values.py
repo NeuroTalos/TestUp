@@ -24,7 +24,7 @@ majors = [
      "faculty_id": 3},
 ]
 
-stundents = [
+default_students = [
     {
         "first_name": "Дмитрий",
         "last_name": "Чертков",
