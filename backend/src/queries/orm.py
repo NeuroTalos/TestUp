@@ -8,7 +8,6 @@ from src.database import (
     
 )
 from src.models import Gender, StudentsOrm, FacultiesOrm, MajorsOrm
-from src.queries.values import faculties, majors
 from src.schemas import StudentSchema, MajorSchema, FacultySchema
 
 
@@ -20,7 +19,7 @@ class AsyncORM:
             await connection.run_sync(Base.metadata.create_all)
 
     @staticmethod
-    async def insert_faculties():
+    async def insert_faculties(faculties):
         async with async_session_factory() as session:
             insert_faculties = insert(FacultiesOrm).values(faculties)
             await session.execute(insert_faculties)
@@ -37,9 +36,20 @@ class AsyncORM:
             faculties = result.scalars().all()
             faculties_schemas = [FacultySchema.model_validate(faculty) for faculty in faculties]
             return faculties_schemas
+    
+    @staticmethod
+    async def get_faculty_by_id(id: int):
+        async with async_session_factory() as session:
+            query = (
+                select(FacultiesOrm.id)
+                .filter(FacultiesOrm.id == id)
+            )
+            result = await session.execute(query)
+            faculties_id = result.scalars().all()
+            return faculties_id
 
     @staticmethod
-    async def insert_majors():
+    async def insert_majors(majors):
         async with async_session_factory() as session:
             insert_majors = insert(MajorsOrm).values(majors)
             await session.execute(insert_majors)

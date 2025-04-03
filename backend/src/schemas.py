@@ -28,9 +28,7 @@ class StudentSchema(StudentAddSchema):
     id: int
     
     class Config:
-        orm_mode = True
         from_attributes = True
-
 
 
 class MajorAddSchema(BaseModel):
@@ -43,18 +41,16 @@ class MajorSchema(MajorAddSchema):
     id: int
 
     class Config:
-        orm_mode = True
         from_attributes = True
 
 
 class FacultyAddSchema(BaseModel):
     name: str = Field(max_length=100)
-    majors: list[MajorSchema]
+    majors: Optional[list[MajorSchema]]
 
 
 class FacultySchema(FacultyAddSchema):
     id: int
 
     class Config:
-        orm_mode = True
         from_attributes = True

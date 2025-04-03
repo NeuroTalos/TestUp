@@ -1,13 +1,13 @@
 # Temp file for values
 from datetime import date
 
-faculties = [
+default_faculties = [
     {"name" : "Факультет энергетики и автоматики"},
     {"name" : "Факультет экономики и строительства"},
     {"name" : "Гуманитарно-педагогический факультет"},
 ]
 
-majors = [
+default_majors = [
     {"name": "Информационные системы и технологии",
      "faculty_id": 1},
     {"name": "Прикладная математика и информатика",

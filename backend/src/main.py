@@ -7,33 +7,62 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from contextlib import asynccontextmanager
 import asyncio
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
 from src.queries.orm import AsyncORM
-from src.schemas import StudentAddSchema, StudentSchema, FacultySchema
-from src.queries.values import default_students
-from src.models import StudentsOrm
+from src.schemas import (
+    StudentAddSchema, StudentSchema, 
+    FacultySchema, FacultyAddSchema,
+    MajorAddSchema
+)
+from src.queries.values import default_students, default_faculties, default_majors
 
-
-app = FastAPI()
 
 # temp solution
 @asynccontextmanager
-async def lifespan(app):
+async def lifespan(app: FastAPI):
     await AsyncORM.create_tables()
 
-    await AsyncORM.insert_faculties()
-    await AsyncORM.insert_majors()
+    await AsyncORM.insert_faculties(default_faculties)
+    await AsyncORM.insert_majors(default_majors)
     await AsyncORM.insert_students(default_students)
 
     yield
 
+
+app = FastAPI(lifespan=lifespan)
+
+
 @app.get("/faculties")
-async def select_students() -> list[FacultySchema]:
-    
+async def select_faculties_and_majors() -> list[FacultySchema]:
     faculties = await AsyncORM.select_faculties()
 
     return faculties
+
+
+@app.post("/faculties")
+async def add_faculty(faculty: FacultyAddSchema):
+    new_faculty = {
+        "name" : faculty.name,
+    }
+
+    await AsyncORM.insert_faculties([new_faculty])
+    return {"ok": True}
+
+
+@app.post("/majors")
+async def add_major(major: MajorAddSchema):
+    faculty = await AsyncORM.get_faculty_by_id(major.faculty_id)
+    if not faculty:
+        raise HTTPException(status_code=404, detail="Faculty not found")
+
+    new_major = {
+        "name" : major.name,
+        "faculty_id": major.faculty_id 
+    }
+
+    await AsyncORM.insert_majors([new_major])
+    return {"ok": True}
 
 
 @app.get("/students")
@@ -45,7 +74,7 @@ async def select_students() -> list[StudentSchema]:
 
 
 @app.post("/students")
-async def add_students(student: StudentAddSchema):
+async def add_student(student: StudentAddSchema):
     new_student = {
         "first_name" : student.first_name,
         "last_name" : student.last_name,
@@ -63,7 +92,7 @@ async def add_students(student: StudentAddSchema):
     return {"ok": True}
 
 
-# TODO create endpoints for adding faculties and majors
+# TODO Make function for detecting IntegrityError and break transaction
 
 # async def main():
 #     await AsyncORM.create_tables()

@@ -33,7 +33,7 @@ class FacultiesOrm(Base):
     id: Mapped[int_pk]
     name: Mapped[str] = Column(String(100), unique=True)
 
-    majors: Mapped[list["MajorsOrm"]] = relationship(
+    majors: Mapped[Optional[list["MajorsOrm"]]] = relationship(
         back_populates = "faculty"
     )
 
