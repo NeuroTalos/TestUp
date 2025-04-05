@@ -43,7 +43,7 @@ class MajorsOrm(Base):
 
     id: Mapped[int_pk]
     name: Mapped[str] = Column(String(100), unique=True)
-    faculty_id: Mapped[int] = mapped_column(ForeignKey("faculties.id", ondelete = "CASCADE"))
+    faculty_name: Mapped[str] = mapped_column(ForeignKey("faculties.name", ondelete = "CASCADE"))
 
     faculty: Mapped["FacultiesOrm"] = relationship(
         back_populates = "majors"
@@ -62,8 +62,8 @@ class StudentsOrm(Base):
     gender: Mapped[Gender]
     cours: Mapped[int] = Column(Integer)
     
-    faculty_id: Mapped[int] = mapped_column(ForeignKey("faculties.id", ondelete="CASCADE"))
-    major_id: Mapped[int] = mapped_column(ForeignKey("majors.id", ondelete="CASCADE"))
+    faculty_name: Mapped[str] = mapped_column(ForeignKey("faculties.name", ondelete = "CASCADE"))
+    major_name: Mapped[int] = mapped_column(ForeignKey("majors.name", ondelete="CASCADE"))
     
     __table_args__ = (
         CheckConstraint("cours > 0 AND cours < 6", name="check_cours_range"),

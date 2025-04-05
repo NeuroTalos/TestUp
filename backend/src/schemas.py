@@ -20,8 +20,8 @@ class StudentAddSchema(BaseModel):
     gender: Gender
     cours: int
     
-    faculty_id: int
-    major_id: int
+    faculty_name: str
+    major_name: str
 
 
 class StudentSchema(StudentAddSchema):
@@ -31,10 +31,17 @@ class StudentSchema(StudentAddSchema):
         from_attributes = True
 
 
+class MajorGetSchema(BaseModel):
+    name: str = Field(max_length=100)
+    id: int
+
+    class Config:
+        from_attributes = True
+
+
 class MajorAddSchema(BaseModel):
     name: str = Field(max_length=100)
-
-    faculty_id: int
+    faculty_name: str
 
 
 class MajorSchema(MajorAddSchema):
@@ -44,9 +51,18 @@ class MajorSchema(MajorAddSchema):
         from_attributes = True
 
 
+class FacultyGetSchema(BaseModel):
+    id: int
+    name: str = Field(max_length=100)
+    majors: Optional[list[MajorGetSchema]]
+
+    class Config:
+        from_attributes = True
+
+
 class FacultyAddSchema(BaseModel):
     name: str = Field(max_length=100)
-    majors: Optional[list[MajorSchema]]
+    #majors: Optional[list[MajorSchema]]
 
 
 class FacultySchema(FacultyAddSchema):

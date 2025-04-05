@@ -8,7 +8,10 @@ from src.database import (
     
 )
 from src.models import Gender, StudentsOrm, FacultiesOrm, MajorsOrm
-from src.schemas import StudentSchema, MajorSchema, FacultySchema
+from src.schemas import (
+    StudentSchema, 
+    MajorGetSchema, MajorSchema,
+    FacultyGetSchema, FacultySchema)
 
 
 class AsyncORM:
@@ -30,22 +33,34 @@ class AsyncORM:
         async with async_session_factory() as session:
             query = (
                 select(FacultiesOrm)
-                .options(selectinload(FacultiesOrm.majors))
+                .options(selectinload(FacultiesOrm.majors).load_only(MajorsOrm.name, MajorsOrm.id))
+                
             )
             result = await session.execute(query)
             faculties = result.scalars().all()
-            faculties_schemas = [FacultySchema.model_validate(faculty) for faculty in faculties]
+            #faculties_schemas = [FacultySchema.model_validate(faculty) for faculty in faculties]
+            faculties_schemas = []
+            for faculty in faculties:
+                # Преобразуем факультет в схему
+                faculty_data = FacultyGetSchema(
+                    id=faculty.id,
+                    name=faculty.name,
+                    majors=[MajorGetSchema(id=major.id, name=major.name) for major in faculty.majors]
+                )
+                faculties_schemas.append(faculty_data)
+            
             return faculties_schemas
     
     @staticmethod
-    async def get_faculty_by_id(id: int):
+    async def get_faculty_by_name(name: str):
         async with async_session_factory() as session:
             query = (
-                select(FacultiesOrm.id)
-                .filter(FacultiesOrm.id == id)
+                select(FacultiesOrm.name)
+                .filter(FacultiesOrm.name == name)
             )
             result = await session.execute(query)
             faculties_id = result.scalars().all()
+            
             return faculties_id
 
     @staticmethod
@@ -62,6 +77,7 @@ class AsyncORM:
             result = await session.execute(query)
             majors = result.scalars().all()
             majors_schemas = [MajorSchema.model_validate(major) for major in majors]
+            
             return majors_schemas
     
     @staticmethod
@@ -79,6 +95,7 @@ class AsyncORM:
             result = await session.execute(query)
             students = result.scalars().all()
             students_schemas = [StudentSchema.model_validate(student) for student in students]
+           
             return students_schemas
             # for student in students:
             #     student_attributes = {key: value for key, value in student.__dict__.items() if key != '_sa_instance_state'}
