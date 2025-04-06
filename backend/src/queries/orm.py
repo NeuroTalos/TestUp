@@ -1,5 +1,6 @@
 from sqlalchemy import select, insert
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, load_only
+import bcrypt
 
 from src.database import (
     async_engine, 
@@ -8,10 +9,9 @@ from src.database import (
     
 )
 from src.models import Gender, StudentsOrm, FacultiesOrm, MajorsOrm
-from src.schemas import (
-    StudentSchema, 
-    MajorGetSchema, MajorSchema,
-    FacultyGetSchema, FacultySchema)
+from src.schemas.faculties import FacultyGetSchema
+from src.schemas.majors import MajorGetSchema, MajorSchema
+from src.schemas.students import StudentSchema, StudentGetSchema
 
 
 class AsyncORM:
@@ -38,10 +38,8 @@ class AsyncORM:
             )
             result = await session.execute(query)
             faculties = result.scalars().all()
-            #faculties_schemas = [FacultySchema.model_validate(faculty) for faculty in faculties]
             faculties_schemas = []
             for faculty in faculties:
-                # Преобразуем факультет в схему
                 faculty_data = FacultyGetSchema(
                     id=faculty.id,
                     name=faculty.name,
@@ -83,20 +81,40 @@ class AsyncORM:
     @staticmethod
     async def insert_students(students: list[StudentsOrm]):
         async with async_session_factory() as session:
+            def encrypt_password(password: str):
+                return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+            for student in students:
+                student["password"] = encrypt_password(student["password"])
+
             insert_students = insert(StudentsOrm).values(students)
             await session.execute(insert_students)
+
             await session.commit()
 
-    # TODO make function to show faculty and major names instead of id
     @staticmethod
     async def select_students():
         async with async_session_factory() as session:
-            query = select(StudentsOrm)
+            query = (
+                select(StudentsOrm)
+                .options(
+                    load_only(
+                    StudentsOrm.first_name,
+                    StudentsOrm.last_name,
+                    StudentsOrm.middle_name,
+                    StudentsOrm.date_of_birth,
+                    StudentsOrm.email,
+                    StudentsOrm.phone,
+                    StudentsOrm.gender,
+                    StudentsOrm.cours,
+                    StudentsOrm.faculty_name,
+                    StudentsOrm.major_name,
+                    )
+                )   
+             )
             result = await session.execute(query)
             students = result.scalars().all()
-            students_schemas = [StudentSchema.model_validate(student) for student in students]
+            print(students)
+            students_schemas = [StudentGetSchema.model_validate(student) for student in students]
            
             return students_schemas
-            # for student in students:
-            #     student_attributes = {key: value for key, value in student.__dict__.items() if key != '_sa_instance_state'}
-            #     print(student_attributes)

@@ -25,7 +25,9 @@ default_majors = [
 ]
 
 default_students = [
-    {
+    {   
+        "login": "dima26",
+        "password": "supersecretpassword",
         "first_name": "Дмитрий",
         "last_name": "Чертков",
         "middle_name": "Владимирович",
@@ -39,6 +41,8 @@ default_students = [
     },
 
     {
+        "login": "Niko2003",
+        "password": "mypassword",
         "first_name": "Николай",
         "last_name": "Резнов",
         "middle_name": "Викторович",
@@ -52,6 +56,8 @@ default_students = [
     },
 
     {
+        "login": "Moroz25",
+        "password": "tkeohrpiodejgsrpi",
         "first_name": "Светлана",
         "last_name": "Морозова",
         "middle_name": None,
