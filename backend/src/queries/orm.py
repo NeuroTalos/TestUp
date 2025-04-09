@@ -106,7 +106,8 @@ class AsyncORM:
                     StudentsOrm.email,
                     StudentsOrm.phone,
                     StudentsOrm.gender,
-                    StudentsOrm.cours,
+                    StudentsOrm.course,
+                    StudentsOrm.group,
                     StudentsOrm.faculty_name,
                     StudentsOrm.major_name,
                     )

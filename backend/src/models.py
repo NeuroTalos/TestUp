@@ -40,7 +40,8 @@ class StudentsOrm(Base):
     email: Mapped[str] = Column(String(100), unique=True)
     phone: Mapped[str] = Column(String(11), unique=True)
     gender: Mapped[Gender]
-    cours: Mapped[int] = Column(Integer)
+    course: Mapped[int] = Column(Integer)
+    group: Mapped[str] = Column(String(15))
     
     faculty_name: Mapped[str] = mapped_column(ForeignKey("faculties.name", ondelete = "CASCADE"))
     major_name: Mapped[int] = mapped_column(ForeignKey("majors.name", ondelete="CASCADE"))
@@ -51,7 +52,7 @@ class StudentsOrm(Base):
     # TODO Make fucntion for check_password
 
     __table_args__ = (
-        CheckConstraint("cours > 0 AND cours < 6", name="check_cours_range"),
+        CheckConstraint("course > 0 AND course < 6", name="check_course_range"),
     )
 
 

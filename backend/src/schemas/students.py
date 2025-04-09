@@ -14,11 +14,12 @@ class StudentGetSchema(BaseModel):
     first_name: str = Field(max_length=100)
     last_name: str = Field(max_length=100)
     middle_name: Optional[str] = None
-    date_of_birth: date
+    date_of_birth: date | str
     email: EmailStr
     phone: str = Field(max_length=11)
     gender: Gender
-    cours: int
+    course: int
+    group: str
     
     faculty_name: str
     major_name: str
