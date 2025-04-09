@@ -1,14 +1,15 @@
 import React from 'react';
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
-import { Button, Input, Space } from 'antd';
+import { Input } from 'antd';
 
-const PasswordInput = ( {placeholder} ) => {
+const PasswordInput = ( {onChange} ) => {
   
   return (
     <div className="mb-3">
       <Input.Password
         size="large"
         placeholder="Пароль"
+        onChange={onChange}
         iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
       />
     </div>

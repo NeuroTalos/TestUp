@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Input } from 'antd';
 
-const TextInput = ( {placeholder, maxLength} ) => {
+const TextInput = ( {placeholder, maxLength, onChange} ) => {
   
   return (
     <div className="mb-3">
@@ -9,6 +9,7 @@ const TextInput = ( {placeholder, maxLength} ) => {
         size="large" 
         placeholder={placeholder} 
         maxLength={maxLength}
+        onChange={onChange}
       />
     </div>
   )
