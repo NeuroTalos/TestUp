@@ -119,3 +119,22 @@ class AsyncORM:
             students_schemas = [StudentGetSchema.model_validate(student) for student in students]
            
             return students_schemas
+    
+    @staticmethod
+    async def check_password(login: str, plain_password: str) -> bool:
+        async with async_session_factory() as session:
+            query = (
+                select(StudentsOrm.password)
+                .filter(StudentsOrm.login == login)
+            )
+        
+            result = await session.execute(query)
+            hashed_password = result.scalars().one_or_none()
+
+            if not hashed_password:
+                return False
+
+            def verify_password(plain_password: str, hashed_password: str) -> bool:
+                return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
+            
+            return verify_password(plain_password, hashed_password) 

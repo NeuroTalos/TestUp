@@ -30,7 +30,7 @@ class StudentGetSchema(BaseModel):
 
 class StudentAddSchema(StudentGetSchema):
     login: str = Field(max_length=40)
-    password: str = Field(max_length=255)
+    password: str = Field(max_length=20)
     
 
 class StudentSchema(StudentAddSchema):

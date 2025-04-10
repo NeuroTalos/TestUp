@@ -1,12 +1,14 @@
-import React, { useState } from 'react';;
-import { Card, Space } from 'antd';
+import React, { useState, useRef } from 'react';;
+import { Card, Space, Typography } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import TextInput from './text_input';
 import PasswordInput from './password_input';
 import GenderChoice from './gender_choice';
 import StudyInfoInput from './study_info_choice';
 import FacultyMajorInput from './faculty_major_choice';
 import RegistrationButton from './registration_button';
-import axios from 'axios';
+
 
 const RegistrationWidget = () => {
   const [login, setLogin] = useState('');
@@ -22,6 +24,9 @@ const RegistrationWidget = () => {
   const [group, setGroup] = useState('');
   const [faculty, setFaculty] = useState(null);
   const [major, setMajor] = useState(null);
+  const [registrationError, setRegistrationError] = useState(false);
+  const cardRef = useRef(null);
+  const navigate = useNavigate();
 
   const handleInputChange = (setter) => (e) => setter(e.target.value);
   
@@ -58,14 +63,17 @@ const RegistrationWidget = () => {
 
     axios.post('http://127.0.0.1:8000/students', formData)
         .then(response => {
-            // Обрабатываем успешный ответ от сервера
             console.log('Ответ от сервера:', response.data);
-            alert('Регистрация прошла успешно!');
+            setRegistrationError(false);
+            navigate('/auth');
         })
         .catch(error => {
-            // Обрабатываем ошибку при запросе
             console.error('Ошибка при отправке данных:', error);
-            alert('Произошла ошибка при регистрации. Попробуйте снова.');
+            setRegistrationError(true);
+
+            if (cardRef.current) {
+              cardRef.current.scrollTop = 0;
+            }
         });
 
   };  
@@ -74,6 +82,7 @@ const RegistrationWidget = () => {
     <div className="w-screen h-screen grid place-content-center bg-linear-to-t from-sky-500 to-indigo-500">
       <Space direction="vertical" size={16}>
         <Card 
+          ref={cardRef}
           title={<div style={{ textAlign: "center", fontWeight: "bold", fontSize: 24 }}>Регистрация</div>}
           style={{ 
             width: 600, 
@@ -81,6 +90,15 @@ const RegistrationWidget = () => {
           }}
           className="border-2 border-black rounded-lg overflow-y-auto"
           >
+
+            {registrationError &&(
+              <div className="mb-4 ml-42">
+                <Typography.Text type="danger">
+                  Введены некорректные данные
+                </Typography.Text>
+              </div>
+            )}
+
             <TextInput
               placeholder={"Логин"}
               maxLength={40}
@@ -144,7 +162,6 @@ const RegistrationWidget = () => {
             <RegistrationButton
                onClick={handleSubmit}
             />
-
 
         </Card>
       </Space>

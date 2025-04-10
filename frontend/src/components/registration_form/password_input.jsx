@@ -9,6 +9,7 @@ const PasswordInput = ( {onChange} ) => {
       <Input.Password
         size="large"
         placeholder="Пароль"
+        maxLength={20}
         onChange={onChange}
         iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
       />
