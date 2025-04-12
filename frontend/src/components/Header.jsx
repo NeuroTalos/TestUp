@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Menu} from 'antd';
-import { 
-  AppstoreOutlined, 
-  UserAddOutlined,
-  LoginOutlined,
-} from '@ant-design/icons';
+import { UserAddOutlined, LoginOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 
 
@@ -22,14 +18,18 @@ const Header = () => {
 
   return (
     <div style={menuStyle}>
-      <Menu mode="horizontal" theme="dark" style={{ flex: 1 }}>
+      <Menu mode="horizontal" theme="dark" style={{ flex: 1 }} selectedKeys={[]}>
         <Menu.Item key="home" style={{ cursor: 'pointer' }}>
           <Link to="/" style={{ color: 'inherit' }}>
-            <AppstoreOutlined style={{ fontSize: 20 }}/>
+            <img 
+              src="/logo.png" 
+              alt="Logo" 
+              style={{ height: '32px', marginTop: '8px' }}
+            />
           </Link>
         </Menu.Item>
 
-        <div style={{ width: '40px' }} />
+        <div style={{ width: '20px' }} />
 
         <Menu.Item key="tasks">
           <a href="#" 
@@ -38,7 +38,7 @@ const Header = () => {
               fontSize: '20px',
               fontWeight: '400',
             }}>
-            Задачи
+            Список заданий
           </a>
         </Menu.Item>
       </Menu>
