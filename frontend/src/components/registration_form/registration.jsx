@@ -2,12 +2,12 @@ import React, { useState, useRef } from 'react';;
 import { Card, Space, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import TextInput from './text_input';
-import PasswordInput from './password_input';
-import GenderChoice from './gender_choice';
-import StudyInfoInput from './study_info_choice';
-import FacultyMajorInput from './faculty_major_choice';
-import RegistrationButton from './registration_button';
+import TextInput from './Text_input';
+import PasswordInput from './Password_input';
+import GenderChoice from './Gender_choice';
+import StudyInfoInput from './Study_info_choice';
+import FacultyMajorInput from './Faculty_major_choice';
+import RegistrationButton from './Registration_button';
 
 
 const RegistrationWidget = () => {

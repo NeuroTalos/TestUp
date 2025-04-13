@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
-import { Button, Menu} from 'antd';
-import { UserAddOutlined, LoginOutlined } from '@ant-design/icons';
+import React, { useContext} from 'react';
+import { Button, Menu, Dropdown} from 'antd';
+import { UserAddOutlined, LoginOutlined, UserOutlined, DownOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from './contexts/AuthContext';
 
 
 const Header = () => {
+  const { isAuthenticated, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
+
   const menuStyle = {
     display: 'flex',
     alignItems: 'center',
@@ -14,7 +18,16 @@ const Header = () => {
     height: '55px',
   };
 
-  const navigate = useNavigate();
+  const user_menu = (
+    <Menu>
+      <Menu.Item key="profile" onClick={() => navigate('/profile')}>
+        Профиль
+      </Menu.Item>
+      <Menu.Item key="logout" onClick={logout}>
+        Выйти
+      </Menu.Item>
+    </Menu>
+  );
 
   return (
     <div style={menuStyle}>
@@ -44,21 +57,43 @@ const Header = () => {
       </Menu>
 
       <div>
-        <Button 
-          icon={<UserAddOutlined />} 
-          style={{ marginRight: 20 }}
-          onClick={() => navigate('/registration')}
-        >
-          Зарегистрироваться
-        </Button>
-        <Button 
-        type="primary" 
-        icon={<LoginOutlined />}
-        style={{ marginRight: 15 }}
-        onClick={() => navigate('/auth')}
-        >
-          Войти
-        </Button>
+        {isAuthenticated ? (
+          <Dropdown overlay={user_menu} trigger={['hover']}>
+              <Button
+                icon={<UserOutlined />}
+                type="default"
+                shape="circle"
+                size="large"
+                style={{
+                  marginRight: 15,
+                  backgroundColor: '#001529',
+                  color: '#fff',
+                  borderColor: '#001529',
+                  boxShadow: 'none',
+                }}
+              >
+                <DownOutlined style={{ marginLeft: '5px' }} />
+              </Button>
+          </Dropdown>
+        ) : (
+          <>
+            <Button 
+              icon={<UserAddOutlined />} 
+              style={{ marginRight: 20 }}
+              onClick={() => navigate('/registration')}
+            >
+              Зарегистрироваться
+            </Button>
+            <Button 
+              type="primary" 
+              icon={<LoginOutlined />}
+              style={{ marginRight: 15 }}
+              onClick={() => navigate('/auth')}
+            >
+              Войти
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );

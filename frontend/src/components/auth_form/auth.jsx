@@ -1,4 +1,5 @@
-import React, { useState } from 'react';;
+import React, { useState, useContext } from 'react';;
+import { AuthContext } from '../contexts/AuthContext';
 import { Card, Space, Input, Col, Row, Button, Flex, Typography } from 'antd';
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -7,10 +8,11 @@ import axios from 'axios';
 const { Text } = Typography;
 
 const AuthWidget = () => {
-  const [login, setLogin] = useState('');
-  const [password, setPassword] = useState('');
+  const [loginInput, setLoginInput] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
   const [authError, setAuthError] = useState(false);
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleInputChange = (setter) => (e) => setter(e.target.value);
 
@@ -20,15 +22,17 @@ const AuthWidget = () => {
 
   const handleSubmit = () => {
     const formData = {
-      "login": login,
-      "password" : password,
+      "login": loginInput,
+      "password" : passwordInput,
 
     };
 
-    axios.post('http://127.0.0.1:8000/auth', formData)
+    axios.post('http://127.0.0.1:8000/auth/login', formData)
         .then(response => {
             console.log('Ответ от сервера:', response.data);
             setAuthError(false);
+            login();
+            navigate('/');
         })
         .catch(error => {
             console.error('Ошибка при отправке данных:', error);
@@ -53,7 +57,7 @@ const AuthWidget = () => {
                 size="large" 
                 placeholder="Введите логин" 
                 maxLength={40}
-                onChange={handleInputChange(setLogin)}
+                onChange={handleInputChange(setLoginInput)}
               />
             </div>
 
@@ -62,7 +66,7 @@ const AuthWidget = () => {
                 size="large"
                 placeholder="Пароль"
                 maxLength={20}
-                onChange={handleInputChange(setPassword)}
+                onChange={handleInputChange(setPasswordInput)}
                 iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
               />
             </div>
