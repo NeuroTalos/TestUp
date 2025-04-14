@@ -3,6 +3,7 @@ from authx import AuthX, AuthXConfig
 
 from src.queries.orm import AsyncORM
 from src.schemas.auth import AuthSchema
+from src.config import settings
 
 router = APIRouter(
     prefix= "/auth",
@@ -10,7 +11,7 @@ router = APIRouter(
 )
 
 config = AuthXConfig()
-config.JWT_SECRET_KEY = "SECRET_KEY"
+config.JWT_SECRET_KEY = settings.SECRET_KEY
 config.JWT_ACCESS_COOKIE_NAME = "access_token"
 config.JWT_TOKEN_LOCATION = ["cookies"]
 
@@ -23,7 +24,8 @@ async def login_student(data: AuthSchema, response: Response):
     if not is_valid:
         raise HTTPException(status_code=401, detail="Неверный логин или пароль")
     else:
-        token = security.create_access_token(uid="12345")
+        student_id = str(await AsyncORM.get_id_by_login(data.login))
+        token = security.create_access_token(uid = student_id)
         response.set_cookie(
             key = config.JWT_ACCESS_COOKIE_NAME, 
             value = token,

@@ -115,7 +115,6 @@ class AsyncORM:
              )
             result = await session.execute(query)
             students = result.scalars().all()
-            print(students)
             students_schemas = [StudentGetSchema.model_validate(student) for student in students]
            
             return students_schemas
@@ -137,4 +136,17 @@ class AsyncORM:
             def verify_password(plain_password: str, hashed_password: str) -> bool:
                 return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
             
-            return verify_password(plain_password, hashed_password) 
+            return verify_password(plain_password, hashed_password)
+    
+    @staticmethod
+    async def get_id_by_login(login: str) -> int:
+        async with async_session_factory() as session:
+            query = (
+                select(StudentsOrm.id)
+                .filter(StudentsOrm.login == login)
+            )
+
+            result = await session.execute(query)
+            student_id = result.scalars().one()
+
+            return student_id

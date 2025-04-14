@@ -1,6 +1,6 @@
 import React, { useContext} from 'react';
 import { Button, Menu, Dropdown} from 'antd';
-import { UserAddOutlined, LoginOutlined, UserOutlined, DownOutlined } from '@ant-design/icons';
+import { UserAddOutlined, LoginOutlined, UserOutlined, DownOutlined, LogoutOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from './contexts/AuthContext';
 
@@ -18,16 +18,30 @@ const Header = () => {
     height: '55px',
   };
 
-  const user_menu = (
-    <Menu>
-      <Menu.Item key="profile" onClick={() => navigate('/profile')}>
-        Профиль
-      </Menu.Item>
-      <Menu.Item key="logout" onClick={logout}>
-        Выйти
-      </Menu.Item>
-    </Menu>
-  );
+  const handleProfileMenuClick = (e) => {
+    if (e.key === '1') {
+      navigate('/profile');
+    } else if (e.key === '2') {
+      logout();
+      navigate('/');
+    }
+  };
+
+  const ProfileMenu = {
+    items: [
+      {
+        label: 'Профиль',
+        key: '1',
+        icon: <UserOutlined />,
+      },
+      {
+        label: 'Выйти',
+        key: '2',
+        icon: <LogoutOutlined />,
+      },
+    ],
+    onClick: handleProfileMenuClick,
+  };
 
   return (
     <div style={menuStyle}>
@@ -58,7 +72,7 @@ const Header = () => {
 
       <div>
         {isAuthenticated ? (
-          <Dropdown overlay={user_menu} trigger={['hover']}>
+          <Dropdown menu={ProfileMenu} trigger={['click']}>
               <Button
                 icon={<UserOutlined />}
                 type="default"

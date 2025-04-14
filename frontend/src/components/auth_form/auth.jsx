@@ -29,13 +29,11 @@ const AuthWidget = () => {
 
     axios.post('http://127.0.0.1:8000/auth/login', formData)
         .then(response => {
-            console.log('Ответ от сервера:', response.data);
             setAuthError(false);
             login();
             navigate('/');
         })
         .catch(error => {
-            console.error('Ошибка при отправке данных:', error);
             setAuthError(true);
         });
 
