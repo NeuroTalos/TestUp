@@ -8,7 +8,16 @@ from src.database import (
     Base,
     
 )
-from src.models import Gender, StudentsOrm, FacultiesOrm, MajorsOrm
+from src.models import (
+    Gender,
+    Difficulty,
+    Status, 
+    StudentsOrm, 
+    FacultiesOrm, 
+    MajorsOrm,
+    EmployerOrm,
+    TestTaskOrm,
+)
 from src.schemas.faculties import FacultyGetSchema
 from src.schemas.majors import MajorGetSchema, MajorSchema
 from src.schemas.students import StudentSchema, StudentGetSchema
@@ -93,7 +102,7 @@ class AsyncORM:
             await session.commit()
 
     @staticmethod
-    async def select_students():
+    async def select_students() -> list[StudentGetSchema]:
         async with async_session_factory() as session:
             query = (
                 select(StudentsOrm)
@@ -118,6 +127,37 @@ class AsyncORM:
             students_schemas = [StudentGetSchema.model_validate(student) for student in students]
            
             return students_schemas
+        
+    @staticmethod
+    async def select_student_by_id(student_id: int) -> StudentGetSchema:
+        async with async_session_factory() as session:
+            query = (
+                select(StudentsOrm)
+                .filter(StudentsOrm.id == student_id)
+                .options(
+                    load_only(
+                    StudentsOrm.first_name,
+                    StudentsOrm.last_name,
+                    StudentsOrm.middle_name,
+                    StudentsOrm.date_of_birth,
+                    StudentsOrm.email,
+                    StudentsOrm.phone,
+                    StudentsOrm.gender,
+                    StudentsOrm.course,
+                    StudentsOrm.group,
+                    StudentsOrm.faculty_name,
+                    StudentsOrm.major_name,
+                    )
+                )   
+             )
+            result = await session.execute(query)
+            student = result.scalars().one_or_none()
+            if not student:
+                return False
+
+            student_schema = StudentGetSchema.model_validate(student)
+           
+            return student_schema
     
     @staticmethod
     async def check_password(login: str, plain_password: str) -> bool:
@@ -139,7 +179,7 @@ class AsyncORM:
             return verify_password(plain_password, hashed_password)
     
     @staticmethod
-    async def get_id_by_login(login: str) -> int:
+    async def select_id_by_login(login: str) -> int:
         async with async_session_factory() as session:
             query = (
                 select(StudentsOrm.id)

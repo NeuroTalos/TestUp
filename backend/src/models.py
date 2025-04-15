@@ -9,6 +9,8 @@ from sqlalchemy import (
     Integer,
     CheckConstraint,
     ForeignKey,
+    Text,
+    Enum
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -27,12 +29,23 @@ class Gender(PyEnum):
     female = "female"
 
 
+class Difficulty(PyEnum):
+    easy = "easy"
+    medium = "medium"
+    hard = "hard"
+
+
+class Status(PyEnum):
+    active = "active"
+    completed = "completed"
+
+
 class StudentsOrm(Base):
     __tablename__ = "students"
 
     id: Mapped[int_pk]
-    login: Mapped[str] = Column(String(40), unique=True)
-    password: Mapped[str] = Column(String(255))
+    login: Mapped[str] = Column(String(40), unique=True, index=True)
+    password: Mapped[str] = Column(String(255), index=True)
     first_name: Mapped[str_100]
     last_name: Mapped[str_100]
     middle_name: Mapped[Optional[str_100]]
@@ -45,11 +58,6 @@ class StudentsOrm(Base):
     
     faculty_name: Mapped[str] = mapped_column(ForeignKey("faculties.name", ondelete = "CASCADE"))
     major_name: Mapped[int] = mapped_column(ForeignKey("majors.name", ondelete="CASCADE"))
-
-    # def check_password(self, password: str) -> bool:
-    #     return bcrypt.checkpw(password.encode("utf-8"), self.password_hash.encode("utf-8"))
-    
-    # TODO Make fucntion for check_password
 
     __table_args__ = (
         CheckConstraint("course > 0 AND course < 6", name="check_course_range"),
@@ -79,3 +87,33 @@ class MajorsOrm(Base):
     )
 
 
+class EmployerOrm(Base):
+    __tablename__ = "employers"
+
+    id: Mapped[int_pk]
+    login: Mapped[str] = Column(String(40), unique=True, index=True)
+    password: Mapped[str] = Column(String(255), index=True)
+    company_name: Mapped[str] = Column(String(100), unique=True)
+    email: Mapped[str] = Column(String(100), unique=True)
+    phone: Mapped[str] = Column(String(11), unique=True)
+
+    tasks: Mapped[Optional[list["TestTaskOrm"]]] = relationship(
+        back_populates = "employer"
+    )
+
+
+class TestTaskOrm(Base):
+    __tablename__ = 'test_tasks'
+
+    id: Mapped[int_pk]
+    title: Mapped[str] = Column(String, unique=True, index=True)
+    description:Mapped[str] = Column(Text)
+    difficulty: Mapped[Difficulty]
+    status: Mapped[Status] = Column(Enum(Status), default=Status.active, index=True)
+    employer_name: Mapped[str] = mapped_column(ForeignKey("employers.company_name", ondelete = "CASCADE"))
+
+    employer: Mapped["EmployerOrm"] = relationship(
+        back_populates = "tasks"
+    )
+
+# TODO Make many-to-many relationship for tasks and students 

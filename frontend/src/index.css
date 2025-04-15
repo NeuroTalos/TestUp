@@ -6,7 +6,7 @@
   font-weight: 400;
 }
 
-html, body {
-  height: 100%;
-  margin: 0;
+.ant-menu-item-selected {
+  background-color: #004080 !important;
+  color: white !important;
 }

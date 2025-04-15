@@ -1,8 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, Request
 
 from src.queries.orm import AsyncORM
 from src.schemas.students import StudentAddSchema, StudentGetSchema
-from src.api.exeptions import check_faculty, data_transform
+from src.api.exeptions import check_faculty, data_transform, access_token_check
     
 
 router = APIRouter(
@@ -13,10 +13,27 @@ router = APIRouter(
 
 @router.get("")
 async def select_students() -> list[StudentGetSchema]:
-    
     students = await AsyncORM.select_students()
 
     return students
+
+@router.get("/{student_id}")
+async def select_current_student(request: Request) -> StudentGetSchema:
+    token_data = await access_token_check(request)
+    
+    student_id = int(token_data.sub)
+
+    current_student = await AsyncORM.select_student_by_id(student_id)
+
+    if not current_student:
+        raise HTTPException(status_code=404, detail="Student id not found")
+    
+    if current_student.gender == "male":
+        current_student.gender = "Мужской"
+    elif current_student.gender == "female":
+        current_student.gender = "Женский"
+
+    return current_student
 
 
 @router.post("")

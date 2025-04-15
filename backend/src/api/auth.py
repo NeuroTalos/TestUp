@@ -1,21 +1,14 @@
-from fastapi import APIRouter, HTTPException, Response, Depends
-from authx import AuthX, AuthXConfig
+from fastapi import APIRouter, HTTPException, Response, Request
 
 from src.queries.orm import AsyncORM
 from src.schemas.auth import AuthSchema
-from src.config import settings
+from src.api.exeptions import security, config, access_token_check
 
 router = APIRouter(
     prefix= "/auth",
     tags = ["Authorization"],
 )
 
-config = AuthXConfig()
-config.JWT_SECRET_KEY = settings.SECRET_KEY
-config.JWT_ACCESS_COOKIE_NAME = "access_token"
-config.JWT_TOKEN_LOCATION = ["cookies"]
-
-security = AuthX(config = config)
 
 @router.post("/login")
 async def login_student(data: AuthSchema, response: Response):
@@ -24,7 +17,7 @@ async def login_student(data: AuthSchema, response: Response):
     if not is_valid:
         raise HTTPException(status_code=401, detail="Неверный логин или пароль")
     else:
-        student_id = str(await AsyncORM.get_id_by_login(data.login))
+        student_id = str(await AsyncORM.select_id_by_login(data.login))
         token = security.create_access_token(uid = student_id)
         response.set_cookie(
             key = config.JWT_ACCESS_COOKIE_NAME, 
@@ -43,8 +36,8 @@ async def logout_student(response: Response):
     
     return {"message": "Logged in successfully" }
     
-@router.get("/check" , dependencies = [Depends(security.access_token_required)])
-async def auth_check():
+@router.get("/check")
+async def auth_check(request: Request):
+    await access_token_check(request)
+    
     return {"ok": True}
-
-# TODO Make function for real user_id from data base
