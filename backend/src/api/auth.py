@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Response, Request
+import secrets
 
 from src.queries.orm import AsyncORM
 from src.schemas.auth import AuthSchema
@@ -18,21 +19,38 @@ async def login_student(data: AuthSchema, response: Response):
         raise HTTPException(status_code=401, detail="Неверный логин или пароль")
     else:
         student_id = str(await AsyncORM.select_id_by_login(data.login))
-        token = security.create_access_token(uid = student_id)
+        token = security.create_access_token(uid = student_id, csrf = True, return_csrf_token=True)
+       
         response.set_cookie(
             key = config.JWT_ACCESS_COOKIE_NAME, 
             value = token,
             httponly = True,
             samesite = "strict",
             secure = True,
-            max_age = 3600
+            max_age = 3600,
+            path="/",
         )
+
+        # csrf_token = secrets.token_urlsafe(32)
+
+        # response.set_cookie(
+        #     key="csrf_token",
+        #     value=csrf_token,
+        #     httponly=False,
+        #     samesite="none",
+        #     secure=True,
+        #     max_age=3600,
+        # )
         
-        return {"message": "Logged in successfully" }
+        return {"message": token }
     
 @router.delete("/logout")
 async def logout_student(response: Response):
     response.delete_cookie(config.JWT_ACCESS_COOKIE_NAME)
+
+    # response.delete_cookie(
+    #     key="csrf_token",
+    # )
     
     return {"message": "Logged in successfully" }
     

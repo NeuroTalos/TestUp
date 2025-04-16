@@ -27,7 +27,7 @@ default_majors = [
 default_students = [
     {   
         "login": "dima26",
-        "password": "supersecretpassword",
+        "password": "123",
         "first_name": "Дмитрий",
         "last_name": "Чертков",
         "middle_name": "Владимирович",

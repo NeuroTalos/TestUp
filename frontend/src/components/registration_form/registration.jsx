@@ -61,7 +61,7 @@ const RegistrationWidget = () => {
 
     console.log(formData)
 
-    axios.post('http://127.0.0.1:8000/students', formData)
+    axios.post('http://127.0.0.1:8000/students/add', formData)
         .then(response => {
             console.log('Ответ от сервера:', response.data);
             setRegistrationError(false);
@@ -79,7 +79,7 @@ const RegistrationWidget = () => {
   };  
 
   return(
-    <div className="w-screen h-screen grid place-content-center bg-linear-to-t from-sky-500 to-indigo-500">
+    <div className="w-screen h-screen grid place-content-center" style={{ backgroundColor: '#002040' }}>
       <Space direction="vertical" size={16}>
         <Card 
           ref={cardRef}

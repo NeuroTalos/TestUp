@@ -20,7 +20,7 @@ from src.models import (
 )
 from src.schemas.faculties import FacultyGetSchema
 from src.schemas.majors import MajorGetSchema, MajorSchema
-from src.schemas.students import StudentSchema, StudentGetSchema
+from src.schemas.students import StudentSchema, StudentGetSchema, StudentUpdateSchema
 
 
 class AsyncORM:
@@ -127,6 +127,18 @@ class AsyncORM:
             students_schemas = [StudentGetSchema.model_validate(student) for student in students]
            
             return students_schemas
+        
+    @staticmethod
+    async def update_students(student_id: int, student_data: StudentUpdateSchema) -> None:
+        async with async_session_factory() as session:
+            query = select(StudentsOrm).where(StudentsOrm.id == student_id)
+            result = await session.execute(query)
+            student = result.scalar_one_or_none()
+
+            for key, value in student_data.model_dump(exclude_unset=True).items():
+                setattr(student, key, value)
+
+            await session.commit()
         
     @staticmethod
     async def select_student_by_id(student_id: int) -> StudentGetSchema:

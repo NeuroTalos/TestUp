@@ -7,6 +7,7 @@ import axios from 'axios';
 
 const { Text } = Typography;
 
+
 const AuthWidget = () => {
   const [loginInput, setLoginInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
@@ -40,7 +41,10 @@ const AuthWidget = () => {
   };  
 
   return(
-    <div className="w-screen h-screen grid place-content-center bg-linear-to-t from-sky-500 to-indigo-500">
+    <div 
+      className="w-screen h-screen grid place-content-center"
+      style={{ backgroundColor: '#002040' }}
+    >
       <Space direction="vertical" size={16}>
         <Card 
           title={<div style={{ textAlign: "center", fontWeight: "bold", fontSize: 24 }}>Авторизация</div>}
@@ -51,7 +55,7 @@ const AuthWidget = () => {
           className="border-2 border-black rounded-lg overflow-y-auto"
           >
             <div className="mb-3">
-              <Input 
+              <Input
                 size="large" 
                 placeholder="Введите логин" 
                 maxLength={40}

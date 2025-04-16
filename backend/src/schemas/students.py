@@ -36,4 +36,20 @@ class StudentAddSchema(StudentGetSchema):
 class StudentSchema(StudentAddSchema):
     id: int
     
+
+class StudentUpdateSchema(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    middle_name: Optional[str] = None
+    date_of_birth: Optional[date | str] = None
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = None
+    gender: Optional[Gender] = None
+    course: Optional[int] = None
+    group: Optional[str] = None
     
+    faculty_name: Optional[str]
+    major_name: Optional[str]
+
+    class Config:
+        from_attributes = True 

@@ -1,7 +1,7 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 
 from src.queries.orm import AsyncORM
-from src.schemas.students import StudentAddSchema, StudentGetSchema
+from src.schemas.students import StudentAddSchema, StudentGetSchema, StudentUpdateSchema
 from src.api.exeptions import check_faculty, data_transform, access_token_check
     
 
@@ -27,16 +27,11 @@ async def select_current_student(request: Request) -> StudentGetSchema:
 
     if not current_student:
         raise HTTPException(status_code=404, detail="Student id not found")
-    
-    if current_student.gender == "male":
-        current_student.gender = "Мужской"
-    elif current_student.gender == "female":
-        current_student.gender = "Женский"
 
     return current_student
 
 
-@router.post("")
+@router.post("/add")
 async def add_student(student: StudentAddSchema):
     await check_faculty(student.faculty_name)
     
@@ -59,4 +54,21 @@ async def add_student(student: StudentAddSchema):
     }
 
     await AsyncORM.insert_students([new_student])
+    return {"ok": True}
+
+
+@router.put("/update")
+async def update_student(
+        student_data: StudentUpdateSchema, 
+        request: Request,
+        token_data = Depends(access_token_check),
+    ):
+    student_id = int(token_data.sub)
+
+    formatted_date = await data_transform(student_data.date_of_birth)
+    
+    student_data.date_of_birth = formatted_date
+
+    await AsyncORM.update_students(student_id, student_data)
+
     return {"ok": True}

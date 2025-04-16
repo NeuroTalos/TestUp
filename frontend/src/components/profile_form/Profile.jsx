@@ -1,14 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Spin, Alert } from 'antd';
+import { Spin, Alert, Card } from 'antd';
 import Sidebar from './Sidebar';
-import ProfileInfo from './ProfileInfo';
+import PersonalInfo from './PersonalInfo';
+import AuthInfo from './AuthInfo';
 
-const ProfilePage = () => {
+const ProfileWidget = () => {
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedTab, setSelectedTab] = useState('info');
+
+    const getGenderText = (gender) => {
+        switch (gender) {
+            case 'male':
+                return 'Мужской';
+            case 'female':
+                return 'Женский';
+            default:
+                return '';
+        }
+    };
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -52,7 +64,17 @@ const ProfilePage = () => {
                 onSelect={setSelectedTab}
             />
             <div className="flex-1 overflow-auto">
-                {selectedTab === 'info' && <ProfileInfo profile={profile} />}
+                {selectedTab === 'info' && (
+                    <div className="grid grid-cols-1">
+                        <AuthInfo/>
+                        <PersonalInfo 
+                             profile={{
+                                ...profile,
+                                gender: getGenderText(profile.gender),
+                            }}
+                        />
+                    </div>
+                )}
                 {selectedTab === 'tasks' && (
                     <div className="p-6 text-gray-600 text-center">Пока нет заданий</div>
                 )}
@@ -61,4 +83,4 @@ const ProfilePage = () => {
     );
 };
 
-export default ProfilePage;
+export default ProfileWidget;
