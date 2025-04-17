@@ -10,7 +10,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.queries.orm import AsyncORM
-from src.queries.values import default_students, default_faculties, default_majors
+from src.queries.values import(
+    default_students, 
+    default_faculties, 
+    default_majors,
+    default_employers,
+    default_tasks,
+    default_solutions,
+    )
 from src.api import main_router
 
 
@@ -21,6 +28,9 @@ async def lifespan(app: FastAPI):
     await AsyncORM.insert_faculties(default_faculties)
     await AsyncORM.insert_majors(default_majors)
     await AsyncORM.insert_students(default_students)
+    await AsyncORM.insert_employers(default_employers)
+    await AsyncORM.insert_tasks(default_tasks)
+    await AsyncORM.insert_solutions(default_solutions)
 
     yield
 

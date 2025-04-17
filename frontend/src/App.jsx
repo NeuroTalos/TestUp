@@ -6,6 +6,7 @@ import RegistrationWidget from './components/registration_form/Registration.jsx'
 import HomeWidget from './components/home_form/Home.jsx';
 import AuthWidget from './components/auth_form/Auth.jsx';
 import ProfileWidget from './components/profile_form/Profile.jsx';
+import TasksListWidget from './components/tasks_form/Tasks_list.jsx';
 
 function App() {
   return (
@@ -25,6 +26,9 @@ function App() {
 
               {/* Страница личного профиля */}
               <Route path="/profile" element={<ProfileWidget />} />
+
+              {/* Страница со списком задач */}
+              <Route path="/tasks" element={<TasksListWidget />} />
             </Route>
           </Routes>
         </div>

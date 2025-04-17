@@ -4,6 +4,8 @@ from enum import Enum
 
 from pydantic import BaseModel, Field, EmailStr
 
+from src.schemas.solutions import SolutionsGetSchema
+
 
 class Gender(str, Enum):
     male = "male"
@@ -23,6 +25,8 @@ class StudentGetSchema(BaseModel):
     
     faculty_name: str
     major_name: str
+
+    ready_solutions: Optional[list[SolutionsGetSchema]]
 
     class Config:
         from_attributes = True

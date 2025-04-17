@@ -59,6 +59,10 @@ class StudentsOrm(Base):
     faculty_name: Mapped[str] = mapped_column(ForeignKey("faculties.name", ondelete = "CASCADE"))
     major_name: Mapped[int] = mapped_column(ForeignKey("majors.name", ondelete="CASCADE"))
 
+    ready_solutions: Mapped[Optional[list["TaskSolutionOrm"]]] = relationship(
+        back_populates = "student"
+    )
+
     __table_args__ = (
         CheckConstraint("course > 0 AND course < 6", name="check_course_range"),
     )
@@ -107,13 +111,33 @@ class TestTaskOrm(Base):
 
     id: Mapped[int_pk]
     title: Mapped[str] = Column(String, unique=True, index=True)
-    description:Mapped[str] = Column(Text)
+    description: Mapped[str] = Column(Text)
     difficulty: Mapped[Difficulty]
     status: Mapped[Status] = Column(Enum(Status), default=Status.active, index=True)
     employer_name: Mapped[str] = mapped_column(ForeignKey("employers.company_name", ondelete = "CASCADE"))
+    
+    solutions: Mapped[Optional[list["TaskSolutionOrm"]]] = relationship(
+        back_populates = "task"
+    )
 
     employer: Mapped["EmployerOrm"] = relationship(
         back_populates = "tasks"
     )
 
-# TODO Make many-to-many relationship for tasks and students 
+
+class TaskSolutionOrm(Base):
+    __tablename__ = 'tasks_solutions'
+
+    id: Mapped[int_pk]
+    solution_description: Mapped[str] = Column(Text)
+    task_id: Mapped[int] = mapped_column(ForeignKey("test_tasks.id", ondelete = "CASCADE"))
+    student_id: Mapped[int] = mapped_column(ForeignKey("students.id", ondelete = "CASCADE"))
+
+    task: Mapped["TestTaskOrm"] = relationship(
+        back_populates = "solutions"
+    )
+
+    student: Mapped["StudentsOrm"] = relationship(
+        back_populates = "ready_solutions"
+    )
+

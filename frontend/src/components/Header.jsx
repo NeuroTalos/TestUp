@@ -59,14 +59,15 @@ const Header = () => {
         <div style={{ width: '20px' }} />
 
         <Menu.Item key="tasks">
-          <a href="#" 
+          <Link to="/tasks"
             style={{ 
               textDecoration: 'none' ,
               fontSize: '20px',
               fontWeight: '400',
+              color: 'inherit',
             }}>
             Список заданий
-          </a>
+          </Link>
         </Menu.Item>
       </Menu>
 

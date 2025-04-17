@@ -73,3 +73,87 @@ default_students = [
         "major_name": "Психолого-педагогическое образование",
     },
 ]
+
+default_employers = [
+    {
+        "login": "Sber",
+        "password": "123",
+        "company_name": "Сбер",
+        "email": "sber_hr@mail.ru",
+        "phone": "86753210784",
+    },
+    {
+        "login": "Yandex",
+        "password": "123",
+        "company_name": "Яндекс",
+        "email": "yandex_practic@mail.ru",
+        "phone": "88564328132",
+    },
+    {
+        "login": "TBank",
+        "password": "123",
+        "company_name": "Т-Банк",
+        "email": "t_bank@mail.ru",
+        "phone": "85643250123",
+    },
+]
+
+default_tasks = [
+    {
+        "title": "Сервис анализа текстов",
+        "description": "Разработать микросервис для анализа тональности текстов. Необходимо реализовать API и базовую статистику",
+        "difficulty": "medium",
+        "status": "active",
+        "employer_name": "Яндекс"
+    },
+    {
+        "title": "Парсер новостей",
+        "description": "Реализовать парсер новостных сайтов с сохранением данных в базу. Нужна поддержка нескольких источников и cron-запуск",
+        "difficulty": "easy",
+        "status": "active",
+        "employer_name": "Яндекс"
+    },
+    {
+        "title": "Лента событий для корпоративного портала",
+        "description": "Реализовать ленту активности сотрудников с возможностью комментирования. Поддержка фильтрации по типу события обязательна",
+        "difficulty": "medium",
+        "status": "completed",
+        "employer_name": "Яндекс"
+    },
+    {
+        "title": "Банковский чат-бот",
+        "description": "Создать телеграм-бота для консультации клиентов банка. Бот должен уметь определять тему вопроса и давать базовый ответ",
+        "difficulty": "medium",
+        "status": "active",
+        "employer_name": "Т-Банк"
+    },
+    {
+        "title": "Панель аналитики по транзакциям",
+        "description": "Сделать дашборд для отображения пользовательских транзакций с фильтрами и графиками. Предусмотреть авторизацию",
+        "difficulty": "medium",
+        "status": "active",
+        "employer_name": "Т-Банк"
+    },
+    {
+        "title": "Умная система рекомендаций",
+        "description": "Построить систему рекомендаций товаров по истории покупок. Использовать ML-библиотеки или простую эвристику",
+        "difficulty": "hard",
+        "status": "active",
+        "employer_name": "Сбер"
+    },
+    {
+        "title": "API проверки документов",
+        "description": "Разработать REST API для проверки и валидации документов (PDF, DOCX). Нужна проверка структуры и наличие подписи",
+        "difficulty": "hard",
+        "status": "active",
+        "employer_name": "Сбер"
+    },
+]
+
+default_solutions = [
+    {
+        "solution_description": "Здесь находится решение задачи",
+        "task_id": 1,
+        "student_id": 1,
+    },
+]
