@@ -56,6 +56,18 @@ const Header = () => {
           </Link>
         </Menu.Item>
 
+        <Menu.Item key="main_page">
+          <Link to="/"
+            style={{ 
+              textDecoration: 'none' ,
+              fontSize: '20px',
+              fontWeight: '400',
+              color: 'inherit',
+            }}>
+            Главная страница
+          </Link>
+        </Menu.Item>
+
         <div style={{ width: '20px' }} />
 
         <Menu.Item key="tasks">
@@ -65,6 +77,7 @@ const Header = () => {
               fontSize: '20px',
               fontWeight: '400',
               color: 'inherit',
+              marginLeft: '30px'
             }}>
             Список заданий
           </Link>

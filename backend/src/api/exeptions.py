@@ -31,10 +31,10 @@ security = AuthX(config = config)
 
 
 async def access_token_check(request: Request):
-    # try:
-    token_data = await security.access_token_required(request)
-    return token_data
+    try:
+        token_data = await security.access_token_required(request)
+        return token_data
     
-    # except Exception as e:
-    #     raise HTTPException(status_code=401, detail="Unauthorized")
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Unauthorized")
         

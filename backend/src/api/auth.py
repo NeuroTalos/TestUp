@@ -30,27 +30,12 @@ async def login_student(data: AuthSchema, response: Response):
             max_age = 3600,
             path="/",
         )
-
-        # csrf_token = secrets.token_urlsafe(32)
-
-        # response.set_cookie(
-        #     key="csrf_token",
-        #     value=csrf_token,
-        #     httponly=False,
-        #     samesite="none",
-        #     secure=True,
-        #     max_age=3600,
-        # )
         
-        return {"message": token }
+        return {"message": "Login in successfully" }
     
 @router.delete("/logout")
 async def logout_student(response: Response):
     response.delete_cookie(config.JWT_ACCESS_COOKIE_NAME)
-
-    # response.delete_cookie(
-    #     key="csrf_token",
-    # )
     
     return {"message": "Logged in successfully" }
     

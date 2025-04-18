@@ -17,7 +17,7 @@ async def select_faculties_and_majors() -> list[FacultyGetSchema]:
     return faculties
 
 
-@router.post("")
+@router.post("/add")
 async def add_faculty(faculty: FacultyAddSchema):
     new_faculty = {
         "name" : faculty.name,

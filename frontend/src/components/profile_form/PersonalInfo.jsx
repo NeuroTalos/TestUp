@@ -1,43 +1,117 @@
-import React, { useState } from 'react';
-import { Card, Row, Col, Button } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Card, Button, message } from 'antd';
 import axios from 'axios';
+import { parse, format, isValid } from 'date-fns';
+import isEqual from 'lodash.isequal';
+
 import LabeledInput from './LabeledInput';
+import DropdownSelect from './DropdownSelect';
 
 const PersonalInfo = ({ profile }) => {
-    const [formData, setFormData] = useState({ ...profile });
+    const formatDateToDisplay = (dateString) => {
+        if (!dateString) return '';
+        const date = parse(dateString, 'yyyy-MM-dd', new Date());
+        if (!isValid(date)) {
+            console.error('Неверный формат даты:', dateString);
+            return '';
+        }
+        return format(date, 'dd.MM.yyyy');
+    };
+
+    const [formData, setFormData] = useState({
+        ...profile,
+        date_of_birth: formatDateToDisplay(profile.date_of_birth)
+    });
+
+    const [faculties, setFaculties] = useState([]);
+    const [majors, setMajors] = useState([]);
+    const [selectedFaculty, setSelectedFaculty] = useState(profile.faculty_name || '');
+    const [isChanged, setIsChanged] = useState(false);
+
+    const genderOptions = ['Мужской', 'Женский'];
+    const courseOptions = ['1', '2', '3', '4', '5'];
+
+    useEffect(() => {
+        fetchFacultiesAndMajors();
+    }, []);
+
+    useEffect(() => {
+        const normalizedFormData = {
+            ...formData,
+            gender: convertGenderToBackendFormat(formData.gender),
+        };
+
+        const normalizedProfile = {
+            ...profile,
+            date_of_birth: formatDateToDisplay(profile.date_of_birth),
+            gender: convertGenderToBackendFormat(profile.gender),
+        };
+
+        setIsChanged(!isEqual(normalizedFormData, normalizedProfile));
+    }, [formData, profile]);
+
+    useEffect(() => {
+        if (selectedFaculty) {
+            const selectedFacultyData = faculties.find(faculty => faculty.name === selectedFaculty);
+            const filteredMajors = selectedFacultyData ? selectedFacultyData.majors.map(major => major.name) : [];
+            setMajors(filteredMajors);
+
+            if (filteredMajors.length > 0 && !filteredMajors.includes(formData.major_name)) {
+                setFormData(prev => ({
+                    ...prev,
+                    major_name: filteredMajors[0],
+                }));
+            }
+        } else {
+            setMajors([]);
+        }
+    }, [selectedFaculty, faculties]);
+
+    const fetchFacultiesAndMajors = async () => {
+        try {
+            const response = await axios.get('http://127.0.0.1:8000/faculties');
+            const data = response.data;
+
+            setFaculties(data);
+            if (data.length > 0 && selectedFaculty === '') {
+                setSelectedFaculty(data[0].name);
+            }
+        } catch (err) {
+            console.error('Ошибка при загрузке факультетов и направлений', err);
+        }
+    };
 
     const handleChange = (key, value) => {
         setFormData(prev => ({ ...prev, [key]: value }));
     };
 
     const convertGenderToBackendFormat = (gender) => {
-        if (gender === 'Мужской') {
-            return 'male';
-        } else if (gender === 'Женский') {
-            return 'female';
-        }
+        if (gender === 'Мужской') return 'male';
+        if (gender === 'Женский') return 'female';
         return gender;
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         try {
             const updatedData = {
                 ...formData,
                 gender: convertGenderToBackendFormat(formData.gender),
             };
-            console.log(updatedData)
-            axios.put(
+            await axios.put(
                 'http://127.0.0.1:8000/students/update',
                 updatedData,
-                { 
-                    withCredentials: true,
-                }
-            )
+                { withCredentials: true }
+            );
             window.location.reload();
         } catch (error) {
             console.error(error);
             message.error('Ошибка при обновлении данных');
         }
+    };
+
+    const handleFacultyChange = (value) => {
+        setSelectedFaculty(value);
+        setFormData(prev => ({ ...prev, faculty_name: value }));
     };
 
     return (
@@ -51,7 +125,7 @@ const PersonalInfo = ({ profile }) => {
                         backgroundColor: '#343F4D'
                     },
                     body: {
-                        overflowX: 'auto',         
+                        overflowX: 'auto',
                         paddingBottom: '16px',
                     },
                 }}
@@ -61,101 +135,83 @@ const PersonalInfo = ({ profile }) => {
                     color: 'white',
                 }}
             >
-                <div style={{ minWidth: '800px' }}> 
-                    <Row className="mb-5">
-                        <Col span={8}>
-                            <LabeledInput
-                                label="Имя"
-                                value={formData.first_name}
-                                onChange={e => handleChange('first_name', e.target.value)}
-                            />
-                        </Col>
-                        <Col span={8}>
-                            <LabeledInput
-                                label="Фамилия"
-                                value={formData.last_name}
-                                onChange={e => handleChange('last_name', e.target.value)}
-                            />
-                        </Col>
-                        <Col span={8}>
-                            <LabeledInput
-                                label="Отчество"
-                                value={formData.middle_name}
-                                onChange={e => handleChange('middle_name', e.target.value)}
-                            />
-                        </Col>
-                    </Row>
-                    <Row className="mb-5">
-                        <Col span={8}>
-                            <LabeledInput
-                                label="Дата рождения"
-                                value={formData.date_of_birth}
-                                onChange={e => handleChange('date_of_birth', e.target.value)}
-                            />
-                        </Col>
-                        <Col span={8}>
-                            <LabeledInput
-                                label="Пол"
-                                value={formData.gender}
-                                onChange={e => handleChange('gender', e.target.value)}
-                            />
-                        </Col>
-                    </Row>
-                    <Row className="mb-5">
-                        <Col span={8}>
-                            <LabeledInput
-                                label="Email"
-                                value={formData.email}
-                                onChange={e => handleChange('email', e.target.value)}
-                            />
-                        </Col>
-                        <Col span={8}>
-                            <LabeledInput
-                                label="Телефон"
-                                value={formData.phone}
-                                onChange={e => handleChange('phone', e.target.value)}
-                            />
-                        </Col>
-                    </Row>
-                    <Row className="mb-5">
-                        <Col span={8}>
-                            <LabeledInput
-                                label="Курс"
-                                value={formData.course}
-                                onChange={e => handleChange('course', e.target.value)}
-                            />
-                        </Col>
-                        <Col span={8}>
-                            <LabeledInput
-                                label="Группа"
-                                value={formData.group}
-                                onChange={e => handleChange('group', e.target.value)}
-                            />
-                        </Col>
-                    </Row>
-                    <Row className="mb-5">
-                        <Col span={8}>
-                            <LabeledInput
-                                label="Факультет"
-                                value={formData.faculty_name}
-                                onChange={e => handleChange('faculty_name', e.target.value)}
-                            />
-                        </Col>
-                        <Col span={8}>
-                            <LabeledInput
-                                label="Направление"
-                                value={formData.major_name}
-                                onChange={e => handleChange('major_name', e.target.value)}
-                            />
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col span={24}>
-                            <Button type="primary" onClick={handleSave}>
-                                Сохранить изменения
-                            </Button>
-                        </Col>
-                    </Row>
+                <div className="grid gap-6 grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 auto-rows-auto">
+                    <LabeledInput
+                        label="Имя"
+                        maxLength={100}
+                        value={formData.first_name}
+                        onChange={e => handleChange('first_name', e.target.value)}
+                    />
+                    <LabeledInput
+                        label="Фамилия"
+                        maxLength={100}
+                        value={formData.last_name}
+                        onChange={e => handleChange('last_name', e.target.value)}
+                    />
+                    <LabeledInput
+                        label="Отчество"
+                        maxLength={100}
+                        value={formData.middle_name}
+                        onChange={e => handleChange('middle_name', e.target.value)}
+                    />
+                    <LabeledInput
+                        label="Дата рождения"
+                        maxLength={10}
+                        value={formData.date_of_birth}
+                        onChange={e => handleChange('date_of_birth', e.target.value)}
+                        mask="00.00.0000"
+                    />
+                    <DropdownSelect
+                        label="Пол"
+                        value={formData.gender}
+                        options={genderOptions}
+                        onChange={value => handleChange('gender', value)}
+                    />
+                    <LabeledInput
+                        label="Email"
+                        maxLength={100}
+                        value={formData.email}
+                        onChange={e => handleChange('email', e.target.value)}
+                    />
+                    <LabeledInput
+                        label="Телефон"
+                        maxLength={11}
+                        value={formData.phone}
+                        onChange={e => handleChange('phone', e.target.value)}
+                    />
+                    <DropdownSelect
+                        label="Курс"
+                        value={formData.course}
+                        options={courseOptions}
+                        onChange={value => handleChange('course', value)}
+                    />
+                    <LabeledInput
+                        label="Группа"
+                        maxLength={15}
+                        value={formData.group}
+                        onChange={e => handleChange('group', e.target.value)}
+                    />
+                    <DropdownSelect
+                        label="Факультет"
+                        value={formData.faculty_name}
+                        options={faculties.map(fac => fac.name)}
+                        onChange={handleFacultyChange}
+                    />
+                    <DropdownSelect
+                        label="Направление"
+                        value={formData.major_name}
+                        options={majors}
+                        onChange={value => handleChange('major_name', value)}
+                    />
+                </div>
+                <div className="mt-6 text-right">
+                    <Button
+                        type="primary"
+                        onClick={handleSave}
+                        disabled={!isChanged}
+                    >
+                        Сохранить изменения
+                    </Button>
                 </div>
             </Card>
         </div>
