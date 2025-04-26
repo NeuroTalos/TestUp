@@ -26,7 +26,7 @@ class StudentGetSchema(BaseModel):
     faculty_name: str
     major_name: str
 
-    ready_solutions: Optional[list[SolutionsGetSchema]]
+    ready_solutions: Optional[list[SolutionsGetSchema]] = None
 
     class Config:
         from_attributes = True
