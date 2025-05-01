@@ -15,9 +15,9 @@ from src.models import (
     StudentsOrm, 
     FacultiesOrm, 
     MajorsOrm,
-    EmployerOrm,
-    TestTaskOrm,
-    TaskSolutionOrm,
+    EmployersOrm,
+    TestTasksOrm,
+    TaskSolutionsOrm,
 )
 from src.schemas.faculties import FacultyGetSchema
 from src.schemas.majors import MajorGetSchema, MajorSchema
@@ -64,23 +64,29 @@ class AsyncORM:
             await session.commit()
 
     @staticmethod
-    async def insert_employers(employers):
+    async def insert_employers(employers: list[EmployersOrm]):
         async with async_session_factory() as session:
-            insert_employers = insert(EmployerOrm).values(employers)
+            def encrypt_password(password: str):
+                return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+            
+            for employer in employers:
+                employer["password"] = encrypt_password(employer["password"])
+
+            insert_employers = insert(EmployersOrm).values(employers)
             await session.execute(insert_employers)
             await session.commit()
     
     @staticmethod
     async def insert_tasks(tasks):
         async with async_session_factory() as session:
-            insert_tasks = insert(TestTaskOrm).values(tasks)
+            insert_tasks = insert(TestTasksOrm).values(tasks)
             await session.execute(insert_tasks)
             await session.commit()
     
     @staticmethod
     async def insert_solutions(solutions):
         async with async_session_factory() as session:
-            insert_solutions = insert(TaskSolutionOrm).values(solutions)
+            insert_solutions = insert(TaskSolutionsOrm).values(solutions)
             await session.execute(insert_solutions)
             await session.commit()
 
@@ -193,20 +199,20 @@ class AsyncORM:
     async def select_employers():
         async with async_session_factory() as session:
             query = (
-                select(EmployerOrm)
+                select(EmployersOrm)
                 .options(
                     load_only(
-                        EmployerOrm.company_name,
-                        EmployerOrm.email,
-                        EmployerOrm.phone,
+                        EmployersOrm.company_name,
+                        EmployersOrm.email,
+                        EmployersOrm.phone,
                     ),
-                    selectinload(EmployerOrm.tasks)
+                    selectinload(EmployersOrm.tasks)
                     .load_only(
-                        TestTaskOrm.id,
-                        TestTaskOrm.title,
-                        TestTaskOrm.description,
-                        TestTaskOrm.difficulty,
-                        TestTaskOrm.status
+                        TestTasksOrm.id,
+                        TestTasksOrm.title,
+                        TestTasksOrm.description,
+                        TestTasksOrm.difficulty,
+                        TestTasksOrm.status
                     )
                 )
             )
@@ -220,8 +226,8 @@ class AsyncORM:
     async def select_tasks(limit: int, offset: int) -> tuple[list[TaskGetSchema], int]:
         async with async_session_factory() as session:
             query = (
-                select(TestTaskOrm)
-                .options(selectinload(TestTaskOrm.solutions))
+                select(TestTasksOrm)
+                .options(selectinload(TestTasksOrm.solutions))
                 .limit(limit)
                 .offset(offset)
             )
@@ -229,43 +235,66 @@ class AsyncORM:
             tasks = result.scalars().all()
             tasks_schemas = [TaskGetSchema.model_validate(task) for task in tasks]
             
-            count_query = select(func.count()).select_from(TestTaskOrm)
+            count_query = select(func.count()).select_from(TestTasksOrm)
             total_result = await session.execute(count_query)
             total_count = total_result.scalar_one()
 
             return tasks_schemas, total_count
 
     @staticmethod
-    async def check_password(login: str, plain_password: str) -> bool:
+    async def check_password(login: str, plain_password: str) -> tuple[bool, str | None]:
         async with async_session_factory() as session:
-            query = (
+            def verify_password(plain_password: str, hashed_password: str) -> bool:
+                    return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
+
+            query_student = (
                 select(StudentsOrm.password)
                 .filter(StudentsOrm.login == login)
             )
         
-            result = await session.execute(query)
+            result = await session.execute(query_student)
             hashed_password = result.scalars().one_or_none()
 
-            if not hashed_password:
-                return False
-
-            def verify_password(plain_password: str, hashed_password: str) -> bool:
-                return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
-            
-            return verify_password(plain_password, hashed_password)
+            if hashed_password:
+                return (verify_password(plain_password, hashed_password), "student")
     
-    @staticmethod
-    async def select_id_by_login(login: str) -> int:
-        async with async_session_factory() as session:
-            query = (
-                select(StudentsOrm.id)
-                .filter(StudentsOrm.login == login)
+            query_employer = (
+                select(EmployersOrm.password)
+                .filter(EmployersOrm.login == login)
             )
 
-            result = await session.execute(query)
-            student_id = result.scalars().one()
+            result = await session.execute(query_employer)
+            hashed_password = result.scalars().one_or_none()
 
-            return student_id
+            if hashed_password:
+                return (verify_password(plain_password, hashed_password), "employer")
+            
+            return (False, None)
+
+    @staticmethod
+    async def select_id_by_login(login: str, role: str) -> int:
+        async with async_session_factory() as session:
+            if role == "student":
+                query_student = (
+                    select(StudentsOrm.id)
+                    .filter(StudentsOrm.login == login)
+                )
+
+                result = await session.execute(query_student)
+                student_id = result.scalars().one()
+
+                return student_id
+            
+            elif role == "employer":
+                query_employer = (
+                    select(EmployersOrm.id)
+                    .filter(EmployersOrm.login == login)
+                )
+
+                result = await session.execute(query_employer)
+                employer_id = result.scalars().one()
+
+                return employer_id
         
 
     # --------------UPDATE--------------

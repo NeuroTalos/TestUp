@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Spin, Alert, Card } from 'antd';
+import { Spin, Alert} from 'antd';
 import Sidebar from './Sidebar';
 import PersonalInfo from './PersonalInfo';
 import AuthInfo from './AuthInfo';

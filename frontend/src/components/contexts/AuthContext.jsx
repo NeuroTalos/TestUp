@@ -5,6 +5,7 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const [role, setRole] = useState(null);
 
   useEffect(() => {
     axios.get('http://127.0.0.1:8000/auth/check', {
@@ -18,8 +19,9 @@ export const AuthProvider = ({ children }) => {
       });
   }, []);
 
-  const login = () => {
+  const login = (userRole) => {
     setIsAuthenticated(true);
+    setRole(userRole);
   };
 
   const logout = async () => {
@@ -30,11 +32,12 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
     } finally {
       setIsAuthenticated(false);
+      setRole(null);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, role, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

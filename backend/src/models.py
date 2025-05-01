@@ -59,7 +59,7 @@ class StudentsOrm(Base):
     faculty_name: Mapped[str] = mapped_column(ForeignKey("faculties.name", ondelete = "CASCADE"))
     major_name: Mapped[int] = mapped_column(ForeignKey("majors.name", ondelete="CASCADE"))
 
-    ready_solutions: Mapped[Optional[list["TaskSolutionOrm"]]] = relationship(
+    ready_solutions: Mapped[Optional[list["TaskSolutionsOrm"]]] = relationship(
         back_populates = "student"
     )
 
@@ -91,7 +91,7 @@ class MajorsOrm(Base):
     )
 
 
-class EmployerOrm(Base):
+class EmployersOrm(Base):
     __tablename__ = "employers"
 
     id: Mapped[int_pk]
@@ -101,12 +101,12 @@ class EmployerOrm(Base):
     email: Mapped[str] = Column(String(100), unique=True)
     phone: Mapped[str] = Column(String(11), unique=True)
 
-    tasks: Mapped[Optional[list["TestTaskOrm"]]] = relationship(
+    tasks: Mapped[Optional[list["TestTasksOrm"]]] = relationship(
         back_populates = "employer"
     )
 
 
-class TestTaskOrm(Base):
+class TestTasksOrm(Base):
     __tablename__ = 'test_tasks'
 
     id: Mapped[int_pk]
@@ -116,16 +116,16 @@ class TestTaskOrm(Base):
     status: Mapped[Status] = Column(Enum(Status), default=Status.active, index=True)
     employer_name: Mapped[str] = mapped_column(ForeignKey("employers.company_name", ondelete = "CASCADE"))
     
-    solutions: Mapped[Optional[list["TaskSolutionOrm"]]] = relationship(
+    solutions: Mapped[Optional[list["TaskSolutionsOrm"]]] = relationship(
         back_populates = "task"
     )
 
-    employer: Mapped["EmployerOrm"] = relationship(
+    employer: Mapped["EmployersOrm"] = relationship(
         back_populates = "tasks"
     )
 
 
-class TaskSolutionOrm(Base):
+class TaskSolutionsOrm(Base):
     __tablename__ = 'tasks_solutions'
 
     id: Mapped[int_pk]
@@ -133,7 +133,7 @@ class TaskSolutionOrm(Base):
     task_id: Mapped[int] = mapped_column(ForeignKey("test_tasks.id", ondelete = "CASCADE"))
     student_id: Mapped[int] = mapped_column(ForeignKey("students.id", ondelete = "CASCADE"))
 
-    task: Mapped["TestTaskOrm"] = relationship(
+    task: Mapped["TestTasksOrm"] = relationship(
         back_populates = "solutions"
     )
 

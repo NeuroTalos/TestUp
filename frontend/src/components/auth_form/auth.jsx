@@ -30,9 +30,11 @@ const AuthWidget = () => {
 
     axios.post('http://127.0.0.1:8000/auth/login', formData)
         .then(response => {
+            const userRole = response.data.role; 
             setAuthError(false);
-            login();
+            login(userRole);
             navigate('/');
+            console.log(userRole)
         })
         .catch(error => {
             setAuthError(true);

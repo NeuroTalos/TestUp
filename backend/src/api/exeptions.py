@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 
 from fastapi import HTTPException, Request
 from authx import AuthX, AuthXConfig
@@ -37,4 +38,14 @@ async def access_token_check(request: Request):
     
     except Exception as e:
         raise HTTPException(status_code=401, detail="Unauthorized")
+
+
+async def current_role(request: Request) -> str:
+    token_data = await security.access_token_required(request)
+    role = token_data.role
+
+    if not role:
+        raise HTTPException(status_code=403, detail="Роль не указана")
+
+    return role
         
