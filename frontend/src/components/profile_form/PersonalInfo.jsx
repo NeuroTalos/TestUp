@@ -98,7 +98,7 @@ const PersonalInfo = ({ profile }) => {
                 gender: convertGenderToBackendFormat(formData.gender),
             };
             await axios.put(
-                'http://127.0.0.1:8000/students/update',
+                'http://127.0.0.1:8000/students/update_personal_info',
                 updatedData,
                 { withCredentials: true }
             );

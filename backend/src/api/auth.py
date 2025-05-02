@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Response, Request
 
 from src.queries.orm import AsyncORM
 from src.schemas.auth import AuthSchema
-from src.api.exeptions import security, config, access_token_check, current_role
+from src.api.functions import security, config, access_token_check
 
 router = APIRouter(
     prefix= "/auth",

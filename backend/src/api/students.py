@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Request, Depends
 
 from src.queries.orm import AsyncORM
 from src.schemas.students import StudentAddSchema, StudentGetSchema, StudentUpdateSchema
-from src.api.exeptions import check_faculty, data_transform, access_token_check
+from src.api.functions import check_faculty, data_transform, access_token_check, current_role
     
 
 router = APIRouter(
@@ -20,15 +20,20 @@ async def select_students() -> list[StudentGetSchema]:
 @router.get("/{student_id}")
 async def select_current_student(request: Request) -> StudentGetSchema:
     token_data = await access_token_check(request)
+    role = await current_role(request)
+
+    if role == "student":
+        student_id = int(token_data.sub)
+
+        current_student = await AsyncORM.select_student_by_id(student_id)
+
+        if not current_student:
+            raise HTTPException(status_code=404, detail="ID студента не найден")
+
+        return current_student
     
-    student_id = int(token_data.sub)
-
-    current_student = await AsyncORM.select_student_by_id(student_id)
-
-    if not current_student:
-        raise HTTPException(status_code=404, detail="Student id not found")
-
-    return current_student
+    else:
+        raise HTTPException(status_code=403, detail="Доступ к ресурсу ограничен для вашей роли")
 
 
 @router.post("/add")
@@ -57,18 +62,24 @@ async def add_student(student: StudentAddSchema):
     return {"ok": True}
 
 
-@router.put("/update")
-async def update_student(
+@router.put("/update_personal_info")
+async def update_student_personal_info(
         student_data: StudentUpdateSchema, 
         request: Request,
         token_data = Depends(access_token_check),
     ):
-    student_id = int(token_data.sub)
+    role = await current_role(request)
 
-    formatted_date = await data_transform(student_data.date_of_birth)
+    if role == "student":
+        student_id = int(token_data.sub)
+
+        formatted_date = await data_transform(student_data.date_of_birth)
+        
+        student_data.date_of_birth = formatted_date
+
+        await AsyncORM.update_student(student_id, student_data)
+
+        return {"ok": True}
     
-    student_data.date_of_birth = formatted_date
-
-    await AsyncORM.update_students(student_id, student_data)
-
-    return {"ok": True}
+    else:
+        raise HTTPException(status_code=403, detail="Доступ к ресурсу ограничен для вашей роли")

@@ -114,7 +114,7 @@ class TestTasksOrm(Base):
     description: Mapped[str] = Column(Text)
     difficulty: Mapped[Difficulty]
     status: Mapped[Status] = Column(Enum(Status), default=Status.active, index=True)
-    employer_name: Mapped[str] = mapped_column(ForeignKey("employers.company_name", ondelete = "CASCADE"))
+    employer_name: Mapped[str] = mapped_column(ForeignKey("employers.company_name", ondelete = "CASCADE", onupdate = "CASCADE"))
     
     solutions: Mapped[Optional[list["TaskSolutionsOrm"]]] = relationship(
         back_populates = "task"

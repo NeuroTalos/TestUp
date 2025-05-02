@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from src.queries.orm import AsyncORM
 from src.schemas.majors import MajorAddSchema
-from src.api.exeptions import check_faculty
+from src.api.functions import check_faculty
 
 
 router = APIRouter(

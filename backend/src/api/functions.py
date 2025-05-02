@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Literal
 
 from fastapi import HTTPException, Request
 from authx import AuthX, AuthXConfig
@@ -11,7 +10,7 @@ from src.config import settings
 async def check_faculty(faculty_name):
     faculty = await AsyncORM.get_faculty_by_name(faculty_name)
     if not faculty:
-        raise HTTPException(status_code=404, detail="Faculty not found")
+        raise HTTPException(status_code=404, detail="Факультет не найден")
 
 
 async def data_transform(uncorrect_date):
@@ -37,7 +36,7 @@ async def access_token_check(request: Request):
         return token_data
     
     except Exception as e:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+        raise HTTPException(status_code=401, detail="Неавторизован")
 
 
 async def current_role(request: Request) -> str:

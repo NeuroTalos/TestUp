@@ -23,7 +23,7 @@ from src.schemas.faculties import FacultyGetSchema
 from src.schemas.majors import MajorGetSchema, MajorSchema
 from src.schemas.students import StudentSchema, StudentGetSchema, StudentUpdateSchema
 from src.schemas.tasks import TaskGetSchema
-from src.schemas.employers import EmployerGetSchema
+from src.schemas.employers import EmployerGetSchema, EmployerUpdateSchema
 
 
 class AsyncORM:
@@ -223,6 +223,30 @@ class AsyncORM:
             return employers_schemas
         
     @staticmethod
+    async def select_employer_by_id(employer_id: int) -> EmployerGetSchema:
+        async with async_session_factory() as session:
+            query = (
+                select(EmployersOrm)
+                .filter(EmployersOrm.id == employer_id)
+                .options(
+                    load_only(
+                    EmployersOrm.company_name,
+                    EmployersOrm.email,
+                    EmployersOrm.phone,
+                    ),
+                    selectinload(EmployersOrm.tasks)
+                )   
+             )
+            result = await session.execute(query)
+            employer = result.scalars().one_or_none()
+            if not employer:
+                return False
+
+            employer_schema = EmployerGetSchema.model_validate(employer)
+           
+            return employer_schema
+        
+    @staticmethod
     async def select_tasks(limit: int, offset: int) -> tuple[list[TaskGetSchema], int]:
         async with async_session_factory() as session:
             query = (
@@ -300,7 +324,7 @@ class AsyncORM:
     # --------------UPDATE--------------
     
     @staticmethod
-    async def update_students(student_id: int, student_data: StudentUpdateSchema) -> None:
+    async def update_student(student_id: int, student_data: StudentUpdateSchema) -> None:
         async with async_session_factory() as session:
             query = select(StudentsOrm).where(StudentsOrm.id == student_id)
             result = await session.execute(query)
@@ -308,6 +332,18 @@ class AsyncORM:
 
             for key, value in student_data.model_dump(exclude_unset=True).items():
                 setattr(student, key, value)
+
+            await session.commit()
+
+    @staticmethod
+    async def update_employer(employer_id: int, employer_data: EmployerUpdateSchema) -> None:
+        async with async_session_factory() as session:
+            query = select(EmployersOrm).where(EmployersOrm.id == employer_id)
+            result = await session.execute(query)
+            employer = result.scalar_one_or_none()
+
+            for key, value in employer_data.model_dump(exclude_unset=True).items():
+                setattr(employer, key, value)
 
             await session.commit()
     
