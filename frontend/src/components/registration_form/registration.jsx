@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Card, Space, Typography } from 'antd';
+import { Card, Space, Typography, Tabs } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -8,7 +8,12 @@ import PasswordInput from './Password_input';
 import RegistrationButton from './Registration_button';
 import DropdownSelect from '../profile_form/DropdownSelect';
 
+const { TabPane } = Tabs;
+
 const RegistrationWidget = () => {
+  const [activeTab, setActiveTab] = useState('student');
+
+  // Student
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -22,10 +27,17 @@ const RegistrationWidget = () => {
   const [group, setGroup] = useState('');
   const [faculty, setFaculty] = useState(null);
   const [major, setMajor] = useState(null);
-  const [registrationError, setRegistrationError] = useState(false);
+  
+  // Работодатель
+  const [employerLogin, setEmployerLogin] = useState('');
+  const [employerPassword, setEmployerPassword] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [employerEmail, setEmployerEmail] = useState('');
+  const [employerPhone, setEmployerPhone] = useState('');
 
   const [faculties, setFaculties] = useState([]);
   const [majors, setMajors] = useState([]);
+  const [registrationError, setRegistrationError] = useState(false);
 
   const cardRef = useRef(null);
   const navigate = useNavigate();
@@ -60,35 +72,41 @@ const RegistrationWidget = () => {
     setMajors(selectedFacultyData ? selectedFacultyData.majors.map(m => m.name) : []);
   }, [faculty, faculties]);
 
+  const handleTabChange = (key) => {
+    setRegistrationError(false);
+    setActiveTab(key);
+  };
+
+  const convertGenderToBackendFormat = (gender) => {
+    if (gender === 'Мужской') return 'male';
+    if (gender === 'Женский') return 'female';
+    return gender;
+  };
+
   const handleSubmit = () => {
-    const formData = {
-      "login": login,
-      "password" : password,
-      "first_name" : firstName,
-      "last_name" : lastName,
-      "middle_name" : middleName,
-      "date_of_birth" : dob,
-      "email" : email,
-      "phone" : phone,
-      "gender" : gender,
-      "course" : course,
-      "group" : group,
-      "faculty_name"  : faculty,
-      "major_name" : major,
-    };
+    if (activeTab === 'student') {
+      const studentData = {
+        "login": login,
+        "password" : password,
+        "first_name" : firstName,
+        "last_name" : lastName,
+        "middle_name" : middleName,
+        "date_of_birth" : dob,
+        "email" : email,
+        "phone" : phone,
+        "gender" : convertGenderToBackendFormat(gender),
+        "course" : course,
+        "group" : group,
+        "faculty_name"  : faculty,
+        "major_name" : major,
+      };
 
-    const convertGenderToBackendFormat = (gender) => {
-      if (gender === 'Мужской') return 'male';
-      if (gender === 'Женский') return 'female';
-      return gender;
-    };
+    // const updatedData = {
+    //   ...formData,
+    //   gender: convertGenderToBackendFormat(formData.gender),
+    // };
 
-    const updatedData = {
-      ...formData,
-      gender: convertGenderToBackendFormat(formData.gender),
-    };
-
-    axios.post('http://127.0.0.1:8000/students/add', updatedData)
+    axios.post('http://127.0.0.1:8000/students/add', studentData)
       .then(response => {
         setRegistrationError(false);
         navigate('/auth');
@@ -97,6 +115,26 @@ const RegistrationWidget = () => {
         setRegistrationError(true);
         if (cardRef.current) cardRef.current.scrollTop = 0;
       });
+    
+    } else if (activeTab === 'employer') {
+      const employerData = {
+        "login": employerLogin,
+        "password": employerPassword,
+        "company_name": companyName,
+        "email": employerEmail,
+        "phone": employerPhone,
+      };
+    
+    axios.post('http://127.0.0.1:8000/employers/add', employerData)
+      .then(response => {
+        setRegistrationError(false);
+        navigate('/auth');
+      })
+      .catch(error => {
+        setRegistrationError(true);
+        if (cardRef.current) cardRef.current.scrollTop = 0;
+      });
+    }
   };
 
   return (
@@ -105,6 +143,13 @@ const RegistrationWidget = () => {
         <Card
           ref={cardRef}
           title="Регистрация"
+          className="w-[90vw] sm:w-[500px] md:w-[570px] lg:w-[700px] xl:w-[750px] rounded-lg overflow-y-auto card-scroll"
+          style={{
+            maxHeight: '80vh',
+            backgroundColor: '#343F4D',
+            border: '1px solid #283144',
+            color: 'white',
+          }}
           styles={{
             header: {
               borderBottom: '2px solid #283144',
@@ -119,111 +164,56 @@ const RegistrationWidget = () => {
               paddingBottom: '16px',
             },
           }}
-          className="w-[90vw] sm:w-[500px] md:w-[570px] lg:w-[700px] xl:w-[750px] rounded-lg overflow-y-auto card-scroll"
-          style={{
-            maxHeight: '80vh',
-            backgroundColor: '#343F4D',
-            border: '1px solid #283144',
-            color: 'white',
-          }}
         >
-          {registrationError && (
-            <div className="mb-4 ml-42">
-              <Typography.Text type="danger">
-                Введены некорректные данные
-              </Typography.Text>
-            </div>
-          )}
+          <Tabs 
+            className="custom-tabs"
+            defaultActiveKey="student" 
+            onChange={handleTabChange} 
+            centered>
+              <TabPane tab="Студент" key="student">
+                {registrationError && (
+                  <div className="mb-4 ml-42">
+                    <Typography.Text type="danger">
+                      Введены некорректные данные
+                    </Typography.Text>
+                  </div>
+                )}
 
-          <LabeledInput
-            label="Логин"
-            maxLength={40}
-            value={login}
-            onChange={handleInputChange(setLogin)}
-          />
+                <LabeledInput label="Логин" maxLength={40} value={login} onChange={handleInputChange(setLogin)} />
+                <PasswordInput onChange={handleInputChange(setPassword)} />
+                <LabeledInput label="Имя" maxLength={100} value={firstName} onChange={handleInputChange(setFirstName)} />
+                <LabeledInput label="Фамилия" maxLength={100} value={lastName} onChange={handleInputChange(setLastName)} />
+                <LabeledInput label="Отчество (опционально)" maxLength={100} value={middleName} onChange={handleInputChange(setMiddleName)} />
+                <LabeledInput label="Дата рождения (ДД.ММ.ГГГГ)" maxLength={10} value={dob} onChange={handleInputChange(setDob)} mask="00.00.0000" />
+                <LabeledInput label="Электронная почта" maxLength={100} value={email} onChange={handleInputChange(setEmail)} />
+                <LabeledInput label="Телефон" maxLength={11} value={phone} onChange={handleInputChange(setPhone)} />
+                <DropdownSelect label="Пол" options={['Мужской', 'Женский']} value={gender} onChange={setGender} />
+                <DropdownSelect label="Курс" options={['1', '2', '3', '4', '5']} value={course} onChange={handleCourseChange} />
+                <LabeledInput label="Группа" maxLength={15} value={group} onChange={handleInputChange(setGroup)} />
+                <DropdownSelect label="Факультет" options={faculties.map(fac => fac.name)} value={faculty} onChange={handleFacultyChange} />
+                <DropdownSelect label="Направление" options={majors} value={major} onChange={handleMajorChange} />
+              </TabPane>
 
-          <PasswordInput onChange={handleInputChange(setPassword)} />
+              <TabPane tab="Работодатель" key="employer">
+                {registrationError && (
+                  <div className="mb-4 ml-42">
+                    <Typography.Text type="danger">
+                      Введены некорректные данные
+                    </Typography.Text>
+                  </div>
+                )}
 
-          <LabeledInput
-            label="Имя"
-            maxLength={100}
-            value={firstName}
-            onChange={handleInputChange(setFirstName)}
-          />
+                <LabeledInput label="Логин" maxLength={40} value={employerLogin} onChange={handleInputChange(setEmployerLogin)} />
+                <PasswordInput onChange={handleInputChange(setEmployerPassword)} />
+                <LabeledInput label="Название компании" maxLength={100} value={companyName} onChange={handleInputChange(setCompanyName)} />
+                <LabeledInput label="Электронная почта" maxLength={100} value={employerEmail} onChange={handleInputChange(setEmployerEmail)} />
+                <LabeledInput label="Телефон" maxLength={11} value={employerPhone} onChange={handleInputChange(setEmployerPhone)} />
+              </TabPane>
+          </Tabs>
 
-          <LabeledInput
-            label="Фамилия"
-            maxLength={100}
-            value={lastName}
-            onChange={handleInputChange(setLastName)}
-          />
-
-          <LabeledInput
-            label="Отчество (опционально)"
-            maxLength={100}
-            value={middleName}
-            onChange={handleInputChange(setMiddleName)}
-          />
-
-          <LabeledInput
-            label="Дата рождения (ДД.ММ.ГГГГ)"
-            maxLength={10}
-            value={dob}
-            onChange={handleInputChange(setDob)}
-            mask="00.00.0000"
-          />
-
-          <LabeledInput
-            label="Электронная почта"
-            maxLength={100}
-            value={email}
-            onChange={handleInputChange(setEmail)}
-          />
-
-          <LabeledInput
-            label="Телефон"
-            maxLength={11}
-            value={phone}
-            onChange={handleInputChange(setPhone)}
-          />
-
-          <DropdownSelect
-            label="Пол"
-            options={['Мужской', 'Женский']}
-            value={gender}
-            onChange={setGender}
-          />
-
-          <DropdownSelect
-            label="Курс"
-            options={['1', '2', '3', '4', '5']}
-            value={course}
-            onChange={handleCourseChange}
-          />
-
-          <LabeledInput
-            label="Группа"
-            maxLength={15}
-            value={group}
-            onChange={handleInputChange(setGroup)}
-          />
-
-          <DropdownSelect
-            label="Факультет"
-            options={faculties.map(fac => fac.name)}
-            value={faculty}
-            onChange={handleFacultyChange}
-          />
-
-          <DropdownSelect
-            label="Направление"
-            options={majors}
-            value={major}
-            onChange={handleMajorChange}
-          />
-
-          <RegistrationButton onClick={handleSubmit} />
-          {/* TODO Fix button placement */}
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <RegistrationButton onClick={handleSubmit} />
+          </div>
         </Card>
       </Space>
     </div>

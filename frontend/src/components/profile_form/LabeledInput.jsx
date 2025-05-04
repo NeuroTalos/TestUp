@@ -4,8 +4,8 @@ import { IMaskInput } from 'react-imask';
 
 const LabeledInput = ({ label, value, maxLength, onChange, mask }) => {
     return (
-        <div className="w-full">
-            <label className="block text-white font-bold mb-2 ml-1">
+        <div className="w-full mt-3">
+            <label className="block text-white font-bold mb-1 ml-1">
                 {label}
             </label>
 

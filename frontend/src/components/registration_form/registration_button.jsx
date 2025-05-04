@@ -4,7 +4,7 @@ import { Button, Flex } from 'antd';
 const RegistrationButton = ({ onClick }) => {
   
     return (
-      <div className="mt-6 ml-45">
+      <div className="mt-6">
         <Flex gap="small" wrap>
             <Button 
                 type="primary"

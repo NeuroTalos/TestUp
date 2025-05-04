@@ -27,3 +27,17 @@
 .card-scroll::-webkit-scrollbar-thumb:hover {
   background-color: #4d5b69 !important;
 }
+
+.custom-tabs .ant-tabs-tab-btn {
+  color: white !important;
+  font-size: 16px;
+}
+
+.custom-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #1890ff !important;
+  font-weight: bold;
+}
+
+.custom-tabs .ant-tabs-ink-bar {
+  background: #1890ff;
+}

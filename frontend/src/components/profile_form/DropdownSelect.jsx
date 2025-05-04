@@ -3,8 +3,8 @@ import { Select } from 'antd';
 
 const DropdownSelect = ({ label, options, value, onChange }) => {
     return (
-        <div className="w-full">
-            <label className="block text-white font-bold mb-1">
+        <div className="w-full mt-3">
+            <label className="block text-white font-bold mb-1 ml-1">
                 {label}
             </label>
             <Select

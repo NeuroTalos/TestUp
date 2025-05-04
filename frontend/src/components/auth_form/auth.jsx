@@ -1,12 +1,13 @@
 import React, { useState, useContext } from 'react';;
 import { AuthContext } from '../contexts/AuthContext';
+import LabeledInput from '../profile_form/LabeledInput';
+import PasswordInput from '../registration_form/Password_input';
 import { Card, Space, Input, Col, Row, Button, Flex, Typography } from 'antd';
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const { Text } = Typography;
-
 
 const AuthWidget = () => {
   const [loginInput, setLoginInput] = useState('');
@@ -34,7 +35,6 @@ const AuthWidget = () => {
             setAuthError(false);
             login(userRole);
             navigate('/');
-            console.log(userRole)
         })
         .catch(error => {
             setAuthError(true);
@@ -44,36 +44,32 @@ const AuthWidget = () => {
 
   return(
     <div 
-      className="w-screen h-screen grid place-content-center"
+      className="w-screen h-screen grid place-content-center px-4"
       style={{ backgroundColor: '#002040' }}
     >
       <Space direction="vertical" size={16}>
         <Card 
-          title={<div style={{ textAlign: "center", fontWeight: "bold", fontSize: 24 }}>Авторизация</div>}
+          title={<div style={{ textAlign: "center", fontWeight: "bold", fontSize: 24, color: 'white' }}>Авторизация</div>}
           style={{ 
             width: 450, 
             maxHeight: "80vh",
+            backgroundColor: '#343F4D', 
+            border: '1px solid #283144',
+            color: 'white',
           }}
           className="border-2 border-black rounded-lg overflow-y-auto"
-          >
-            <div className="mb-3">
-              <Input
-                size="large" 
-                placeholder="Введите логин" 
-                maxLength={40}
-                onChange={handleInputChange(setLoginInput)}
-              />
-            </div>
+          styles={{
+            header: {
+            borderBottom: '2px solid #283144',
+            color: 'white',
+            backgroundColor: '#343F4D',
+          },
+        }}
 
-            <div className="mb-3">
-              <Input.Password
-                size="large"
-                placeholder="Пароль"
-                maxLength={20}
-                onChange={handleInputChange(setPasswordInput)}
-                iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
-              />
-            </div>
+          >
+            <LabeledInput label="Логин" maxLength={40} value={loginInput} onChange={handleInputChange(setLoginInput)} />
+
+            <PasswordInput onChange={handleInputChange(setPasswordInput)} />
 
             {authError && (
               <div style={{ marginBottom: 16 }}>
