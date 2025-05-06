@@ -1,15 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
-import { Spin, Alert} from 'antd';
+import { Spin, Alert } from 'antd';
 import Sidebar from './Sidebar';
-import PersonalInfo from './PersonalInfo';
+import StudentPersonalInfo from './StudentPersonalInfo';
+import EmployerPersonalInfo from './EmployerPersonalInfo';
 import AuthInfo from './AuthInfo';
+import TaskCard from '../tasks_form/TaskCard';
+import Pagination from '../tasks_form/Pagination';
+import { AuthContext } from '../contexts/AuthContext';
 
 const ProfileWidget = () => {
+    const { role } = useContext(AuthContext);
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedTab, setSelectedTab] = useState('info');
+    const [currentPage, setCurrentPage] = useState(1);
+    const tasksPerPage = 6;
 
     const getGenderText = (gender) => {
         switch (gender) {
@@ -22,23 +29,58 @@ const ProfileWidget = () => {
         }
     };
 
+    const getDifficultyLabel = (difficulty) => {
+        switch (difficulty) {
+            case 'easy':
+                return 'Легко';
+            case 'medium':
+                return 'Нормально';
+            case 'hard':
+                return 'Сложно';
+        }
+    };
+
+    const getStatusLabel = (status) => {
+        switch (status) {
+            case 'active':
+                return 'Активно';
+            case 'completed':
+                return 'Завершено';
+        }
+    };
+
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const response = await axios.get(`http://127.0.0.1:8000/students/{studentId}`, {
+                let url;
+
+                if (role === 'student') {
+                    url = 'http://127.0.0.1:8000/students/{student_id}';
+                } else if (role === 'employer') {
+                    url = 'http://127.0.0.1:8000/employers/{employer_id}';
+                } else {
+                    setError('Неизвестная роль');
+                    setLoading(false);
+                    return;
+                }
+
+                const response = await axios.get(url, {
                     withCredentials: true,
                 });
+
                 setProfile(response.data);
             } catch (error) {
                 setError('Ошибка при загрузке профиля');
-                console.error("Ошибка при загрузке профиля:", error);
+                console.error('Ошибка при загрузке профиля:', error);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchProfile();
-    }, []);
+        if (role) {
+            fetchProfile();
+        }
+    }, [role]);
 
     if (loading) {
         return (
@@ -56,27 +98,62 @@ const ProfileWidget = () => {
         );
     }
 
+    const tasks = role === 'employer' && profile.tasks ? profile.tasks : [];
+    const totalPages = Math.ceil(tasks.length / tasksPerPage);
+    const displayedTasks = tasks.slice((currentPage - 1) * tasksPerPage, currentPage * tasksPerPage);
+
     return (
         <div className="flex w-screen h-screen" style={{ backgroundColor: '#002040' }}>
             <Sidebar
-                fullName={`${profile.first_name} ${profile.middle_name ? profile.middle_name + ' ' : ''}${profile.last_name}`}
+                fullName={
+                    role === 'employer'
+                        ? profile.company_name
+                        : `${profile.first_name} ${profile.middle_name ? profile.middle_name + ' ' : ''}${profile.last_name}`
+                }
                 selectedKey={selectedTab}
                 onSelect={setSelectedTab}
             />
             <div className="flex-1 overflow-auto">
                 {selectedTab === 'info' && (
                     <div className="grid grid-cols-1">
-                        <AuthInfo/>
-                        <PersonalInfo 
-                             profile={{
-                                ...profile,
-                                gender: getGenderText(profile.gender),
-                            }}
-                        />
+                        <AuthInfo />
+                        {role === 'student' ? (
+                            <StudentPersonalInfo
+                                profile={{
+                                    ...profile,
+                                    gender: getGenderText(profile.gender),
+                                }}
+                            />
+                        ) : role === 'employer' ? (
+                            <EmployerPersonalInfo profile={profile} />
+                        ) : null}
                     </div>
                 )}
-                {selectedTab === 'tasks' && (
-                    <div className="p-6 text-gray-600 text-center">Пока нет заданий</div>
+
+                {selectedTab === 'tasks' && role === 'employer' && (
+                    <div className="w-full p-8 overflow-y-auto flex flex-col" style={{ backgroundColor: '#002040' }}>
+                        <h2 className="text-2xl font-bold mb-14 text-center text-white">Список размещённых заданий</h2>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-0.5 md:gap-x-2 place-items-center">
+                            {displayedTasks.map((task) => (
+                                <TaskCard
+                                    key={task.id}
+                                    employer_name={profile.company_name}
+                                    title={task.title}
+                                    difficulty={getDifficultyLabel(task.difficulty)}
+                                    status={getStatusLabel(task.status)}
+                                />
+                            ))}
+                        </div>
+
+                        <div className="mt-auto">
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={setCurrentPage}
+                            />
+                        </div>
+                    </div>
                 )}
             </div>
         </div>

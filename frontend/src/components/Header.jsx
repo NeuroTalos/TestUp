@@ -82,6 +82,19 @@ const Header = () => {
             Список заданий
           </Link>
         </Menu.Item>
+
+        <Menu.Item key="companies" >
+          <Link to="/"
+            style={{ 
+              textDecoration: 'none' ,
+              fontSize: '20px',
+              fontWeight: '400',
+              color: 'inherit',
+              marginLeft: '30px'
+            }}>
+            Компании-партнёры
+          </Link>
+        </Menu.Item>
       </Menu>
 
       <div>

@@ -50,7 +50,7 @@ async def add_employer(employer: EmployerAddSchema):
     return {"ok": True}
 
 
-@router.put("/update_company_info")
+@router.patch("/update_company_info")
 async def update_company_info(
     employer_data: EmployerUpdateSchema,
     request: Request,

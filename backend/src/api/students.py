@@ -62,7 +62,7 @@ async def add_student(student: StudentAddSchema):
     return {"ok": True}
 
 
-@router.put("/update_personal_info")
+@router.patch("/update_personal_info")
 async def update_student_personal_info(
         student_data: StudentUpdateSchema, 
         request: Request,
@@ -72,10 +72,6 @@ async def update_student_personal_info(
 
     if role == "student":
         student_id = int(token_data.sub)
-
-        formatted_date = await data_transform(student_data.date_of_birth)
-        
-        student_data.date_of_birth = formatted_date
 
         await AsyncORM.update_student(student_id, student_data)
 

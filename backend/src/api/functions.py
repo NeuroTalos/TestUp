@@ -25,7 +25,7 @@ config = AuthXConfig()
 config.JWT_SECRET_KEY = settings.SECRET_KEY
 config.JWT_ACCESS_COOKIE_NAME = "access_token"
 config.JWT_TOKEN_LOCATION = ["cookies"]
-config.JWT_CSRF_METHODS = ["DELETE", "PATCH"]
+config.JWT_CSRF_METHODS = ["DELETE"]
 
 security = AuthX(config = config)
 

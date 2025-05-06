@@ -6,8 +6,9 @@ import isEqual from 'lodash.isequal';
 
 import LabeledInput from './LabeledInput';
 import DropdownSelect from './DropdownSelect';
+import ReadOnlyField from './ReadOnlyField';
 
-const PersonalInfo = ({ profile }) => {
+const StudentPersonalInfo = ({ profile }) => {
     const formatDateToDisplay = (dateString) => {
         if (!dateString) return '';
         const date = parse(dateString, 'yyyy-MM-dd', new Date());
@@ -97,7 +98,7 @@ const PersonalInfo = ({ profile }) => {
                 ...formData,
                 gender: convertGenderToBackendFormat(formData.gender),
             };
-            await axios.put(
+            await axios.patch(
                 'http://127.0.0.1:8000/students/update_personal_info',
                 updatedData,
                 { withCredentials: true }
@@ -155,19 +156,6 @@ const PersonalInfo = ({ profile }) => {
                         onChange={e => handleChange('middle_name', e.target.value)}
                     />
                     <LabeledInput
-                        label="Дата рождения"
-                        maxLength={10}
-                        value={formData.date_of_birth}
-                        onChange={e => handleChange('date_of_birth', e.target.value)}
-                        mask="00.00.0000"
-                    />
-                    <DropdownSelect
-                        label="Пол"
-                        value={formData.gender}
-                        options={genderOptions}
-                        onChange={value => handleChange('gender', value)}
-                    />
-                    <LabeledInput
                         label="Email"
                         maxLength={100}
                         value={formData.email}
@@ -179,29 +167,29 @@ const PersonalInfo = ({ profile }) => {
                         value={formData.phone}
                         onChange={e => handleChange('phone', e.target.value)}
                     />
-                    <DropdownSelect
+                    <ReadOnlyField
+                        label="Дата рождения"
+                        value={formData.date_of_birth}
+                    />
+                    <ReadOnlyField
+                        label="Пол"
+                        value={formData.gender}
+                    />
+                    <ReadOnlyField
                         label="Курс"
                         value={formData.course}
-                        options={courseOptions}
-                        onChange={value => handleChange('course', value)}
                     />
-                    <LabeledInput
+                    <ReadOnlyField
                         label="Группа"
-                        maxLength={15}
                         value={formData.group}
-                        onChange={e => handleChange('group', e.target.value)}
                     />
-                    <DropdownSelect
+                    <ReadOnlyField
                         label="Факультет"
                         value={formData.faculty_name}
-                        options={faculties.map(fac => fac.name)}
-                        onChange={handleFacultyChange}
                     />
-                    <DropdownSelect
+                    <ReadOnlyField
                         label="Направление"
                         value={formData.major_name}
-                        options={majors}
-                        onChange={value => handleChange('major_name', value)}
                     />
                 </div>
                 <div className="mt-6 text-right">
@@ -218,4 +206,4 @@ const PersonalInfo = ({ profile }) => {
     );
 };
 
-export default PersonalInfo;
+export default StudentPersonalInfo;

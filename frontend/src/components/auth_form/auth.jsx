@@ -3,7 +3,6 @@ import { AuthContext } from '../contexts/AuthContext';
 import LabeledInput from '../profile_form/LabeledInput';
 import PasswordInput from '../registration_form/Password_input';
 import { Card, Space, Input, Col, Row, Button, Flex, Typography } from 'antd';
-import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
