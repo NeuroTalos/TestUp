@@ -17,6 +17,7 @@ const ProfileWidget = () => {
     const [selectedTab, setSelectedTab] = useState('info');
     const [currentPage, setCurrentPage] = useState(1);
     const tasksPerPage = 6;
+    
 
     const getGenderText = (gender) => {
         switch (gender) {
@@ -142,6 +143,7 @@ const ProfileWidget = () => {
                                     title={task.title}
                                     difficulty={getDifficultyLabel(task.difficulty)}
                                     status={getStatusLabel(task.status)}
+                                    fullTask={task}
                                 />
                             ))}
                         </div>

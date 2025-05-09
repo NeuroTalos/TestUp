@@ -41,3 +41,19 @@
 .custom-tabs .ant-tabs-ink-bar {
   background: #1890ff;
 }
+
+.custom-toast-error {
+  background-color: #003366;
+  color: #ffffff;
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.custom-toast-error .Toastify__progress-bar {
+  background: #1a3d6e;
+}
+
+.custom-toast-error .Toastify__close-button {
+  color: #ffffff !important;
+}

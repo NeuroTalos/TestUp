@@ -1,7 +1,28 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { FaBriefcase } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../contexts/AuthContext';
+import { toast } from 'react-toastify';
 
-const TaskCard = ({ employer_name, title, difficulty, status }) => {
+const TaskCard = ({ id, employer_name, title, difficulty, status, fullTask }) => {
+    const navigate = useNavigate();
+    const { isAuthenticated } = useContext(AuthContext);
+
+    const handleClick = () => {
+        if (!isAuthenticated) {
+            toast.warn(
+                "Пожалуйста, авторизуйтесь или зарегистрируйтесь, чтобы просматривать задания.", 
+                {
+                    autoClose: 3000,
+                    className: 'custom-toast-error',
+                }
+            );
+            return;
+        }
+
+        navigate(`/tasks/${id}`, { state: { task: fullTask } });
+    };
+
     const difficultyColor = () => {
         switch (difficulty) {
             case 'Легко':
@@ -25,8 +46,11 @@ const TaskCard = ({ employer_name, title, difficulty, status }) => {
     };
 
     return (
-        <div className="rounded-lg shadow-md p-4 w-full max-w-md transition hover:shadow-lg hover:scale-[1.01]"
-             style={{ backgroundColor: '#343F4D', color: '#ffffff' }}>
+        <div 
+            onClick={handleClick}
+            className="rounded-lg shadow-md p-4 w-full max-w-md transition hover:shadow-lg hover:scale-[1.01]"
+            style={{ backgroundColor: '#343F4D', color: '#ffffff' }}
+        >
             <div className="flex items-center mb-2">
                 <FaBriefcase className="text-white text-2xl mr-2" />
                 <span className="font-semibold text-lg">{employer_name}</span>

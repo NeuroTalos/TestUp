@@ -8,6 +8,10 @@ export const AuthProvider = ({ children }) => {
   const [role, setRole] = useState(null);
 
   useEffect(() => {
+    const savedRole = localStorage.getItem('role');
+    if (savedRole) {
+      setRole(savedRole);
+    }
     axios.get('http://127.0.0.1:8000/auth/check', {
       withCredentials: true,
     })
@@ -22,6 +26,7 @@ export const AuthProvider = ({ children }) => {
   const login = (userRole) => {
     setIsAuthenticated(true);
     setRole(userRole);
+    localStorage.setItem('role', userRole);
   };
 
   const logout = async () => {
@@ -33,6 +38,7 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setIsAuthenticated(false);
       setRole(null);
+      localStorage.removeItem('role');
     }
   };
 

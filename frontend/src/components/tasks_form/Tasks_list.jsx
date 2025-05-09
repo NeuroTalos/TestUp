@@ -57,12 +57,14 @@ const TasksListWidget = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-0.5 md:gap-x-2 place-items-center">
                 {tasks.map((task) => (
                     <TaskCard
-                        key={task.id}
-                        employer_name={task.employer_name}
-                        title={task.title}
-                        difficulty={getDifficultyLabel(task.difficulty)} 
-                        status={getStatusLabel(task.status)}
-                    />
+                    key={task.id}
+                    id={task.id}
+                    employer_name={task.employer_name}
+                    title={task.title}
+                    difficulty={getDifficultyLabel(task.difficulty)} 
+                    status={getStatusLabel(task.status)}
+                    fullTask={task}
+                />
                 ))}
             </div>
             

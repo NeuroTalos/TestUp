@@ -7,6 +7,8 @@ import HomeWidget from './components/home_form/Home.jsx';
 import AuthWidget from './components/auth_form/Auth.jsx';
 import ProfileWidget from './components/profile_form/Profile.jsx';
 import TasksListWidget from './components/tasks_form/Tasks_list.jsx';
+import TaskPage from './components/tasks_form/TaskPage.jsx'
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   return (
@@ -29,8 +31,12 @@ function App() {
 
               {/* Страница со списком задач */}
               <Route path="/tasks" element={<TasksListWidget />} />
+
+              {/* Страница с конкретной задачей */}
+              <Route path="/tasks/:id" element={<TaskPage />} />
             </Route>
           </Routes>
+          <ToastContainer position="top-center" autoClose={3000} />
         </div>
       </Router>
     </AuthProvider>
