@@ -177,6 +177,7 @@ class AsyncORM:
                     StudentsOrm.date_of_birth,
                     StudentsOrm.email,
                     StudentsOrm.phone,
+                    StudentsOrm.telegram,
                     StudentsOrm.gender,
                     StudentsOrm.course,
                     StudentsOrm.group,
@@ -233,6 +234,7 @@ class AsyncORM:
                     EmployersOrm.company_name,
                     EmployersOrm.email,
                     EmployersOrm.phone,
+                    EmployersOrm.telegram,
                     ),
                     selectinload(EmployersOrm.tasks)
                 )   

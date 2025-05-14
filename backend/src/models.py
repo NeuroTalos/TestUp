@@ -51,6 +51,7 @@ class StudentsOrm(Base):
     middle_name: Mapped[Optional[str_100]]
     date_of_birth: Mapped[date] = Column(Date)
     email: Mapped[str] = Column(String(100), unique=True)
+    telegram: Mapped[Optional[str_100]] = Column(String(100), unique=True, nullable=True)
     phone: Mapped[str] = Column(String(11), unique=True)
     gender: Mapped[Gender]
     course: Mapped[int] = Column(Integer)
@@ -100,6 +101,7 @@ class EmployersOrm(Base):
     company_name: Mapped[str] = Column(String(100), unique=True)
     email: Mapped[str] = Column(String(100), unique=True)
     phone: Mapped[str] = Column(String(11), unique=True)
+    telegram: Mapped[Optional[str_100]] = Column(String(100), unique=True, nullable=True)
 
     tasks: Mapped[Optional[list["TestTasksOrm"]]] = relationship(
         back_populates = "employer"

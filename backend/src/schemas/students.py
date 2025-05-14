@@ -19,6 +19,7 @@ class StudentGetSchema(BaseModel):
     date_of_birth: date | str
     email: EmailStr
     phone: str = Field(max_length=11)
+    telegram: Optional[str] = Field(default=None, max_length=100)
     gender: Gender
     course: int
     group: str
@@ -47,6 +48,7 @@ class StudentUpdateSchema(BaseModel):
     middle_name: Optional[str] = None
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
+    telegram: Optional[str] = None
     # date_of_birth: Optional[date | str] = None
     # gender: Optional[Gender] = None
     # course: Optional[int] = None

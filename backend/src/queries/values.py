@@ -34,6 +34,7 @@ default_students = [
         "date_of_birth": date(2001, 1, 26),
         "email": "dima26.chertkov@gmail.com",
         "phone": "84532211676",
+        "telegram": "@username",
         "gender": "male",
         "course": 4,
         "group": "ИСиТ-21",
@@ -50,6 +51,7 @@ default_students = [
         "date_of_birth": date(2003, 5, 17),
         "email": "nik.rez1705@gmail.com",
         "phone": "86547331221",
+        "telegram": "@someName",
         "gender": "male",
         "course": 3,
         "group": "ИСиТ-22",
@@ -59,7 +61,7 @@ default_students = [
 
     {
         "login": "Moroz25",
-        "password": "tkeohrpiodejgsrpi",
+        "password": "123",
         "first_name": "Светлана",
         "last_name": "Морозова",
         "middle_name": None,
@@ -67,6 +69,7 @@ default_students = [
         "email": "svet_mor.04@mail.ru",
         "phone": "89765432201",
         "gender": "female",
+        "telegram": None,
         "course": 2,
         "group": "ИПО-23",
         "faculty_name": "Гуманитарно-педагогический факультет",
@@ -81,6 +84,7 @@ default_employers = [
         "company_name": "Сбер",
         "email": "sber_hr@mail.ru",
         "phone": "86753210784",
+        "telegram": "@telegramSber",
     },
     {
         "login": "Yandex",
@@ -88,6 +92,7 @@ default_employers = [
         "company_name": "Яндекс",
         "email": "yandex_practic@mail.ru",
         "phone": "88564328132",
+        "telegram": "@telegramYandex",
     },
     {
         "login": "TBank",
@@ -95,6 +100,7 @@ default_employers = [
         "company_name": "Т-Банк",
         "email": "t_bank@mail.ru",
         "phone": "85643250123",
+        "telegram": None,
     },
 ]
 

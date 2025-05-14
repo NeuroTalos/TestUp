@@ -22,6 +22,7 @@ const RegistrationWidget = () => {
   const [dob, setDob] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [telegram, setTelegram] = useState('');
   const [gender, setGender] = useState(null);
   const [course, setCourse] = useState(null);
   const [group, setGroup] = useState('');
@@ -34,6 +35,7 @@ const RegistrationWidget = () => {
   const [companyName, setCompanyName] = useState('');
   const [employerEmail, setEmployerEmail] = useState('');
   const [employerPhone, setEmployerPhone] = useState('');
+  const [employerTelegram, setEmployerTelegram] = useState('');
 
   const [faculties, setFaculties] = useState([]);
   const [majors, setMajors] = useState([]);
@@ -94,6 +96,7 @@ const RegistrationWidget = () => {
         "date_of_birth" : dob,
         "email" : email,
         "phone" : phone,
+        "telegram" : telegram,
         "gender" : convertGenderToBackendFormat(gender),
         "course" : course,
         "group" : group,
@@ -123,6 +126,7 @@ const RegistrationWidget = () => {
         "company_name": companyName,
         "email": employerEmail,
         "phone": employerPhone,
+        "telegram" : employerTelegram,
       };
     
     axios.post('http://127.0.0.1:8000/employers/add', employerData)
@@ -187,6 +191,7 @@ const RegistrationWidget = () => {
                 <LabeledInput label="Дата рождения (ДД.ММ.ГГГГ)" maxLength={10} value={dob} onChange={handleInputChange(setDob)} mask="00.00.0000" />
                 <LabeledInput label="Электронная почта" maxLength={100} value={email} onChange={handleInputChange(setEmail)} />
                 <LabeledInput label="Телефон" maxLength={11} value={phone} onChange={handleInputChange(setPhone)} />
+                <LabeledInput label="Телеграм" maxLength={100} value={telegram} onChange={handleInputChange(setTelegram)} />
                 <DropdownSelect label="Пол" options={['Мужской', 'Женский']} value={gender} onChange={setGender} />
                 <DropdownSelect label="Курс" options={['1', '2', '3', '4', '5']} value={course} onChange={handleCourseChange} />
                 <LabeledInput label="Группа" maxLength={15} value={group} onChange={handleInputChange(setGroup)} />
@@ -208,6 +213,7 @@ const RegistrationWidget = () => {
                 <LabeledInput label="Название компании" maxLength={100} value={companyName} onChange={handleInputChange(setCompanyName)} />
                 <LabeledInput label="Электронная почта" maxLength={100} value={employerEmail} onChange={handleInputChange(setEmployerEmail)} />
                 <LabeledInput label="Телефон" maxLength={11} value={employerPhone} onChange={handleInputChange(setEmployerPhone)} />
+                <LabeledInput label="Телеграм" maxLength={100} value={employerTelegram} onChange={handleInputChange(setEmployerTelegram)} />
               </TabPane>
           </Tabs>
 

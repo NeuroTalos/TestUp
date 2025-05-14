@@ -9,6 +9,7 @@ class EmployerGetSchema(BaseModel):
     company_name: str = Field(max_length=100)
     email: EmailStr
     phone: str = Field(max_length=11)
+    telegram: Optional[str] = Field(default=None, max_length=100)
 
     tasks: Optional[list[TaskEmployerGetSchema]] = None
 
@@ -29,6 +30,7 @@ class EmployerUpdateSchema(BaseModel):
     company_name: Optional[str] = None
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
+    telegram: Optional[str] = None
 
     class Config:
         from_attributes = True 

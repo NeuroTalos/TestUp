@@ -5,7 +5,6 @@ import { parse, format, isValid } from 'date-fns';
 import isEqual from 'lodash.isequal';
 
 import LabeledInput from './LabeledInput';
-import DropdownSelect from './DropdownSelect';
 import ReadOnlyField from './ReadOnlyField';
 
 const StudentPersonalInfo = ({ profile }) => {
@@ -24,17 +23,34 @@ const StudentPersonalInfo = ({ profile }) => {
         date_of_birth: formatDateToDisplay(profile.date_of_birth)
     });
 
-    const [faculties, setFaculties] = useState([]);
-    const [majors, setMajors] = useState([]);
-    const [selectedFaculty, setSelectedFaculty] = useState(profile.faculty_name || '');
+    // const [faculties, setFaculties] = useState([]);
+    // const [majors, setMajors] = useState([]);
+    // const [selectedFaculty, setSelectedFaculty] = useState(profile.faculty_name || '');
     const [isChanged, setIsChanged] = useState(false);
 
     const genderOptions = ['Мужской', 'Женский'];
     const courseOptions = ['1', '2', '3', '4', '5'];
 
-    useEffect(() => {
-        fetchFacultiesAndMajors();
-    }, []);
+    // useEffect(() => {
+    //     fetchFacultiesAndMajors();
+    // }, []);
+
+     // useEffect(() => {
+    //     if (selectedFaculty) {
+    //         const selectedFacultyData = faculties.find(faculty => faculty.name === selectedFaculty);
+    //         const filteredMajors = selectedFacultyData ? selectedFacultyData.majors.map(major => major.name) : [];
+    //         setMajors(filteredMajors);
+
+    //         if (filteredMajors.length > 0 && !filteredMajors.includes(formData.major_name)) {
+    //             setFormData(prev => ({
+    //                 ...prev,
+    //                 major_name: filteredMajors[0],
+    //             }));
+    //         }
+    //     } else {
+    //         setMajors([]);
+    //     }
+    // }, [selectedFaculty, faculties]);
 
     useEffect(() => {
         const normalizedFormData = {
@@ -51,36 +67,20 @@ const StudentPersonalInfo = ({ profile }) => {
         setIsChanged(!isEqual(normalizedFormData, normalizedProfile));
     }, [formData, profile]);
 
-    useEffect(() => {
-        if (selectedFaculty) {
-            const selectedFacultyData = faculties.find(faculty => faculty.name === selectedFaculty);
-            const filteredMajors = selectedFacultyData ? selectedFacultyData.majors.map(major => major.name) : [];
-            setMajors(filteredMajors);
+   
+    // const fetchFacultiesAndMajors = async () => {
+    //     try {
+    //         const response = await axios.get('http://127.0.0.1:8000/faculties');
+    //         const data = response.data;
 
-            if (filteredMajors.length > 0 && !filteredMajors.includes(formData.major_name)) {
-                setFormData(prev => ({
-                    ...prev,
-                    major_name: filteredMajors[0],
-                }));
-            }
-        } else {
-            setMajors([]);
-        }
-    }, [selectedFaculty, faculties]);
-
-    const fetchFacultiesAndMajors = async () => {
-        try {
-            const response = await axios.get('http://127.0.0.1:8000/faculties');
-            const data = response.data;
-
-            setFaculties(data);
-            if (data.length > 0 && selectedFaculty === '') {
-                setSelectedFaculty(data[0].name);
-            }
-        } catch (err) {
-            console.error('Ошибка при загрузке факультетов и направлений', err);
-        }
-    };
+    //         setFaculties(data);
+    //         if (data.length > 0 && selectedFaculty === '') {
+    //             setSelectedFaculty(data[0].name);
+    //         }
+    //     } catch (err) {
+    //         console.error('Ошибка при загрузке факультетов и направлений', err);
+    //     }
+    // };
 
     const handleChange = (key, value) => {
         setFormData(prev => ({ ...prev, [key]: value }));
@@ -110,10 +110,10 @@ const StudentPersonalInfo = ({ profile }) => {
         }
     };
 
-    const handleFacultyChange = (value) => {
-        setSelectedFaculty(value);
-        setFormData(prev => ({ ...prev, faculty_name: value }));
-    };
+    // const handleFacultyChange = (value) => {
+    //     setSelectedFaculty(value);
+    //     setFormData(prev => ({ ...prev, faculty_name: value }));
+    // };
 
     return (
         <div className="p-6 w-full">
@@ -166,6 +166,12 @@ const StudentPersonalInfo = ({ profile }) => {
                         maxLength={11}
                         value={formData.phone}
                         onChange={e => handleChange('phone', e.target.value)}
+                    />
+                    <LabeledInput
+                        label="Телеграм"
+                        maxLength={100}
+                        value={formData.telegram}
+                        onChange={e => handleChange('telegram', e.target.value)}
                     />
                     <ReadOnlyField
                         label="Дата рождения"

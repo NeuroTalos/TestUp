@@ -71,6 +71,12 @@ const EmployerPersonalInfo = ({ profile }) => {
                         value={formData.phone}
                         onChange={e => handleChange('phone', e.target.value)}
                     />
+                    <LabeledInput
+                        label="Телеграм"
+                        maxLength={100}
+                        value={formData.telegram}
+                        onChange={e => handleChange('telegram', e.target.value)}
+                    />
                 </div>
                 <div className="mt-6 text-right">
                     <Button

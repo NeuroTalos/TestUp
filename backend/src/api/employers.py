@@ -44,6 +44,7 @@ async def add_employer(employer: EmployerAddSchema):
         "company_name": employer.company_name,
         "email": employer.email,
         "phone": employer.phone,
+        "telegram": employer.telegram,
     }
 
     await AsyncORM.insert_employers([new_employer])

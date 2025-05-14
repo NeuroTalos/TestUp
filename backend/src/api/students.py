@@ -51,6 +51,7 @@ async def add_student(student: StudentAddSchema):
         "date_of_birth" : formatted_date,
         "email" : student.email,
         "phone" : student.phone,
+        "telegram": student.telegram,
         "gender" : student.gender,
         "course" : student.course,
         "group" : student.group,
