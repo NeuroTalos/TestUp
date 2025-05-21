@@ -1,8 +1,38 @@
 from fastapi import APIRouter, HTTPException, Response, Request
+from authx import AuthX, AuthXConfig
 
 from src.queries.orm import AsyncORM
 from src.schemas.auth import AuthSchema
-from src.api.functions import security, config, access_token_check
+from src.config import settings
+
+
+config = AuthXConfig()
+config.JWT_SECRET_KEY = settings.SECRET_KEY
+config.JWT_ACCESS_COOKIE_NAME = "access_token"
+config.JWT_TOKEN_LOCATION = ["cookies"]
+config.JWT_CSRF_METHODS = ["DELETE"]
+
+security = AuthX(config = config)
+
+
+async def access_token_check(request: Request):
+    try:
+        token_data = await security.access_token_required(request)
+        return token_data
+    
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Неавторизован")
+
+
+async def current_role(request: Request) -> str:
+    token_data = await security.access_token_required(request)
+    role = token_data.role
+
+    if not role:
+        raise HTTPException(status_code=403, detail="Роль не указана")
+
+    return role
+
 
 router = APIRouter(
     prefix= "/auth",

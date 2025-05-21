@@ -23,6 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 .env
+*.env
+credentails.json
 
 # Virtual enviroment folder
 venv

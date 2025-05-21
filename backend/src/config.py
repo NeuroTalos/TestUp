@@ -8,6 +8,12 @@ class Settings(BaseSettings):
     DB_PASS: str
     DB_NAME: str
     SECRET_KEY: str
+    MINIO_ENDPOINT: str
+    MINIO_ACCESS_KEY: str
+    MINIO_SECRET_KEY: str
+    MINIO_BUCKET_LOGOS: str
+    MINIO_BUCKET_TASKS: str
+    MINIO_BUCKET_SOLUTIONS: str
 
     @property
     def DATABASE_URL_asyncpg(self):

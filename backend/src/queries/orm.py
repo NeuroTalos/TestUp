@@ -249,6 +249,21 @@ class AsyncORM:
             return employer_schema
         
     @staticmethod
+    async def select_employer_logo_path_by_name(company_name: str) -> str:
+        async with async_session_factory() as session:
+            query = (
+                select(EmployersOrm.logo_path)
+                .filter(EmployersOrm.company_name == company_name)
+            )
+            result = await session.execute(query)
+            logo_path = result.scalar_one_or_none()
+
+            if not logo_path:
+                return False
+           
+            return logo_path
+        
+    @staticmethod
     async def select_tasks(limit: int, offset: int) -> tuple[list[TaskGetSchema], int]:
         async with async_session_factory() as session:
             query = (
@@ -346,6 +361,17 @@ class AsyncORM:
 
             for key, value in employer_data.model_dump(exclude_unset=True).items():
                 setattr(employer, key, value)
+
+            await session.commit()
+
+    @staticmethod
+    async def update_employer_logo_path(company_name: str, new_logo_path: str) -> None:
+        async with async_session_factory() as session:
+            query = select(EmployersOrm).where(EmployersOrm.company_name == company_name)
+            result = await session.execute(query)
+            employer = result.scalar_one_or_none()
+
+            employer.logo_path = new_logo_path
 
             await session.commit()
     

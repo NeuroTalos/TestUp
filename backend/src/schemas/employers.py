@@ -1,6 +1,7 @@
 from typing import Optional
 
 from pydantic import BaseModel, Field, EmailStr
+from fastapi import Form, File, UploadFile
 
 from src.schemas.tasks import TaskEmployerGetSchema
 
@@ -10,6 +11,7 @@ class EmployerGetSchema(BaseModel):
     email: EmailStr
     phone: str = Field(max_length=11)
     telegram: Optional[str] = Field(default=None, max_length=100)
+    logo_path: Optional[str] = None
 
     tasks: Optional[list[TaskEmployerGetSchema]] = None
 
@@ -33,4 +35,4 @@ class EmployerUpdateSchema(BaseModel):
     telegram: Optional[str] = None
 
     class Config:
-        from_attributes = True 
+        from_attributes = True

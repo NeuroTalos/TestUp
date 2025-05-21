@@ -102,6 +102,7 @@ class EmployersOrm(Base):
     email: Mapped[str] = Column(String(100), unique=True)
     phone: Mapped[str] = Column(String(11), unique=True)
     telegram: Mapped[Optional[str_100]] = Column(String(100), unique=True, nullable=True)
+    logo_path: Mapped[Optional[str]] = Column(String(), unique=True, nullable=True)
 
     tasks: Mapped[Optional[list["TestTasksOrm"]]] = relationship(
         back_populates = "employer"

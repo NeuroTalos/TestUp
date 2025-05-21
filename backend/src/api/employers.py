@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Request, HTTPException, Depends
+from fastapi import APIRouter, Request, HTTPException, Depends, UploadFile, File
 
 from src.queries.orm import AsyncORM
 from src.schemas.employers import EmployerGetSchema, EmployerAddSchema, EmployerUpdateSchema
-from src.api.functions import access_token_check, current_role
+from src.api.auth import access_token_check, current_role
+
 
 router = APIRouter(
     prefix = "/employers",
@@ -39,16 +40,17 @@ async def select_current_employer(request: Request) -> EmployerGetSchema:
 @router.post("/add")
 async def add_employer(employer: EmployerAddSchema):
     new_employer = {
-        "login" : employer.login,
-        "password" : employer.password,
+        "login": employer.login,
+        "password": employer.password,
         "company_name": employer.company_name,
         "email": employer.email,
         "phone": employer.phone,
         "telegram": employer.telegram,
+        "logo_path": employer.logo_path,
     }
 
     await AsyncORM.insert_employers([new_employer])
-    return {"ok": True}
+    return {"ok": True, "company_name": employer.company_name}
 
 
 @router.patch("/update_company_info")

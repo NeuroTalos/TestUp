@@ -85,6 +85,7 @@ default_employers = [
         "email": "sber_hr@mail.ru",
         "phone": "86753210784",
         "telegram": "@telegramSber",
+        "logo_path": "Sber/sber_logo.svg",
     },
     {
         "login": "Yandex",
@@ -93,6 +94,7 @@ default_employers = [
         "email": "yandex_practic@mail.ru",
         "phone": "88564328132",
         "telegram": "@telegramYandex",
+        "logo_path": "Iandeks/yandex_logo.svg",
     },
     {
         "login": "TBank",
@@ -101,6 +103,7 @@ default_employers = [
         "email": "t_bank@mail.ru",
         "phone": "85643250123",
         "telegram": None,
+        "logo_path": "T-Bank/tbank_logo.png",
     },
 ]
 

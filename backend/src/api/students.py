@@ -2,7 +2,8 @@ from fastapi import APIRouter, HTTPException, Request, Depends
 
 from src.queries.orm import AsyncORM
 from src.schemas.students import StudentAddSchema, StudentGetSchema, StudentUpdateSchema
-from src.api.functions import check_faculty, data_transform, access_token_check, current_role
+from src.api.functions import check_faculty, data_transform
+from src.api.auth import access_token_check, current_role
     
 
 router = APIRouter(
