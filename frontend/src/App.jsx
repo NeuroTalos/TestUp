@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './components/contexts/AuthContext.jsx';
+
 import Layout from './components/Layout';
 import RegistrationWidget from './components/registration_form/Registration.jsx';
 import HomeWidget from './components/home_form/Home.jsx';

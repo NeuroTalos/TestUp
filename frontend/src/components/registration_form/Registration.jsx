@@ -7,12 +7,13 @@ import LabeledInput from '../profile_form/LabeledInput';
 import PasswordInput from './Password_input';
 import RegistrationButton from './Registration_button';
 import DropdownSelect from '../profile_form/DropdownSelect';
+import EmployerLogoUpload from './EmployerLogoUpload';
 
 const { TabPane } = Tabs;
 
 const RegistrationWidget = () => {
   const [activeTab, setActiveTab] = useState('student');
-
+  
   // Student
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
@@ -29,13 +30,14 @@ const RegistrationWidget = () => {
   const [faculty, setFaculty] = useState(null);
   const [major, setMajor] = useState(null);
   
-  // Работодатель
+  // Employer
   const [employerLogin, setEmployerLogin] = useState('');
   const [employerPassword, setEmployerPassword] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [employerEmail, setEmployerEmail] = useState('');
   const [employerPhone, setEmployerPhone] = useState('');
   const [employerTelegram, setEmployerTelegram] = useState('');
+  const [employerLogo, setEmployerLogo] = useState(null);
 
   const [faculties, setFaculties] = useState([]);
   const [majors, setMajors] = useState([]);
@@ -85,61 +87,66 @@ const RegistrationWidget = () => {
     return gender;
   };
 
-  const handleSubmit = () => {
-    if (activeTab === 'student') {
-      const studentData = {
-        "login": login,
-        "password" : password,
-        "first_name" : firstName,
-        "last_name" : lastName,
-        "middle_name" : middleName,
-        "date_of_birth" : dob,
-        "email" : email,
-        "phone" : phone,
-        "telegram" : telegram,
-        "gender" : convertGenderToBackendFormat(gender),
-        "course" : course,
-        "group" : group,
-        "faculty_name"  : faculty,
-        "major_name" : major,
-      };
+  const handleSubmit = async () => {
+  if (activeTab === 'student') {
+    const studentData = {
+      login: login,
+      password: password,
+      first_name: firstName,
+      last_name: lastName,
+      middle_name: middleName,
+      date_of_birth: dob,
+      email: email,
+      phone: phone,
+      telegram: telegram,
+      gender: convertGenderToBackendFormat(gender),
+      course: course,
+      group: group,
+      faculty_name: faculty,
+      major_name: major,
+    };
 
-    // const updatedData = {
-    //   ...formData,
-    //   gender: convertGenderToBackendFormat(formData.gender),
-    // };
-
-    axios.post('http://127.0.0.1:8000/students/add', studentData)
-      .then(response => {
-        setRegistrationError(false);
-        navigate('/auth');
-      })
-      .catch(error => {
-        setRegistrationError(true);
-        if (cardRef.current) cardRef.current.scrollTop = 0;
-      });
-    
-    } else if (activeTab === 'employer') {
-      const employerData = {
-        "login": employerLogin,
-        "password": employerPassword,
-        "company_name": companyName,
-        "email": employerEmail,
-        "phone": employerPhone,
-        "telegram" : employerTelegram,
-      };
-    
-    axios.post('http://127.0.0.1:8000/employers/add', employerData)
-      .then(response => {
-        setRegistrationError(false);
-        navigate('/auth');
-      })
-      .catch(error => {
-        setRegistrationError(true);
-        if (cardRef.current) cardRef.current.scrollTop = 0;
-      });
+    try {
+      await axios.post('http://127.0.0.1:8000/students/add', studentData);
+      setRegistrationError(false);
+      navigate('/auth');
+    } catch (error) {
+      setRegistrationError(true);
+      if (cardRef.current) cardRef.current.scrollTop = 0;
     }
-  };
+
+  } else if (activeTab === 'employer') {
+    const employerData = {
+      login: employerLogin,
+      password: employerPassword,
+      company_name: companyName,
+      email: employerEmail,
+      phone: employerPhone,
+      telegram: employerTelegram,
+    };
+
+    try {
+      await axios.post('http://127.0.0.1:8000/employers/add', employerData);
+      setRegistrationError(false);
+
+      if (employerLogo && employerLogo.size <= 200 * 1024) {
+        const formData = new FormData();
+        formData.append('file', employerLogo);
+
+        try {
+          await axios.post(`http://127.0.0.1:8000/files/upload_logo/${companyName}`, formData);
+        } catch (uploadError) {
+          console.error('Ошибка загрузки логотипа:', uploadError);
+        }
+      }
+
+      navigate('/auth');
+    } catch (registrationError) {
+      setRegistrationError(true);
+      if (cardRef.current) cardRef.current.scrollTop = 0;
+    }
+  }
+};
 
   return (
     <div className="w-screen h-screen grid place-content-center px-4" style={{ backgroundColor: '#002040' }}>
@@ -191,7 +198,7 @@ const RegistrationWidget = () => {
                 <LabeledInput label="Дата рождения (ДД.ММ.ГГГГ)" maxLength={10} value={dob} onChange={handleInputChange(setDob)} mask="00.00.0000" />
                 <LabeledInput label="Электронная почта" maxLength={100} value={email} onChange={handleInputChange(setEmail)} />
                 <LabeledInput label="Телефон" maxLength={11} value={phone} onChange={handleInputChange(setPhone)} />
-                <LabeledInput label="Телеграм" maxLength={100} value={telegram} onChange={handleInputChange(setTelegram)} />
+                <LabeledInput label="Телеграм (опционально)" maxLength={100} value={telegram} onChange={handleInputChange(setTelegram)} />
                 <DropdownSelect label="Пол" options={['Мужской', 'Женский']} value={gender} onChange={setGender} />
                 <DropdownSelect label="Курс" options={['1', '2', '3', '4', '5']} value={course} onChange={handleCourseChange} />
                 <LabeledInput label="Группа" maxLength={15} value={group} onChange={handleInputChange(setGroup)} />
@@ -213,7 +220,8 @@ const RegistrationWidget = () => {
                 <LabeledInput label="Название компании" maxLength={100} value={companyName} onChange={handleInputChange(setCompanyName)} />
                 <LabeledInput label="Электронная почта" maxLength={100} value={employerEmail} onChange={handleInputChange(setEmployerEmail)} />
                 <LabeledInput label="Телефон" maxLength={11} value={employerPhone} onChange={handleInputChange(setEmployerPhone)} />
-                <LabeledInput label="Телеграм" maxLength={100} value={employerTelegram} onChange={handleInputChange(setEmployerTelegram)} />
+                <LabeledInput label="Телеграм (опционально)" maxLength={100} value={employerTelegram} onChange={handleInputChange(setEmployerTelegram)} />
+                <EmployerLogoUpload onFileSelect={setEmployerLogo} />
               </TabPane>
           </Tabs>
 

@@ -1,12 +1,14 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { LogoutOutlined, UserOutlined, BankOutlined } from '@ant-design/icons';
 import { Menu, Avatar, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 
-const Sidebar = ({ selectedKey, onSelect, fullName }) => {
+const Sidebar = ({ selectedKey, onSelect, fullName, logoUrl, role }) => {
     const navigate = useNavigate();
-    const { logout, role } = useContext(AuthContext);
+    const { logout } = useContext(AuthContext);
+
+    const [logoError, setLogoError] = useState(false);
 
     const handleLogout = () => {
         logout();
@@ -15,19 +17,32 @@ const Sidebar = ({ selectedKey, onSelect, fullName }) => {
 
     const isEmployer = role === 'employer';
     const secondTabText = isEmployer ? 'Размещённые задания' : 'Решённые задания';
-    const avatarIcon = isEmployer ? <BankOutlined style={{ fontSize: '32px' }} /> : <UserOutlined style={{ fontSize: '32px' }} />;
+
+    const renderAvatar = () => {
+        if (logoUrl && !logoError) {
+            return (
+                <Avatar
+                    size={64}
+                    src={logoUrl}
+                    alt="Логотип компании"
+                    onError={() => setLogoError(true)}
+                    style={{ backgroundColor: 'transparent' }}
+                />
+            );
+        }
+
+        if (isEmployer) {
+            return <Avatar size={64} icon={<BankOutlined style={{ fontSize: '32px' }} />} style={{ backgroundColor: '#1890ff' }} />;
+        }
+
+        return <Avatar size={64} icon={<UserOutlined style={{ fontSize: '32px' }} />} style={{ backgroundColor: '#1890ff' }} />;
+    };
 
     return (
         <div className="h-screen w-80 flex flex-col shadow" style={{ backgroundColor: '#002040' }}>
             <div className="flex flex-col items-center px-6 py-6 text-white">
-                <Avatar
-                    size={64}
-                    icon={avatarIcon}
-                    style={{ backgroundColor: '#1890ff' }}
-                />
-                <div className="mt-5 text-center text-base font-semibold leading-tight">
-                    {fullName}
-                </div>
+                {renderAvatar()}
+                <div className="mt-5 text-center text-base font-semibold leading-tight">{fullName}</div>
             </div>
 
             <Menu

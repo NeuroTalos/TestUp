@@ -50,7 +50,7 @@ async def add_employer(employer: EmployerAddSchema):
     }
 
     await AsyncORM.insert_employers([new_employer])
-    return {"ok": True, "company_name": employer.company_name}
+    return {"ok": True}
 
 
 @router.patch("/update_company_info")

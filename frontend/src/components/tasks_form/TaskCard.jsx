@@ -1,12 +1,13 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { FaBriefcase } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import { toast } from 'react-toastify';
 
-const TaskCard = ({ id, employer_name, title, difficulty, status, fullTask }) => {
+const TaskCard = ({ id, employer_name, title, difficulty, status, fullTask, logoUrl }) => {
     const navigate = useNavigate();
     const { isAuthenticated } = useContext(AuthContext);
+    const [imgError, setImgError] = useState(false);
 
     const handleClick = () => {
         if (!isAuthenticated) {
@@ -52,7 +53,16 @@ const TaskCard = ({ id, employer_name, title, difficulty, status, fullTask }) =>
             style={{ backgroundColor: '#343F4D', color: '#ffffff' }}
         >
             <div className="flex items-center mb-2">
-                <FaBriefcase className="text-white text-2xl mr-2" />
+                {logoUrl && !imgError ? (
+                    <img
+                        src={logoUrl}
+                        alt={`${employer_name} logo`}
+                        className="w-8 h-8 rounded mr-2 object-contain"
+                        onError={() => setImgError(true)}
+                    />
+                ) : (
+                    <FaBriefcase className="text-white text-2xl mr-2" />
+                )}
                 <span className="font-semibold text-lg">{employer_name}</span>
             </div>
             <div className="text-lg font-bold mb-1">{title}</div>

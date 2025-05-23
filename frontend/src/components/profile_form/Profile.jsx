@@ -9,6 +9,7 @@ import TaskCard from '../tasks_form/TaskCard';
 import Pagination from '../tasks_form/Pagination';
 import { AuthContext } from '../contexts/AuthContext';
 
+
 const ProfileWidget = () => {
     const { role } = useContext(AuthContext);
     const [profile, setProfile] = useState(null);
@@ -17,7 +18,6 @@ const ProfileWidget = () => {
     const [selectedTab, setSelectedTab] = useState('info');
     const [currentPage, setCurrentPage] = useState(1);
     const tasksPerPage = 6;
-    
 
     const getGenderText = (gender) => {
         switch (gender) {
@@ -38,6 +38,8 @@ const ProfileWidget = () => {
                 return 'Нормально';
             case 'hard':
                 return 'Сложно';
+            default:
+                return 'Неизвестно';
         }
     };
 
@@ -47,7 +49,14 @@ const ProfileWidget = () => {
                 return 'Активно';
             case 'completed':
                 return 'Завершено';
+            default:
+                return 'Неизвестно';
         }
+    };
+
+    const getLogoUrl = (companyName) => {
+        if (!companyName) return null;
+        return `http://127.0.0.1:8000/files/get_logo/${encodeURIComponent(companyName)}`;
     };
 
     useEffect(() => {
@@ -70,6 +79,8 @@ const ProfileWidget = () => {
                 });
 
                 setProfile(response.data);
+                console.log(response.data)
+                setError(null);
             } catch (error) {
                 setError('Ошибка при загрузке профиля');
                 console.error('Ошибка при загрузке профиля:', error);
@@ -103,6 +114,9 @@ const ProfileWidget = () => {
     const totalPages = Math.ceil(tasks.length / tasksPerPage);
     const displayedTasks = tasks.slice((currentPage - 1) * tasksPerPage, currentPage * tasksPerPage);
 
+    const logoUrl = role === 'employer' && profile?.company_name ? getLogoUrl(profile.company_name) : null;
+    console.log(logoUrl)
+
     return (
         <div className="flex w-screen h-screen" style={{ backgroundColor: '#002040' }}>
             <Sidebar
@@ -113,6 +127,8 @@ const ProfileWidget = () => {
                 }
                 selectedKey={selectedTab}
                 onSelect={setSelectedTab}
+                logoUrl={logoUrl}
+                role={role}
             />
             <div className="flex-1 overflow-auto">
                 {selectedTab === 'info' && (
@@ -139,11 +155,13 @@ const ProfileWidget = () => {
                             {displayedTasks.map((task) => (
                                 <TaskCard
                                     key={task.id}
+                                    id={task.id}
                                     employer_name={profile.company_name}
                                     title={task.title}
                                     difficulty={getDifficultyLabel(task.difficulty)}
                                     status={getStatusLabel(task.status)}
                                     fullTask={task}
+                                    logoUrl={logoUrl}
                                 />
                             ))}
                         </div>

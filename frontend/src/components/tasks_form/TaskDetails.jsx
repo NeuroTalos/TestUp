@@ -1,6 +1,4 @@
 import React from 'react';
-import { FaBriefcase } from 'react-icons/fa'; // Иконка для компании
-import { FaRegFile, FaFilePdf, FaRegFileImage } from 'react-icons/fa'; // Иконки для файлов
 import TaskInfo from './TaskInfo';
 import TaskStudentSolutionForm from './TaskStudentSolutionForm';
 

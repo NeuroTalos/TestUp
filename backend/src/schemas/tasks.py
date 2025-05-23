@@ -22,18 +22,12 @@ class PaginationsParams(BaseModel):
     page: int = Field(1, ge=0, description="Номер страницы")
 
 
-class TaskEmployerGetSchema(BaseModel):
+class TaskGetSchema(BaseModel):
     id: int
     title: str
     description: str 
     difficulty: Difficulty
     status: Status
-
-    class Config:
-        from_attributes = True
-
-
-class TaskGetSchema(TaskEmployerGetSchema):
     employer_name: str
 
     solutions: Optional[list[SolutionsGetSchema]]

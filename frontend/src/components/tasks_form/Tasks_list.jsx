@@ -50,6 +50,11 @@ const TasksListWidget = () => {
         }
     };
 
+    const getLogoUrl = (companyName) => {
+        if (!companyName) return null;
+        return `http://127.0.0.1:8000/files/get_logo/${encodeURIComponent(companyName)}`;
+    };
+
     return (
         <div className="w-screen h-screen p-8 overflow-y-auto flex flex-col" style={{ backgroundColor: '#002040' }}>
             <h2 className="text-2xl font-bold mb-14 text-center text-white">Список заданий</h2>
@@ -64,6 +69,7 @@ const TasksListWidget = () => {
                     difficulty={getDifficultyLabel(task.difficulty)} 
                     status={getStatusLabel(task.status)}
                     fullTask={task}
+                    logoUrl={getLogoUrl(task.employer_name)}
                 />
                 ))}
             </div>

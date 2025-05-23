@@ -235,8 +235,10 @@ class AsyncORM:
                     EmployersOrm.email,
                     EmployersOrm.phone,
                     EmployersOrm.telegram,
+                    EmployersOrm.logo_path,
                     ),
                     selectinload(EmployersOrm.tasks)
+                    .selectinload(TestTasksOrm.solutions),
                 )   
              )
             result = await session.execute(query)

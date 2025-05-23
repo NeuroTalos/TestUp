@@ -5,6 +5,7 @@ import mimetypes
 from fastapi import APIRouter, HTTPException, UploadFile, File, Request
 from fastapi.responses import StreamingResponse
 from unidecode import unidecode
+from async_lru import alru_cache
 
 from src.minio_client import minio_client
 from src.config import settings
@@ -31,8 +32,8 @@ def validate_file_extension(filename: str):
     return ext
 
 
-@router.post("/upload_logo")
-async def upload_logo(company_name: str, file: UploadFile = File(...)):
+@router.post("/upload_logo/{company_name}")
+async def upload_logo(company_name: str, file: UploadFile = File(...)):    
     file_bytes = await file.read()
     file_size = len(file_bytes)
 
@@ -66,11 +67,13 @@ async def upload_logo(company_name: str, file: UploadFile = File(...)):
         )
 
 
-@router.get("/get_logo")
-async def get_employer_logo(company_name, request: Request):
-    token_data = await access_token_check(request)
+@router.get("/get_logo/{company_name}")
+async def get_employer_logo(company_name: str):
+    @alru_cache(maxsize=128)
+    async def _get_logo_path(name: str):
+        return await AsyncORM.select_employer_logo_path_by_name(name)
 
-    logo_path = await AsyncORM.select_employer_logo_path_by_name(company_name)
+    logo_path = await _get_logo_path(company_name)
 
     if not logo_path:
         raise HTTPException(status_code=404, detail="Логотип не найден")
@@ -87,7 +90,10 @@ async def get_employer_logo(company_name, request: Request):
         return StreamingResponse(
             content = minio_response,
             media_type = mime_type,
-            headers = {"Content-Disposition": f"inline; filename={os.path.basename(logo_path)}"}
+            headers = {
+                "Cache-Control": "public, max-age=86400",
+                "Content-Disposition": f"inline; filename={os.path.basename(logo_path)}",
+            }
         )
     
     except Exception as e:
