@@ -1,5 +1,5 @@
 from typing import Annotated, Optional
-from datetime import date
+from datetime import date, datetime, timezone
 from enum import Enum as PyEnum
 
 from sqlalchemy import (
@@ -10,7 +10,9 @@ from sqlalchemy import (
     CheckConstraint,
     ForeignKey,
     Text,
-    Enum
+    Enum,
+    DateTime,
+    func
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -113,12 +115,27 @@ class TestTasksOrm(Base):
     __tablename__ = 'test_tasks'
 
     id: Mapped[int_pk]
-    title: Mapped[str] = Column(String, unique=True, index=True)
+    title: Mapped[str] = Column(String, index=True)
     description: Mapped[str] = Column(Text)
     difficulty: Mapped[Difficulty]
     status: Mapped[Status] = Column(Enum(Status), default=Status.active, index=True)
+    
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default = lambda: datetime.now(timezone.utc)
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default = lambda: datetime.now(timezone.utc),
+        onupdate = lambda: datetime.now(timezone.utc)
+    )
+
     employer_name: Mapped[str] = mapped_column(ForeignKey("employers.company_name", ondelete = "CASCADE", onupdate = "CASCADE"))
     
+    files: Mapped[Optional[list["TestTaskFileLinks"]]] = relationship(
+        back_populates = "test_task"
+    )
+
     solutions: Mapped[Optional[list["TaskSolutionsOrm"]]] = relationship(
         back_populates = "task"
     )
@@ -128,6 +145,17 @@ class TestTasksOrm(Base):
     )
 
 
+class TestTaskFileLinks(Base):
+    __tablename__ = 'test_task_file_links'
+
+    id: Mapped[int_pk]
+    file_path: Mapped[str] = Column(String(), unique=True)
+    task_id: Mapped[int] = mapped_column(ForeignKey("test_tasks.id", ondelete = "CASCADE"))
+
+    test_task: Mapped["TestTasksOrm"] = relationship(
+        back_populates = "files"
+    )
+
 class TaskSolutionsOrm(Base):
     __tablename__ = 'tasks_solutions'
 
@@ -135,6 +163,11 @@ class TaskSolutionsOrm(Base):
     solution_description: Mapped[str] = Column(Text)
     task_id: Mapped[int] = mapped_column(ForeignKey("test_tasks.id", ondelete = "CASCADE"))
     student_id: Mapped[int] = mapped_column(ForeignKey("students.id", ondelete = "CASCADE"))
+    
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default = lambda: datetime.now(timezone.utc)
+    )
 
     task: Mapped["TestTasksOrm"] = relationship(
         back_populates = "solutions"

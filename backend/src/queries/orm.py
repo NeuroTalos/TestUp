@@ -18,6 +18,7 @@ from src.models import (
     EmployersOrm,
     TestTasksOrm,
     TaskSolutionsOrm,
+    TestTaskFileLinks,
 )
 from src.schemas.faculties import FacultyGetSchema
 from src.schemas.majors import MajorGetSchema, MajorSchema
@@ -77,10 +78,28 @@ class AsyncORM:
             await session.commit()
     
     @staticmethod
-    async def insert_tasks(tasks):
+    async def insert_one_task(tasks: list[dict]) -> int:
+        async with async_session_factory() as session:
+            task_dict = tasks[0]
+            task_obj = TestTasksOrm(**task_dict)
+            session.add(task_obj)
+            await session.flush()
+            inserted_id = task_obj.id 
+            await session.commit()
+            return inserted_id
+    
+    @staticmethod
+    async def insert_tasks(tasks: list[TestTasksOrm]):
         async with async_session_factory() as session:
             insert_tasks = insert(TestTasksOrm).values(tasks)
             await session.execute(insert_tasks)
+            await session.commit()
+
+    @staticmethod
+    async def insert_task_file_links(task_file_links: list[TestTaskFileLinks]):
+        async with async_session_factory() as session:   
+            insert_task_file_paths = insert(TestTaskFileLinks).values(task_file_links)
+            await session.execute(insert_task_file_paths)
             await session.commit()
     
     @staticmethod
@@ -149,12 +168,14 @@ class AsyncORM:
                     StudentsOrm.date_of_birth,
                     StudentsOrm.email,
                     StudentsOrm.phone,
+                    StudentsOrm.telegram,
                     StudentsOrm.gender,
                     StudentsOrm.course,
                     StudentsOrm.group,
                     StudentsOrm.faculty_name,
                     StudentsOrm.major_name,
-                    )
+                    ),
+                    selectinload(StudentsOrm.ready_solutions)
                 )   
              )
             result = await session.execute(query)
@@ -205,15 +226,23 @@ class AsyncORM:
                     load_only(
                         EmployersOrm.company_name,
                         EmployersOrm.email,
+                        EmployersOrm.telegram,
                         EmployersOrm.phone,
+                        EmployersOrm.logo_path,
                     ),
-                    selectinload(EmployersOrm.tasks)
-                    .load_only(
-                        TestTasksOrm.id,
-                        TestTasksOrm.title,
-                        TestTasksOrm.description,
-                        TestTasksOrm.difficulty,
-                        TestTasksOrm.status
+                    selectinload(EmployersOrm.tasks).options(
+                        load_only(
+                            TestTasksOrm.id,
+                            TestTasksOrm.title,
+                            TestTasksOrm.description,
+                            TestTasksOrm.difficulty,
+                            TestTasksOrm.status,
+                            TestTasksOrm.employer_name,
+                            TestTasksOrm.created_at,
+                            TestTasksOrm.updated_at,
+                        ),
+                        selectinload(TestTasksOrm.files),
+                        selectinload(TestTasksOrm.solutions),
                     )
                 )
             )
@@ -237,8 +266,10 @@ class AsyncORM:
                     EmployersOrm.telegram,
                     EmployersOrm.logo_path,
                     ),
-                    selectinload(EmployersOrm.tasks)
-                    .selectinload(TestTasksOrm.solutions),
+                    selectinload(EmployersOrm.tasks).options(
+                        selectinload(TestTasksOrm.files),
+                        selectinload(TestTasksOrm.solutions),
+                    )
                 )   
              )
             result = await session.execute(query)
@@ -249,6 +280,21 @@ class AsyncORM:
             employer_schema = EmployerGetSchema.model_validate(employer)
            
             return employer_schema
+        
+    @staticmethod
+    async def select_employer_name_by_id(employer_id: int) -> str:
+        async with async_session_factory() as session:
+            query = (
+                select(EmployersOrm.company_name)
+                .filter(EmployersOrm.id == employer_id)
+             )
+            result = await session.execute(query)
+            company_name = result.scalars().one_or_none()
+
+            if not company_name:
+                return False
+           
+            return company_name
         
     @staticmethod
     async def select_employer_logo_path_by_name(company_name: str) -> str:
@@ -270,7 +316,10 @@ class AsyncORM:
         async with async_session_factory() as session:
             query = (
                 select(TestTasksOrm)
-                .options(selectinload(TestTasksOrm.solutions))
+                .options(
+                    selectinload(TestTasksOrm.solutions),
+                    selectinload(TestTasksOrm.files)
+                    )
                 .limit(limit)
                 .offset(offset)
             )

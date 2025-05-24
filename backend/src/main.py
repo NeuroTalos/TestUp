@@ -16,6 +16,7 @@ from src.queries.values import(
     default_majors,
     default_employers,
     default_tasks,
+    default_test_task_file_links,
     default_solutions,
     )
 from src.api import main_router
@@ -31,6 +32,7 @@ async def lifespan(app: FastAPI):
     await AsyncORM.insert_employers(default_employers)
     await AsyncORM.insert_tasks(default_tasks)
     await AsyncORM.insert_solutions(default_solutions)
+    await AsyncORM.insert_task_file_links(default_test_task_file_links)
 
     yield
 

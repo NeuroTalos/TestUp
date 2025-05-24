@@ -9,6 +9,7 @@ import AuthWidget from './components/auth_form/Auth.jsx';
 import ProfileWidget from './components/profile_form/Profile.jsx';
 import TasksListWidget from './components/tasks_form/Tasks_list.jsx';
 import TaskPage from './components/tasks_form/TaskPage.jsx'
+import TaskCreate from './components/tasks_form/TaskCreate.jsx';
 import { ToastContainer } from 'react-toastify';
 
 function App() {
@@ -35,6 +36,9 @@ function App() {
 
               {/* Страница с конкретной задачей */}
               <Route path="/tasks/:id" element={<TaskPage />} />
+
+              {/* Страница для создания задачи */}
+              <Route path="/tasks/add" element={<TaskCreate />} />
             </Route>
           </Routes>
           <ToastContainer position="top-center" autoClose={3000} />

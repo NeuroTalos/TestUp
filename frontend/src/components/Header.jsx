@@ -1,13 +1,15 @@
-import React, { useContext} from 'react';
-import { Button, Menu, Dropdown} from 'antd';
-import { UserAddOutlined, LoginOutlined, UserOutlined, DownOutlined, LogoutOutlined } from '@ant-design/icons';
+import React, { useContext } from 'react';
+import { Button, Menu, Dropdown } from 'antd';
+import { UserAddOutlined, LoginOutlined, UserOutlined, DownOutlined, LogoutOutlined, PlusOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from './contexts/AuthContext';
-
+import { useMediaQuery } from 'react-responsive';
 
 const Header = () => {
-  const { isAuthenticated, logout } = useContext(AuthContext);
+  const { isAuthenticated, role, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  const isSmallScreen = useMediaQuery({ maxWidth: 780 });
 
   const menuStyle = {
     display: 'flex',
@@ -97,7 +99,19 @@ const Header = () => {
         </Menu.Item>
       </Menu>
 
-      <div>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        {isAuthenticated && role === 'employer' && (
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            style={{ marginRight: 15 }}
+            onClick={() => navigate('/tasks/add')}
+          >
+            
+            {!isSmallScreen && 'Создать задание'}
+          </Button>
+        )}
+
         {isAuthenticated ? (
           <Dropdown menu={ProfileMenu} trigger={['click']}>
               <Button

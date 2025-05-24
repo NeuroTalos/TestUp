@@ -71,7 +71,7 @@ const TaskStudentSolutionForm = ({ handleSubmit }) => {
 
                 <button
                     type="submit"
-                    className="mt-8 w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-500"
+                    className="mt-7 w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500"
                 >
                     Отправить решение
                 </button>

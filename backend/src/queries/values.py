@@ -159,6 +159,25 @@ default_tasks = [
     },
 ]
 
+default_test_task_file_links = [
+    {
+        "file_path": "task_1/Solutions.docx",
+        "task_id": 1,
+    },
+    {
+        "file_path": "task_1/Моё_решение.xlsx",
+        "task_id": 1,
+    },
+    {
+        "file_path": "task_2/Описание.txt",
+        "task_id": 2,
+    },
+    {
+        "file_path": "task_3/Архив.rar",
+        "task_id": 3,
+    },
+]
+
 default_solutions = [
     {
         "solution_description": "Здесь находится решение задачи",

@@ -23,6 +23,7 @@ const TasksListWidget = () => {
     
         fetchTasks();
     }, [currentPage]);
+    console.log(tasks)
 
     const getDifficultyLabel = (difficulty) => {
         switch (difficulty) {
