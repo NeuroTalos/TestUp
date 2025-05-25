@@ -69,6 +69,7 @@ const TasksListWidget = () => {
                     title={task.title}
                     difficulty={getDifficultyLabel(task.difficulty)} 
                     status={getStatusLabel(task.status)}
+                    created_at={task.created_at}
                     fullTask={task}
                     logoUrl={getLogoUrl(task.employer_name)}
                 />

@@ -19,12 +19,14 @@ from src.models import (
     TestTasksOrm,
     TaskSolutionsOrm,
     TestTaskFileLinks,
+    TaskSolutionFileLinks,
 )
 from src.schemas.faculties import FacultyGetSchema
 from src.schemas.majors import MajorGetSchema, MajorSchema
 from src.schemas.students import StudentSchema, StudentGetSchema, StudentUpdateSchema
 from src.schemas.tasks import TaskGetSchema
 from src.schemas.employers import EmployerGetSchema, EmployerUpdateSchema
+from src.schemas.solutions import SolutionGetSchema
 
 
 class AsyncORM:
@@ -103,12 +105,29 @@ class AsyncORM:
             await session.commit()
     
     @staticmethod
+    async def insert_one_solution(solutions: list[dict]) -> int:
+        async with async_session_factory() as session:
+            task_dict = solutions[0]
+            task_obj = TaskSolutionsOrm(**task_dict)
+            session.add(task_obj)
+            await session.flush()
+            inserted_id = task_obj.id 
+            await session.commit()
+            return inserted_id
+
+    @staticmethod
     async def insert_solutions(solutions):
         async with async_session_factory() as session:
             insert_solutions = insert(TaskSolutionsOrm).values(solutions)
             await session.execute(insert_solutions)
             await session.commit()
 
+    @staticmethod
+    async def insert_solution_file_links(solution_file_links: list[TaskSolutionFileLinks]):
+        async with async_session_factory() as session:   
+            insert_task_file_paths = insert(TaskSolutionFileLinks).values(solution_file_links)
+            await session.execute(insert_task_file_paths)
+            await session.commit()
 
     # --------------SELECT--------------
 
@@ -176,6 +195,7 @@ class AsyncORM:
                     StudentsOrm.major_name,
                     ),
                     selectinload(StudentsOrm.ready_solutions)
+                    .selectinload(TaskSolutionsOrm.files)
                 )   
              )
             result = await session.execute(query)
@@ -206,6 +226,7 @@ class AsyncORM:
                     StudentsOrm.major_name,
                     ),
                     selectinload(StudentsOrm.ready_solutions)
+                    .selectinload(TaskSolutionsOrm.files)
                 )   
              )
             result = await session.execute(query)
@@ -242,7 +263,8 @@ class AsyncORM:
                             TestTasksOrm.updated_at,
                         ),
                         selectinload(TestTasksOrm.files),
-                        selectinload(TestTasksOrm.solutions),
+                        selectinload(TestTasksOrm.solutions)
+                        .selectinload(TaskSolutionsOrm.files),
                     )
                 )
             )
@@ -268,7 +290,8 @@ class AsyncORM:
                     ),
                     selectinload(EmployersOrm.tasks).options(
                         selectinload(TestTasksOrm.files),
-                        selectinload(TestTasksOrm.solutions),
+                        selectinload(TestTasksOrm.solutions)
+                        .selectinload(TaskSolutionsOrm.files),
                     )
                 )   
              )
@@ -280,6 +303,28 @@ class AsyncORM:
             employer_schema = EmployerGetSchema.model_validate(employer)
            
             return employer_schema
+        
+    @staticmethod
+    async def select_employer_tasks_by_name(employer_name: str) -> list[TaskGetSchema]:
+        async with async_session_factory() as session:
+            query = (
+                select(TestTasksOrm)
+                .filter(TestTasksOrm.employer_name == employer_name)
+                .options(
+                        selectinload(TestTasksOrm.files),
+                        selectinload(TestTasksOrm.solutions)
+                        .selectinload(TaskSolutionsOrm.files),
+                    )
+                )   
+            result = await session.execute(query)
+            tasks = result.scalars().all()
+
+            if not tasks:
+                return False
+
+            tasks_schema = [TaskGetSchema.model_validate(task) for task in tasks]
+           
+            return tasks_schema
         
     @staticmethod
     async def select_employer_name_by_id(employer_id: int) -> str:
@@ -317,8 +362,9 @@ class AsyncORM:
             query = (
                 select(TestTasksOrm)
                 .options(
-                    selectinload(TestTasksOrm.solutions),
-                    selectinload(TestTasksOrm.files)
+                    selectinload(TestTasksOrm.files),
+                    selectinload(TestTasksOrm.solutions)
+                    .selectinload(TaskSolutionsOrm.files),
                     )
                 .limit(limit)
                 .offset(offset)
@@ -332,6 +378,39 @@ class AsyncORM:
             total_count = total_result.scalar_one()
 
             return tasks_schemas, total_count
+        
+    @staticmethod
+    async def select_task_solutions(task_id: int) -> list[SolutionGetSchema]:
+        async with async_session_factory() as session:
+            query = (
+                select(TaskSolutionsOrm)
+                .filter(TaskSolutionsOrm.task_id == task_id)
+                .options(
+                        selectinload(TaskSolutionsOrm.files),
+                        selectinload(TaskSolutionsOrm.student)
+                        .load_only(
+                            StudentsOrm.first_name,
+                            StudentsOrm.last_name,
+                            StudentsOrm.middle_name,
+                            StudentsOrm.email,
+                            StudentsOrm.phone,
+                            StudentsOrm.telegram,
+                            StudentsOrm.group,
+                            StudentsOrm.course,
+                            StudentsOrm.faculty_name,
+                            StudentsOrm.major_name
+                            )
+                        )
+                    )  
+            result = await session.execute(query)
+            solutions = result.scalars().all()
+            
+            if not solutions:
+                return False
+
+            solutions_schema = [SolutionGetSchema.model_validate(task) for task in solutions]
+           
+            return solutions_schema
 
     @staticmethod
     async def check_password(login: str, plain_password: str) -> tuple[bool, str | None]:

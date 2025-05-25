@@ -18,7 +18,7 @@ async def select_students() -> list[StudentGetSchema]:
 
     return students
 
-@router.get("/{student_id}")
+@router.get("/current_student")
 async def select_current_student(request: Request) -> StudentGetSchema:
     token_data = await access_token_check(request)
     role = await current_role(request)

@@ -17,20 +17,32 @@ PaginationDep = Annotated[PaginationsParams, Depends(PaginationsParams)]
 
 
 @router.get("")
-async def select_tasks(paggination: PaginationDep) -> TaskListResponseSchema:
-    offset = (paggination.page - 1) * paggination.limit
+async def select_tasks(
+    paggination: PaginationDep,
+    request: Request,
+    token_data = Depends(access_token_check),
+    ) -> TaskListResponseSchema:
+    role = await current_role(request)
+
+    if role == "student":
+
+        offset = (paggination.page - 1) * paggination.limit
+        
+        tasks, total_count = await AsyncORM.select_tasks(
+            limit = paggination.limit,
+            offset = offset
+        )
+
+        total_pages = (total_count + paggination.limit - 1) // paggination.limit
+
+        return {
+            "tasks": tasks,
+            "total_pages": total_pages,
+        }
     
-    tasks, total_count = await AsyncORM.select_tasks(
-        limit = paggination.limit,
-        offset = offset
-    )
+    else:
+        raise HTTPException(status_code=403, detail="Доступ к ресурсу ограничен для вашей роли")
 
-    total_pages = (total_count + paggination.limit - 1) // paggination.limit
-
-    return {
-        "tasks": tasks,
-        "total_pages": total_pages,
-    }
 
 @router.post("/add")
 async def add_task(

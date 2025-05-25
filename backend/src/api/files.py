@@ -121,7 +121,6 @@ async def upload_task_files(
     role = await current_role(request)
 
     if role == "employer":
-        employer_id = int(token_data.sub)
 
         task_file_links = []
         for file in files:
@@ -182,6 +181,81 @@ async def get_task_files(
         media_type="application/zip",
         headers={
             "Content-Disposition": "attachment; filename=task_files.zip",
+            "Cache-Control": "public, max-age=14400"
+        }
+    )
+
+
+@router.post("/upload_solution_files/{solution_id}")
+async def upload_solution_files(
+    solution_id: int,
+    request: Request,
+    files: list[UploadFile] = File(...),
+    token_data = Depends(access_token_check),
+    ):
+    role = await current_role(request)
+
+    if role == "student":
+
+        solution_file_links = []
+        for file in files:
+            file_bytes = await file.read()
+            if len(file_bytes) > MAX_FILE_SIZE:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Файл {file.filename} превышает максимальный размер 20 МБ."
+                )
+
+            file_path = f"solution_{solution_id}/{file.filename}"
+        
+            try:
+                minio_client.put_object(
+                bucket_name = settings.MINIO_BUCKET_SOLUTIONS,
+                object_name = file_path,
+                data = BytesIO(file_bytes),
+                length = len(file_bytes),
+                content_type = file.content_type
+            )
+                solution_file_links.append({"file_path": file_path, "solution_id": solution_id})
+
+            except Exception:
+                raise HTTPException(status_code=500, detail=f"Ошибка при загрузке файла {file.filename}")
+
+        await AsyncORM.insert_solution_file_links(solution_file_links)
+
+        return {"message": "Файлы успешно загружены!"}
+
+    else:
+        raise HTTPException(status_code=403, detail="Доступ к ресурсу ограничен для вашей роли")
+    
+
+@router.post("/get_solution_files/")
+async def get_solution_files(
+    file_paths: list[str],
+    token_data = Depends(access_token_check),
+    ):
+    
+    if not file_paths:
+        return {"message": "Нет файлов для скачивания"}
+    
+    zip_buffer = BytesIO()
+
+    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+        for path in file_paths:
+            try:
+                response = minio_client.get_object(settings.MINIO_BUCKET_SOLUTIONS, path)
+                file_data = response.read()
+                zip_file.writestr(os.path.basename(path), file_data)
+            except Exception:
+                raise HTTPException(status_code=404, detail=f"Файл {path} не найден")
+
+    zip_buffer.seek(0)
+
+    return StreamingResponse(
+        content=zip_buffer,
+        media_type="application/zip",
+        headers={
+            "Content-Disposition": "attachment; filename=solution_files.zip",
             "Cache-Control": "public, max-age=14400"
         }
     )

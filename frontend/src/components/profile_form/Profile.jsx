@@ -65,9 +65,9 @@ const ProfileWidget = () => {
                 let url;
 
                 if (role === 'student') {
-                    url = 'http://127.0.0.1:8000/students/{student_id}';
+                    url = 'http://127.0.0.1:8000/students/current_student';
                 } else if (role === 'employer') {
-                    url = 'http://127.0.0.1:8000/employers/{employer_id}';
+                    url = 'http://127.0.0.1:8000/employers/current_employer';
                 } else {
                     setError('Неизвестная роль');
                     setLoading(false);

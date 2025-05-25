@@ -1,7 +1,10 @@
+from math import ceil
+
 from fastapi import APIRouter, Request, HTTPException, Depends, UploadFile, File
 
 from src.queries.orm import AsyncORM
 from src.schemas.employers import EmployerGetSchema, EmployerAddSchema, EmployerUpdateSchema
+from src.schemas.tasks import TaskGetSchema, PaginationsParams
 from src.api.auth import access_token_check, current_role
 
 
@@ -18,7 +21,7 @@ async def select_employers() -> list[EmployerGetSchema]:
     return students
 
 
-@router.get("/{employer_id}")
+@router.get("/current_employer")
 async def select_current_employer(request: Request) -> EmployerGetSchema:
     token_data = await access_token_check(request)
     role = await current_role(request)
@@ -35,6 +38,38 @@ async def select_current_employer(request: Request) -> EmployerGetSchema:
     
     else:
         raise HTTPException(status_code=403, detail="Доступ к ресурсу ограничен для вашей роли")
+
+
+@router.get("/current_tasks")
+async def select_current_employer_tasks(request: Request, pagination: PaginationsParams = Depends()):
+    token_data = await access_token_check(request)
+    role = await current_role(request)
+
+    if role == "employer":
+        employer_id = int(token_data.sub)
+
+        employer_name = await AsyncORM.select_employer_name_by_id(employer_id)
+
+        current_employer_tasks = await AsyncORM.select_employer_tasks_by_name(employer_name)
+
+        if not current_employer_tasks:
+            raise HTTPException(status_code=404, detail="Задания не найдены")
+
+        total_tasks = len(current_employer_tasks)
+        total_pages = ceil(total_tasks / pagination.limit) if pagination.limit > 0 else 1
+
+        start = (pagination.page - 1) * pagination.limit
+        end = start + pagination.limit
+        paged_tasks = current_employer_tasks[start:end]
+
+        return {
+            "tasks": paged_tasks,
+            "total_pages": total_pages
+        }
+    
+    else:
+        raise HTTPException(status_code=403, detail="Доступ к ресурсу ограничен для вашей роли")
+
 
 
 @router.post("/add")

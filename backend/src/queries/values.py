@@ -44,7 +44,7 @@ default_students = [
 
     {
         "login": "Niko2003",
-        "password": "mypassword",
+        "password": "123",
         "first_name": "Николай",
         "last_name": "Резнов",
         "middle_name": "Викторович",
@@ -178,10 +178,57 @@ default_test_task_file_links = [
     },
 ]
 
+
+huge_decsription = """
+Разработанный сервис предоставляет пользователю функциональность анализа текстов с возможностью определения ключевых слов, 
+подсчёта частоты слов и выявления тональности текста. В основе решения лежит использование методов обработки естественного языка (NLP) и библиотек, таких как spaCy и NLTK. 
+Интерфейс сервиса реализован в виде веб-приложения с удобной формой ввода, поддерживающей как ручной ввод текста, так и загрузку файлов. 
+Анализ проводится в реальном времени с выводом статистики, графиков и краткого резюме. Также предусмотрена возможность скачивания отчёта в формате PDF. 
+Особое внимание уделено оптимизации скорости обработки и поддержке русского языка. Сервис может быть полезен для журналистов, маркетологов и студентов.
+"""
+
 default_solutions = [
     {
-        "solution_description": "Здесь находится решение задачи",
+        "solution_description": huge_decsription,
         "task_id": 1,
         "student_id": 1,
+    },
+    {
+        "solution_description": "Решение №1",
+        "task_id": 1,
+        "student_id": 2,
+    },
+    {
+        "solution_description": "Лучшее решение этой задачи",
+        "task_id": 1,
+        "student_id": 3,
+    },
+    {
+        "solution_description": "Это решение!",
+        "task_id": 2,
+        "student_id": 1,
+    },
+]
+
+default_task_solution_file_links = [
+    {
+        "file_path": "solution_1/Моё_решение.xlsx",
+        "solution_id": 1,
+    },
+    {
+        "file_path": "solution_1/Описание.txt",
+        "solution_id": 1,
+    },
+    {
+        "file_path": "solution_2/Решение.py",
+        "solution_id": 2,
+    },
+    {
+        "file_path": "solution_3/Solutions.docx",
+        "solution_id": 3,
+    },
+    {
+        "file_path": "solution_4/Архив.rar",
+        "solution_id": 4,
     },
 ]

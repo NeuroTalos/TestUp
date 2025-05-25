@@ -10,6 +10,7 @@ import ProfileWidget from './components/profile_form/Profile.jsx';
 import TasksListWidget from './components/tasks_form/Tasks_list.jsx';
 import TaskPage from './components/tasks_form/TaskPage.jsx'
 import TaskCreate from './components/tasks_form/TaskCreate.jsx';
+import EmployerTasksPage from './components/tasks_form/EmployerTasksList.jsx';
 import { ToastContainer } from 'react-toastify';
 
 function App() {
@@ -31,8 +32,11 @@ function App() {
               {/* Страница личного профиля */}
               <Route path="/profile" element={<ProfileWidget />} />
 
-              {/* Страница со списком задач */}
+              {/* Страница со списком задач для студентов */}
               <Route path="/tasks" element={<TasksListWidget />} />
+
+              {/* Страница со списком размещённых задач для работодателей */}
+              <Route path="/employer/tasks" element={<EmployerTasksPage />} />
 
               {/* Страница с конкретной задачей */}
               <Route path="/tasks/:id" element={<TaskPage />} />

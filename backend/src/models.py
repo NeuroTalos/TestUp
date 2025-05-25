@@ -169,6 +169,10 @@ class TaskSolutionsOrm(Base):
         default = lambda: datetime.now(timezone.utc)
     )
 
+    files: Mapped[Optional[list["TaskSolutionFileLinks"]]] = relationship(
+        back_populates = "task_solution"
+    )
+
     task: Mapped["TestTasksOrm"] = relationship(
         back_populates = "solutions"
     )
@@ -177,3 +181,13 @@ class TaskSolutionsOrm(Base):
         back_populates = "ready_solutions"
     )
 
+class TaskSolutionFileLinks(Base):
+    __tablename__ = 'task_solution_file_links'
+
+    id: Mapped[int_pk]
+    file_path: Mapped[str] = Column(String(), unique=True)
+    solution_id: Mapped[int] = mapped_column(ForeignKey("tasks_solutions.id", ondelete = "CASCADE"))
+
+    task_solution: Mapped["TaskSolutionsOrm"] = relationship(
+        back_populates = "files"
+    )

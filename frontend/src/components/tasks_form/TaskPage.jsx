@@ -21,8 +21,7 @@ const TaskPage = () => {
 
     return (
         <div className="w-screen h-screen text-white p-8" style={{ backgroundColor: '#002040' }}>
-            {/* Передаем isEmployer в зависимости от роли */}
-            <TaskDetails task={task} isEmployer={role === 'employer'} />
+            <TaskDetails task={task} />
         </div>
     );
 };

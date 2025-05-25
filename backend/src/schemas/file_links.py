@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class TestTaskFileLinksSchema(BaseModel):
+class FileLinksSchema(BaseModel):
     id: int
     file_path: str
 

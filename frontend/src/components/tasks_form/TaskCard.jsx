@@ -5,7 +5,7 @@ import { AuthContext } from '../contexts/AuthContext';
 import { toast } from 'react-toastify';
 import JSZip from 'jszip';
 
-const TaskCard = ({ id, employer_name, title, difficulty, status, fullTask, logoUrl }) => {
+const TaskCard = ({ id, employer_name, title, difficulty, status, created_at, fullTask, logoUrl }) => {
     const navigate = useNavigate();
     const { isAuthenticated } = useContext(AuthContext);
     const [imgError, setImgError] = useState(false);
@@ -95,6 +95,12 @@ const TaskCard = ({ id, employer_name, title, difficulty, status, fullTask, logo
         }
     };
 
+    const formatDate = (isoDate) => {
+        if (!isoDate) return '';
+        const date = new Date(isoDate);
+        return date.toLocaleDateString('ru-RU');
+    };
+
     return (
         <div
             onClick={handleClick}
@@ -119,9 +125,13 @@ const TaskCard = ({ id, employer_name, title, difficulty, status, fullTask, logo
                 <span className="text-white">Сложность:</span>
                 <span className={`ml-2 ${difficultyColor()}`}>{difficulty}</span>
             </div>
-            <div className="text-sm ml-4">
+            <div className="text-sm mb-1 ml-4">
                 <span className="text-white">Статус:</span>
                 <span className={`ml-2 ${statusColor()}`}>{status}</span>
+            </div>
+            <div className="text-sm mb-1 ml-4">
+                <span className="text-white">Дата создания:</span>
+                <span className="ml-2">{formatDate(created_at)}</span>
             </div>
         </div>
     );

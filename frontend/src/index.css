@@ -43,8 +43,8 @@
 }
 
 .custom-toast-error {
-  background-color: #003366;
-  color: #ffffff;
+  background-color: #003366 !important;
+  color: #ffffff !important;
   font-size: 16px;
   padding: 10px;
   border-radius: 5px;

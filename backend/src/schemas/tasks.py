@@ -4,8 +4,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from src.schemas.solutions import SolutionsGetSchema
-from src.schemas.test_task_file_links import TestTaskFileLinksSchema
+from src.schemas.solutions import SolutionGetInTasksSchema
+from src.schemas.file_links import FileLinksSchema
 
 
 class Difficulty(str, Enum):
@@ -34,8 +34,9 @@ class TaskGetSchema(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    files: Optional[list[TestTaskFileLinksSchema]]
-    solutions: Optional[list[SolutionsGetSchema]]
+    files: Optional[list[FileLinksSchema]]
+
+    solutions: Optional[list[SolutionGetInTasksSchema]]
 
     class Config:
         from_attributes = True

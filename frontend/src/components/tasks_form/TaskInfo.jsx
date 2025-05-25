@@ -112,10 +112,10 @@ const TaskInfo = ({ task, taskFiles = [], isEmployer }) => {
                         </ul>
 
                         <button
+                            className="w-full sm:w-auto flex items-center justify-center bg-blue-600 hover:bg-indigo-500 text-white py-2 px-4 rounded"
                             onClick={handleDownloadZip}
-                            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded w-full justify-center"
                         >
-                            <FaDownload />
+                            <FaDownload className="mr-2" />
                             Скачать всё архивом
                         </button>
                     </>
