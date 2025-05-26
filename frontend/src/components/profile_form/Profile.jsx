@@ -7,6 +7,7 @@ import EmployerPersonalInfo from './EmployerPersonalInfo';
 import AuthInfo from './AuthInfo';
 import TaskCard from '../tasks_form/TaskCard';
 import Pagination from '../tasks_form/Pagination';
+import SolvedTasksListWidget from '../tasks_form/SolvedTasksList';
 import { AuthContext } from '../contexts/AuthContext';
 
 
@@ -167,12 +168,15 @@ const ProfileWidget = () => {
                         </div>
 
                         <div className="mt-auto">
-                            <Pagination
-                                currentPage={currentPage}
-                                totalPages={totalPages}
-                                onPageChange={setCurrentPage}
-                            />
+                            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
                         </div>
+                    </div>
+                )}
+
+                {selectedTab === 'tasks' && role === 'student' && (
+                    <div className="w-full p-4 overflow-y-auto flex flex-col" style={{ backgroundColor: '#002040' }}>
+                        <h2 className="text-2xl font-bold mb-10 text-center text-white">Список решённых заданий</h2>
+                        <SolvedTasksListWidget compact />
                     </div>
                 )}
             </div>

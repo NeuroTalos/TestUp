@@ -1,4 +1,5 @@
 from typing import Optional
+from datetime import datetime
 
 from pydantic import BaseModel, Field, EmailStr
 
@@ -24,11 +25,13 @@ class StudentGetInTaskSchema(BaseModel):
 class SolutionGetInTasksSchema(BaseModel):
     id: int
     solution_description: str 
+    employer_comment: Optional[str] = None 
     task_id: int
-    student_id: int   
+    student_id: int
+    created_at: datetime   
 
     files: Optional[list[FileLinksSchema]]
-    
+
     class Config:
         from_attributes = True
 

@@ -7,6 +7,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 МБ
+const MAX_FILES = 5;
 
 const TaskCreate = () => {
   const [title, setTitle] = useState('');
@@ -17,27 +18,36 @@ const TaskCreate = () => {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const onDrop = useCallback((acceptedFiles) => {
-    let rejectedFiles = [];
+  const onDrop = useCallback(
+    (acceptedFiles) => {
+      let rejectedFiles = [];
 
-    const filteredFiles = acceptedFiles.filter(file => {
-      if (file.size > MAX_FILE_SIZE) {
-        rejectedFiles.push(file.name);
-        return false;
+      if (files.length + acceptedFiles.length > MAX_FILES) {
+        setError(`Максимум можно прикрепить ${MAX_FILES} файлов.`);
+        setTimeout(() => setError(null), 5000);
+        return;
       }
-      return true;
-    });
 
-    if (rejectedFiles.length > 0) {
-      setError(`Файлы слишком большие (больше 20 МБ): ${rejectedFiles.join(', ')}`);
-      setTimeout(() => setError(null), 5000);
-    }
+      const filteredFiles = acceptedFiles.filter((file) => {
+        if (file.size > MAX_FILE_SIZE) {
+          rejectedFiles.push(file.name);
+          return false;
+        }
+        return true;
+      });
 
-    setFiles(prevFiles => [
-      ...prevFiles,
-      ...filteredFiles.map(file => Object.assign(file, { preview: URL.createObjectURL(file) })),
-    ]);
-  }, []);
+      if (rejectedFiles.length > 0) {
+        setError(`Файлы слишком большие (больше 20 МБ): ${rejectedFiles.join(', ')}`);
+        setTimeout(() => setError(null), 5000);
+      }
+
+      setFiles((prevFiles) => [
+        ...prevFiles,
+        ...filteredFiles.map((file) => Object.assign(file, { preview: URL.createObjectURL(file) })),
+      ]);
+    },
+    [files]
+  );
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
@@ -45,7 +55,7 @@ const TaskCreate = () => {
   });
 
   const handleFileRemove = (fileName) => {
-    setFiles(prev => prev.filter(file => file.name !== fileName));
+    setFiles((prev) => prev.filter((file) => file.name !== fileName));
   };
 
   const convertDifficulty = (value) => {
@@ -85,10 +95,10 @@ const TaskCreate = () => {
       // 2. Если есть файлы — загружаем
       if (files.length > 0) {
         const formData = new FormData();
-        files.forEach(file => formData.append('files', file));
+        files.forEach((file) => formData.append('files', file));
 
         await axios.post(`http://127.0.0.1:8000/files/upload_task_files/${taskId}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
+          headers: { 'Content-Type': 'multipart/form-data' },
         });
       }
 
@@ -117,7 +127,9 @@ const TaskCreate = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6 box-border">
             <div>
-              <label htmlFor="title" className="block text-white font-semibold mb-2">Название</label>
+              <label htmlFor="title" className="block text-white font-semibold mb-2">
+                Название
+              </label>
               <input
                 id="title"
                 type="text"
@@ -130,7 +142,9 @@ const TaskCreate = () => {
             </div>
 
             <div>
-              <label htmlFor="description" className="block text-white font-semibold mb-2">Описание</label>
+              <label htmlFor="description" className="block text-white font-semibold mb-2">
+                Описание
+              </label>
               <textarea
                 id="description"
                 rows="5"
@@ -158,15 +172,18 @@ const TaskCreate = () => {
                 className="w-full p-3 mt-2 bg-gray-700 border-dashed border-2 border-gray-500 text-white rounded-md cursor-pointer max-w-md"
               >
                 <input {...getInputProps()} />
-                <p>Перетащите файлы сюда или нажмите для выбора</p>
-                <p className="text-xs mt-1 text-gray-400">Максимальный размер файла — 20 МБ</p>
+                <p >Перетащите файлы сюда или нажмите для выбора</p>
+                <p className="text-xs mt-1 text-gray-400">Максимальный размер файла — 20 МБ.</p>
+                <p className="text-xs text-gray-400">Можно прикрепить не более {MAX_FILES} файлов.</p>
               </div>
               {error && <p className="mt-2 text-red-500 text-sm">{error}</p>}
             </div>
 
             {files.length > 0 && (
               <div className="mt-4 max-w-md">
-                <h3 className="text-lg text-white font-semibold mb-2" style={{ fontSize: '0.95rem' }}>Выбранные файлы</h3>
+                <h3 className="text-lg text-white font-semibold mb-2" style={{ fontSize: '0.95rem' }}>
+                  Выбранные файлы
+                </h3>
                 <ul className="space-y-2 text-left">
                   {files.map((file, index) => (
                     <li key={index} className="flex items-center space-x-3">

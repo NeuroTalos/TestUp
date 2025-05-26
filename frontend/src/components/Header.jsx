@@ -16,9 +16,7 @@ import { toast } from 'react-toastify';
 const Header = () => {
   const { isAuthenticated, role, logout } = useContext(AuthContext);
   const navigate = useNavigate();
-
   const isSmallScreen = useMediaQuery({ maxWidth: 1050 });
-
   const [drawerVisible, setDrawerVisible] = useState(false);
 
   const handleProfileMenuClick = ({ key }) => {
@@ -89,13 +87,7 @@ const Header = () => {
           style={{ cursor: 'pointer', marginLeft: 30 }}
           onClick={handleTasksNavigation}
         >
-          <span
-            style={{
-              fontSize: 20,
-              fontWeight: 400,
-              color: 'inherit',
-            }}
-          >
+          <span style={{ fontSize: 20, fontWeight: 400, color: 'inherit' }}>
             Список заданий
           </span>
         </Menu.Item>
@@ -158,6 +150,7 @@ const Header = () => {
               </span>
             ),
           },
+          // Здесь пункт "Решённые задания" удалён
         ]
       : []),
     ...(role === 'employer'

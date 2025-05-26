@@ -163,7 +163,8 @@ class TaskSolutionsOrm(Base):
     solution_description: Mapped[str] = Column(Text)
     task_id: Mapped[int] = mapped_column(ForeignKey("test_tasks.id", ondelete = "CASCADE"))
     student_id: Mapped[int] = mapped_column(ForeignKey("students.id", ondelete = "CASCADE"))
-    
+    employer_comment: Mapped[Optional[str]] = Column(Text)
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default = lambda: datetime.now(timezone.utc)

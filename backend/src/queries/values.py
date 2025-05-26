@@ -187,24 +187,34 @@ huge_decsription = """
 Особое внимание уделено оптимизации скорости обработки и поддержке русского языка. Сервис может быть полезен для журналистов, маркетологов и студентов.
 """
 
+huge_comment = """
+Хорошая работа! 
+Решение выглядит продуманным и функциональным, особенно радует поддержка русского языка и экспорт отчёта в PDF. 
+Можно было бы ещё немного доработать визуализацию, но в целом — отличный результат.
+"""
+
 default_solutions = [
     {
         "solution_description": huge_decsription,
+        "employer_comment": huge_comment,
         "task_id": 1,
         "student_id": 1,
     },
     {
         "solution_description": "Решение №1",
+        "employer_comment": None,
         "task_id": 1,
         "student_id": 2,
     },
     {
         "solution_description": "Лучшее решение этой задачи",
+        "employer_comment": None,
         "task_id": 1,
         "student_id": 3,
     },
     {
         "solution_description": "Это решение!",
+        "employer_comment": None,
         "task_id": 2,
         "student_id": 1,
     },

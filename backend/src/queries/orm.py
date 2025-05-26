@@ -1,5 +1,5 @@
 from sqlalchemy import select, insert, func
-from sqlalchemy.orm import selectinload, load_only
+from sqlalchemy.orm import selectinload, load_only, contains_eager
 import bcrypt
 
 from src.database import (
@@ -26,7 +26,7 @@ from src.schemas.majors import MajorGetSchema, MajorSchema
 from src.schemas.students import StudentSchema, StudentGetSchema, StudentUpdateSchema
 from src.schemas.tasks import TaskGetSchema
 from src.schemas.employers import EmployerGetSchema, EmployerUpdateSchema
-from src.schemas.solutions import SolutionGetSchema
+from src.schemas.solutions import SolutionGetSchema, SolutionGetInTasksSchema
 
 
 class AsyncORM:
@@ -225,8 +225,17 @@ class AsyncORM:
                     StudentsOrm.faculty_name,
                     StudentsOrm.major_name,
                     ),
-                    selectinload(StudentsOrm.ready_solutions)
-                    .selectinload(TaskSolutionsOrm.files)
+                    selectinload(StudentsOrm.ready_solutions).options(
+                        load_only(
+                            TaskSolutionsOrm.id,
+                            TaskSolutionsOrm.solution_description,
+                            TaskSolutionsOrm.employer_comment,
+                            TaskSolutionsOrm.task_id,
+                            TaskSolutionsOrm.created_at,
+                            TaskSolutionsOrm.student_id,
+                        ),
+                        selectinload(TaskSolutionsOrm.files)
+                    )
                 )   
              )
             result = await session.execute(query)
@@ -378,6 +387,53 @@ class AsyncORM:
             total_count = total_result.scalar_one()
 
             return tasks_schemas, total_count
+    
+    from sqlalchemy.orm import contains_eager
+
+    @staticmethod
+    async def select_tasks_by_ids(
+        student_id: int, 
+        task_ids: list[int],
+        limit: int,
+        offset: int,
+    ) -> tuple[list[TaskGetSchema], int]:
+        async with async_session_factory() as session:
+            query = (
+                select(TestTasksOrm)
+                .join(TestTasksOrm.solutions)
+                .options(
+                    contains_eager(TestTasksOrm.solutions)
+                    .options(selectinload(TaskSolutionsOrm.files)),
+                    selectinload(TestTasksOrm.files)
+                )
+                .filter(
+                    TestTasksOrm.id.in_(task_ids),
+                    TaskSolutionsOrm.student_id == student_id
+                )
+                .limit(limit)
+                .offset(offset)
+            )
+
+            result = await session.execute(query)
+            tasks = result.scalars().unique().all()
+
+            tasks_schemas = [TaskGetSchema.model_validate(task) for task in tasks]
+
+            
+            count_query = (
+                select(func.count(func.distinct(TestTasksOrm.id)))
+                .join(TestTasksOrm.solutions)
+                .where(
+                    TestTasksOrm.id.in_(task_ids),
+                    TaskSolutionsOrm.student_id == student_id
+                )
+            )
+
+            total_result = await session.execute(count_query)
+            total_count = total_result.scalar_one()
+
+            return tasks_schemas, total_count
+
         
     @staticmethod
     async def select_task_solutions(task_id: int) -> list[SolutionGetSchema]:
@@ -401,7 +457,8 @@ class AsyncORM:
                             StudentsOrm.major_name
                             )
                         )
-                    )  
+                .order_by(TaskSolutionsOrm.id)
+            )  
             result = await session.execute(query)
             solutions = result.scalars().all()
             
@@ -411,6 +468,48 @@ class AsyncORM:
             solutions_schema = [SolutionGetSchema.model_validate(task) for task in solutions]
            
             return solutions_schema
+        
+    @staticmethod
+    async def select_solution_if_exist(task_id: int, student_id: int) -> SolutionGetInTasksSchema:
+        async with async_session_factory() as session:
+            query = (
+                select(TaskSolutionsOrm)
+                .filter(
+                    TaskSolutionsOrm.task_id == task_id,
+                    TaskSolutionsOrm.student_id == student_id,
+                )
+                .options(
+                    selectinload(TaskSolutionsOrm.files)
+                )
+            )
+
+            result = await session.execute(query)
+            solution = result.scalar_one_or_none()
+            
+            if not solution:
+                return False
+
+            solution_schema = SolutionGetInTasksSchema.model_validate(solution)
+           
+            return solution_schema
+        
+    @staticmethod
+    async def select_solved_task_list(student_id: int) -> list[int]:
+        async with async_session_factory() as session:
+            query = (
+                select(TaskSolutionsOrm.task_id)
+                .filter(
+                    TaskSolutionsOrm.student_id == student_id,
+                )
+            )
+
+            result = await session.execute(query)
+            task_id_list = result.scalars().all()
+            
+            if not task_id_list:
+                return False
+           
+            return task_id_list
 
     @staticmethod
     async def check_password(login: str, plain_password: str) -> tuple[bool, str | None]:
@@ -502,6 +601,17 @@ class AsyncORM:
             employer = result.scalar_one_or_none()
 
             employer.logo_path = new_logo_path
+
+            await session.commit()
+    
+    @staticmethod
+    async def update_solution_comment(solution_id: int, comment: str) -> None:
+        async with async_session_factory() as session:
+            query = select(TaskSolutionsOrm).where(TaskSolutionsOrm.id == solution_id)
+            result = await session.execute(query)
+            solution = result.scalar_one_or_none()
+
+            solution.employer_comment = comment
 
             await session.commit()
     

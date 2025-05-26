@@ -49,7 +49,7 @@ async def select_solutions(
         raise HTTPException(status_code=403, detail="Доступ к ресурсу ограничен для вашей роли")
     
 
-@router.post("/add")
+@router.post("/add/{task_id}")
 async def add_solution(
     solution: SolutionAddSchema,
     task_id: int,
@@ -73,3 +73,41 @@ async def add_solution(
 
     else:
         raise HTTPException(status_code=403, detail="Доступ к ресурсу ограничен для вашей роли")  
+
+
+@router.get("/check_student_solution/{task_id}")
+async def select_solution_if_exist(
+    task_id: int,
+    request: Request,
+    token_data = Depends(access_token_check),
+    ):
+    role = await current_role(request)
+
+    if role == "student":
+        student_id = int(token_data.sub)
+
+        solution = await AsyncORM.select_solution_if_exist(task_id, student_id)
+
+        if solution:
+            return {"solution": solution}
+        else:
+            return {"message": "Решение не найдено"}
+
+    else:
+        raise HTTPException(status_code=403, detail="Доступ к ресурсу ограничен для вашей роли") 
+
+
+@router.patch("/upload_solution_comment/{solution_id}")
+async def upload_solution_comment(
+    solution_id: int,
+    employer_comment: str,
+    request: Request,
+    token_data = Depends(access_token_check),
+    ):
+    role = await current_role(request)
+    # b=1
+    if role == "employer":
+        await AsyncORM.update_solution_comment(solution_id, employer_comment)
+        
+    else:
+        raise HTTPException(status_code=403, detail="Доступ к ресурсу ограничен для вашей роли") 

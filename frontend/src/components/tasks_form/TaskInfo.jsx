@@ -87,12 +87,12 @@ const TaskInfo = ({ task, taskFiles = [], isEmployer }) => {
             </div>
 
             <div className="mb-10">
-                <h3 className="font-semibold text-lg text-white mb-3">Описание задачи:</h3>
+                <h3 className="font-semibold text-lg text-white mb-3">Описание задачи</h3>
                 <p className="text-white">{task.description}</p>
             </div>
 
             <div>
-                <h3 className="font-semibold text-lg text-white mb-4">Прикреплённые файлы:</h3>
+                <h3 className="font-semibold text-lg text-white mb-4">Прикреплённые файлы</h3>
 
                 {taskFiles.length > 0 ? (
                     <>

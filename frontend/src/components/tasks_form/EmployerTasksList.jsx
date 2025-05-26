@@ -77,7 +77,7 @@ const EmployerTasksPage = () => {
   }
 
   return (
-    <div className="w-screen h-screen p-8 overflow-y-auto flex flex-col" style={{ backgroundColor: '#002040' }}>
+    <div className="w-screen min-h-screen p-8 flex flex-col" style={{ backgroundColor: '#002040' }}>
       <h2 className="text-2xl font-bold mb-14 text-center text-white">Список размещённых заданий</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-0.5 md:gap-x-2 place-items-center">
@@ -100,7 +100,7 @@ const EmployerTasksPage = () => {
         ))}
       </div>
 
-      <div className="mt-auto">
+      <div className="mt-4">
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

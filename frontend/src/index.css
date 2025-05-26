@@ -57,3 +57,12 @@
 .custom-toast-error .Toastify__close-button {
   color: #ffffff !important;
 }
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0; } 
+  10%, 90% { opacity: 1; }
+}
+
+.animate-fadeInOut {
+  animation: fadeInOut 2s ease-in-out forwards !important;
+}
