@@ -59,39 +59,75 @@ class StudentsOrm(Base):
     course: Mapped[int] = Column(Integer)
     group: Mapped[str] = Column(String(15))
     
-    faculty_name: Mapped[str] = mapped_column(ForeignKey("faculties.name", ondelete = "CASCADE"))
-    major_name: Mapped[int] = mapped_column(ForeignKey("majors.name", ondelete="CASCADE"))
+    faculty_name: Mapped[str] = mapped_column(
+        ForeignKey("faculties.name", ondelete = "SET NULL", onupdate = "CASCADE"),
+        nullable = True,
+        )
+    major_name: Mapped[str] = mapped_column(
+        ForeignKey("majors.name", ondelete="SET NULL", onupdate = "CASCADE"),
+        nullable = True,
+        )
+
+    faculty: Mapped["FacultiesOrm"] = relationship(
+        "FacultiesOrm", back_populates="students", lazy="joined"
+    )
+    major: Mapped["MajorsOrm"] = relationship(
+        "MajorsOrm", back_populates="students", lazy="joined"
+    )
 
     ready_solutions: Mapped[Optional[list["TaskSolutionsOrm"]]] = relationship(
-        back_populates = "student"
+        back_populates = "student",
+        passive_deletes = True,
     )
 
     __table_args__ = (
         CheckConstraint("course > 0 AND course < 6", name="check_course_range"),
     )
 
+    def __str__(self) -> str:
+        fio = f"{self.last_name} {self.first_name}"
+        if self.middle_name:
+            fio += f" {self.middle_name}"
+        return fio
+
 
 class FacultiesOrm(Base):
     __tablename__ = "faculties"
 
-    id: Mapped[int_pk]
-    name: Mapped[str] = Column(String(100), unique=True)
+    # id: Mapped[int_pk]
+    name: Mapped[str] = Column(String(100), primary_key=True)
 
     majors: Mapped[Optional[list["MajorsOrm"]]] = relationship(
-        back_populates = "faculty"
+        back_populates = "faculty",
+        passive_deletes = True,
     )
+
+    students: Mapped[Optional[list["StudentsOrm"]]] = relationship(
+        back_populates="faculty", 
+        passive_deletes=True,
+    )
+
+    def __str__(self) -> str:
+        return self.name
 
 
 class MajorsOrm(Base):
     __tablename__ = "majors"
 
-    id: Mapped[int_pk]
-    name: Mapped[str] = Column(String(100), unique=True)
-    faculty_name: Mapped[str] = mapped_column(ForeignKey("faculties.name", ondelete = "CASCADE"))
+    # id: Mapped[int_pk]
+    name: Mapped[str] = Column(String(100), primary_key=True)
+    faculty_name: Mapped[str] = mapped_column(ForeignKey("faculties.name", ondelete = "CASCADE", onupdate = "CASCADE"))
 
     faculty: Mapped["FacultiesOrm"] = relationship(
         back_populates = "majors"
     )
+
+    students: Mapped[Optional[list["StudentsOrm"]]] = relationship(
+        back_populates="major", passive_deletes=True
+    )
+
+    def __str__(self) -> str:
+        return self.name
 
 
 class EmployersOrm(Base):
@@ -109,6 +145,11 @@ class EmployersOrm(Base):
     tasks: Mapped[Optional[list["TestTasksOrm"]]] = relationship(
         back_populates = "employer"
     )
+
+    def __str__(self) -> str:
+        return self.company_name
+    
+    # TODO Make company_name field primary key
 
 
 class TestTasksOrm(Base):
@@ -133,16 +174,21 @@ class TestTasksOrm(Base):
     employer_name: Mapped[str] = mapped_column(ForeignKey("employers.company_name", ondelete = "CASCADE", onupdate = "CASCADE"))
     
     files: Mapped[Optional[list["TestTaskFileLinks"]]] = relationship(
-        back_populates = "test_task"
+        back_populates = "test_task",
+        passive_deletes = True,
     )
 
     solutions: Mapped[Optional[list["TaskSolutionsOrm"]]] = relationship(
-        back_populates = "task"
+        back_populates = "task",
+        passive_deletes = True,
     )
 
     employer: Mapped["EmployersOrm"] = relationship(
         back_populates = "tasks"
     )
+
+    def __str__(self) -> str:
+        return f"Задание №{self.id}"
 
 
 class TestTaskFileLinks(Base):
@@ -150,19 +196,23 @@ class TestTaskFileLinks(Base):
 
     id: Mapped[int_pk]
     file_path: Mapped[str] = Column(String(), unique=True)
-    task_id: Mapped[int] = mapped_column(ForeignKey("test_tasks.id", ondelete = "CASCADE"))
+    task_id: Mapped[int] = mapped_column(ForeignKey("test_tasks.id", ondelete = "CASCADE", onupdate = "CASCADE"))
 
     test_task: Mapped["TestTasksOrm"] = relationship(
         back_populates = "files"
     )
+
+    def __str__(self) -> str:
+        return f"{self.file_path} (задание)"
+
 
 class TaskSolutionsOrm(Base):
     __tablename__ = 'tasks_solutions'
 
     id: Mapped[int_pk]
     solution_description: Mapped[str] = Column(Text)
-    task_id: Mapped[int] = mapped_column(ForeignKey("test_tasks.id", ondelete = "CASCADE"))
-    student_id: Mapped[int] = mapped_column(ForeignKey("students.id", ondelete = "CASCADE"))
+    task_id: Mapped[int] = mapped_column(ForeignKey("test_tasks.id", ondelete = "CASCADE", onupdate = "CASCADE"))
+    student_id: Mapped[int] = mapped_column(ForeignKey("students.id", ondelete = "CASCADE", onupdate = "CASCADE"))
     employer_comment: Mapped[Optional[str]] = Column(Text)
 
     created_at: Mapped[datetime] = mapped_column(
@@ -171,7 +221,8 @@ class TaskSolutionsOrm(Base):
     )
 
     files: Mapped[Optional[list["TaskSolutionFileLinks"]]] = relationship(
-        back_populates = "task_solution"
+        back_populates = "task_solution",
+        passive_deletes = True,
     )
 
     task: Mapped["TestTasksOrm"] = relationship(
@@ -182,13 +233,20 @@ class TaskSolutionsOrm(Base):
         back_populates = "ready_solutions"
     )
 
+    def __str__(self) -> str:
+        return f"Решение №{self.id}"
+
+
 class TaskSolutionFileLinks(Base):
     __tablename__ = 'task_solution_file_links'
 
     id: Mapped[int_pk]
     file_path: Mapped[str] = Column(String(), unique=True)
-    solution_id: Mapped[int] = mapped_column(ForeignKey("tasks_solutions.id", ondelete = "CASCADE"))
+    solution_id: Mapped[int] = mapped_column(ForeignKey("tasks_solutions.id", ondelete = "CASCADE", onupdate = "CASCADE"))
 
     task_solution: Mapped["TaskSolutionsOrm"] = relationship(
         back_populates = "files"
     )
+
+    def __str__(self) -> str:
+        return f"{self.file_path} (решение)"

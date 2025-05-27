@@ -6,7 +6,7 @@ from src.schemas.majors import MajorGetSchema
 
 
 class FacultyGetSchema(BaseModel):
-    id: int
+    # id: int
     name: str = Field(max_length=100)
     majors: Optional[list[MajorGetSchema]]
 

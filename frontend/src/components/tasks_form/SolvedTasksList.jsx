@@ -58,29 +58,35 @@ const SolvedTasksListWidget = ({ compact = false }) => {
             className="w-full mx-auto p-8 flex flex-col" 
             style={{ backgroundColor: '#002040', maxWidth: compact ? '900px' : '1200px' }}
         >
-            <div className={`grid grid-cols-1 ${compact ? 'sm:grid-cols-1 lg:grid-cols-2' : 'md:grid-cols-2'} gap-y-4 gap-x-2 place-items-center`}>
-                {tasks.map((task) => (
-                    <TaskCard
-                        key={task.id}
-                        id={task.id}
-                        employer_name={task.employer_name}
-                        title={task.title}
-                        difficulty={getDifficultyLabel(task.difficulty)} 
-                        status={getStatusLabel(task.status)}
-                        created_at={task.created_at}
-                        fullTask={task}
-                        logoUrl={getLogoUrl(task.employer_name)}
-                    />
-                ))}
-            </div>
+            {tasks.length === 0 ? (
+                <p className="text-center text-white text-lg mt-10">Решённых заданий пока нет.</p>
+            ) : (
+                <>
+                    <div className={`grid grid-cols-1 ${compact ? 'sm:grid-cols-1 lg:grid-cols-2' : 'md:grid-cols-2'} gap-y-4 gap-x-2 place-items-center`}>
+                        {tasks.map((task) => (
+                            <TaskCard
+                                key={task.id}
+                                id={task.id}
+                                employer_name={task.employer_name}
+                                title={task.title}
+                                difficulty={getDifficultyLabel(task.difficulty)} 
+                                status={getStatusLabel(task.status)}
+                                created_at={task.created_at}
+                                fullTask={task}
+                                logoUrl={getLogoUrl(task.employer_name)}
+                            />
+                        ))}
+                    </div>
 
-            <div className="mt-4">
-                <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange}
-                />
-            </div>
+                    <div className="mt-4">
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={handlePageChange}
+                        />
+                    </div>
+                </>
+            )}
         </div>
     );
 };

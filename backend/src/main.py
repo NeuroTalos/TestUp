@@ -58,5 +58,5 @@ app.add_middleware(
 
 app.include_router(main_router)
 
-
-# TODO Make function for detecting IntegrityError and break transaction
+from src.admin import setup_admin
+setup_admin(app)

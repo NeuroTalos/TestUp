@@ -86,6 +86,9 @@ async def select_solved_tasks(
 
         task_id_list = await AsyncORM.select_solved_task_list(student_id)
 
+        if not task_id_list:
+            raise HTTPException(status_code=404, detail="Решённые задания не найдены")
+
         tasks, total_count = await AsyncORM.select_tasks_by_ids(
             student_id=student_id,
             task_ids=task_id_list,

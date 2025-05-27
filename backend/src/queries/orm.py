@@ -136,7 +136,7 @@ class AsyncORM:
         async with async_session_factory() as session:
             query = (
                 select(FacultiesOrm)
-                .options(selectinload(FacultiesOrm.majors).load_only(MajorsOrm.name, MajorsOrm.id))
+                .options(selectinload(FacultiesOrm.majors).load_only(MajorsOrm.name))
                 
             )
             result = await session.execute(query)
@@ -144,9 +144,8 @@ class AsyncORM:
             faculties_schemas = []
             for faculty in faculties:
                 faculty_data = FacultyGetSchema(
-                    id=faculty.id,
                     name=faculty.name,
-                    majors=[MajorGetSchema(id=major.id, name=major.name) for major in faculty.majors]
+                    majors=[MajorGetSchema(name=major.name) for major in faculty.majors]
                 )
                 faculties_schemas.append(faculty_data)
             

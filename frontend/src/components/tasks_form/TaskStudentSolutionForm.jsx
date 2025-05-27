@@ -53,13 +53,11 @@ const TaskStudentSolutionForm = ({ taskId }) => {
     setFiles(files.filter((file) => file.name !== fileName));
   };
 
-  // При сабмите показываем модальное окно
   const handleSubmit = (e) => {
     e.preventDefault();
     setShowModal(true);
   };
 
-  // Подтверждение отправки
   const handleConfirm = async () => {
     setShowModal(false);
     setLoading(true);
@@ -68,7 +66,6 @@ const TaskStudentSolutionForm = ({ taskId }) => {
     const description = document.getElementById('description').value;
 
     try {
-      // Отправляем описание решения
       const response = await axios.post(`http://127.0.0.1:8000/solutions/add/${taskId}`, {
         solution_description: description,
       });
@@ -79,7 +76,6 @@ const TaskStudentSolutionForm = ({ taskId }) => {
 
       const solution_id = response.data.solution_id;
 
-      // Отправляем файлы, если есть
       if (files.length > 0) {
         const formData = new FormData();
         files.forEach((file) => {
@@ -93,7 +89,6 @@ const TaskStudentSolutionForm = ({ taskId }) => {
         });
       }
 
-      // Обновляем страницу через 1 секунду
       setTimeout(() => {
         window.location.reload();
       }, 1000);
@@ -103,7 +98,6 @@ const TaskStudentSolutionForm = ({ taskId }) => {
     }
   };
 
-  // Отмена отправки
   const handleCancel = () => {
     setShowModal(false);
   };

@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     MINIO_BUCKET_LOGOS: str
     MINIO_BUCKET_TASKS: str
     MINIO_BUCKET_SOLUTIONS: str
+    ADMIN_LOGIN: str
+    ADMIN_PASSWORD: str
 
     @property
     def DATABASE_URL_asyncpg(self):
