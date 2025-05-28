@@ -94,7 +94,6 @@ class StudentsOrm(Base):
 class FacultiesOrm(Base):
     __tablename__ = "faculties"
 
-    # id: Mapped[int_pk]
     name: Mapped[str] = Column(String(100), primary_key=True)
 
     majors: Mapped[Optional[list["MajorsOrm"]]] = relationship(
@@ -114,7 +113,6 @@ class FacultiesOrm(Base):
 class MajorsOrm(Base):
     __tablename__ = "majors"
 
-    # id: Mapped[int_pk]
     name: Mapped[str] = Column(String(100), primary_key=True)
     faculty_name: Mapped[str] = mapped_column(ForeignKey("faculties.name", ondelete = "CASCADE", onupdate = "CASCADE"))
 
@@ -148,8 +146,6 @@ class EmployersOrm(Base):
 
     def __str__(self) -> str:
         return self.company_name
-    
-    # TODO Make company_name field primary key
 
 
 class TestTasksOrm(Base):

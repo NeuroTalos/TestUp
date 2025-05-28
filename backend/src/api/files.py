@@ -42,6 +42,13 @@ def validate_logo_extension(filename: str):
         raise HTTPException(status_code=400, detail=f"Поддерживаются только файлы с расширениями: {', '.join(ALLOWED_LOGO_EXTENSIONS)}.")
     return ext
 
+def check_files_quantity(files: list[UploadFile] = File(...)):
+    if len(files) > 5:
+        raise HTTPException(
+            status_code=413,
+            detail="Количество файлов превышает допустимое число. Максиум: 5 файлов",
+        )
+
 
 @router.post("/upload_logo/{company_name}")
 async def upload_logo(company_name: str, file: UploadFile = File(...)):    
@@ -121,6 +128,7 @@ async def upload_task_files(
     role = await current_role(request)
 
     if role == "employer":
+        check_files_quantity(files)
 
         task_file_links = []
         for file in files:
@@ -196,6 +204,7 @@ async def upload_solution_files(
     role = await current_role(request)
 
     if role == "student":
+        check_files_quantity(files)
 
         solution_file_links = []
         for file in files:

@@ -61,12 +61,11 @@ async def select_current_employer_tasks(request: Request, pagination: Pagination
         start = (pagination.page - 1) * pagination.limit
         end = start + pagination.limit
         paged_tasks = current_employer_tasks[start:end]
-
+        
         return {
             "tasks": paged_tasks,
             "total_pages": total_pages
         }
-    
     else:
         raise HTTPException(status_code=403, detail="Доступ к ресурсу ограничен для вашей роли")
 

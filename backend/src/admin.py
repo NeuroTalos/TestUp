@@ -23,55 +23,77 @@ class StudentsAdmin(ModelView, model=StudentsOrm):
     form_excluded_columns = [
         StudentsOrm.ready_solutions
     ]
+    name = "Студент"
     name_plural = "Студенты"
 
 # Факультеты
 class FacultiesAdmin(ModelView, model=FacultiesOrm):
-    # form_columns = [FacultiesOrm.name]
     column_list = [FacultiesOrm.name]
-    name_plural = "Факультеты"
+    form_excluded_columns = [
+        FacultiesOrm.students,
+        FacultiesOrm.majors,
+    ]
     form_include_pk = True
-
-    def get_form_columns(self):
-        # Возвращаем все колонки, включая PK поле
-        return ["name"]
+    name = "Факультет"
+    name_plural = "Факультеты"
 
 # Направления
 class MajorsAdmin(ModelView, model=MajorsOrm):
     column_list = [MajorsOrm.name, MajorsOrm.faculty_name]
     form_excluded_columns = [
-        FacultiesOrm.students
+        MajorsOrm.students,
+        MajorsOrm.faculty_name,
     ]
     form_include_pk = True
+    name = "Направление"
     name_plural = "Направления"
 
 # Работодатели
 class EmployersAdmin(ModelView, model=EmployersOrm):
+    can_create = False
+
     column_list = [EmployersOrm.id, EmployersOrm.login, EmployersOrm.company_name, EmployersOrm.email]
     form_excluded_columns = [
         EmployersOrm.tasks
     ]
+    name = "Рабтодатель"
     name_plural = "Работодатели"
 
 # Тестовые задания
 class TestTasksAdmin(ModelView, model=TestTasksOrm):
+    can_create = False
+    can_edit = False
+
     column_list = [TestTasksOrm.id, TestTasksOrm.title, TestTasksOrm.difficulty, TestTasksOrm.status, TestTasksOrm.created_at]
     column_searchable_list = [TestTasksOrm.title]
+    name = "Тестовое задание"
     name_plural = "Тестовые задания"
 
 # Файлы заданий
 class TaskFilesAdmin(ModelView, model=TestTaskFileLinks):
+    can_create = False
+    can_edit = False
+
     column_list = [TestTaskFileLinks.id, TestTaskFileLinks.file_path, TestTaskFileLinks.task_id]
+    name = "Файлы тестового задания"
     name_plural = "Файлы тестовых заданий"
 
 # Решения студентов
 class SolutionsAdmin(ModelView, model=TaskSolutionsOrm):
+    can_create = False
+    can_edit = False
+
     column_list = [TaskSolutionsOrm.id, TaskSolutionsOrm.task_id, TaskSolutionsOrm.student_id, TaskSolutionsOrm.created_at]
+    name = "Решение"
     name_plural = "Решения"
 
 # Файлы решений
 class SolutionFilesAdmin(ModelView, model=TaskSolutionFileLinks):
+    can_create = False
+    can_edit = False
+
     column_list = [TaskSolutionFileLinks.id, TaskSolutionFileLinks.file_path, TaskSolutionFileLinks.solution_id]
+    name = "Файлы решения"
     name_plural = "Файлы решений"
 
 

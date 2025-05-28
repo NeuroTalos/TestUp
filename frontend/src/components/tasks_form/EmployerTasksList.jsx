@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Spin, Alert } from 'antd';
 import TaskCard from '../tasks_form/TaskCard';
 import Pagination from '../tasks_form/Pagination';
 import { AuthContext } from '../contexts/AuthContext';
+import { PlusOutlined } from '@ant-design/icons';
+
 
 const EmployerTasksPage = () => {
+  const navigate = useNavigate();
   const { role } = useContext(AuthContext);
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,10 +57,6 @@ const EmployerTasksPage = () => {
         setTasks(response.data.tasks || []);
         setTotalPages(response.data.total_pages || 1);
       })
-      .catch((err) => {
-        console.error('Ошибка при загрузке заданий:', err);
-        setError('Ошибка при загрузке заданий');
-      })
       .finally(() => setLoading(false));
   }, [currentPage, role]);
 
@@ -81,32 +81,44 @@ const EmployerTasksPage = () => {
       <h2 className="text-2xl font-bold mb-14 text-center text-white">Список размещённых заданий</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-0.5 md:gap-x-2 place-items-center">
-        {tasks.length === 0 && (
-          <p className="text-white text-center col-span-full">Нет размещённых заданий</p>
+        {!Array.isArray(tasks) || tasks.length === 0 ? (
+          <div className="text-center col-span-full">
+            <p className="text-white text-lg mb-2">Нет размещённых заданий</p>
+            <p className="text-gray-300 mt-10 mb-6">Вы можете добавить своё первое задание </p>
+            <button
+              onClick={() => navigate('/tasks/add')}
+              className="inline-flex items-center bg-blue-600 hover:bg-blue-700 transition-colors text-white font-semibold py-3 px-6 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              <PlusOutlined className="mr-2 text-lg" />
+              Добавить задание
+            </button>
+          </div>
+        ) : (
+          tasks.map((task) => (
+            <TaskCard
+              key={task.id}
+              id={task.id}
+              employer_name={task.employer_name}
+              title={task.title}
+              difficulty={getDifficultyLabel(task.difficulty)}
+              status={getStatusLabel(task.status)}
+              created_at={task.created_at}
+              fullTask={task}
+              logoUrl={getLogoUrl(task.employer_name)}
+            />
+          ))
         )}
+      </div>
 
-        {tasks.map((task) => (
-          <TaskCard
-            key={task.id}
-            id={task.id}
-            employer_name={task.employer_name}
-            title={task.title}
-            difficulty={getDifficultyLabel(task.difficulty)}
-            status={getStatusLabel(task.status)}
-            created_at={task.created_at}
-            fullTask={task}
-            logoUrl={getLogoUrl(task.employer_name)}
+      {Array.isArray(tasks) && tasks.length > 0 && (
+        <div className="mt-4">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
           />
-        ))}
-      </div>
-
-      <div className="mt-4">
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
-      </div>
+        </div>
+      )}
     </div>
   );
 };
