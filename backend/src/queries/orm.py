@@ -1,5 +1,5 @@
-from sqlalchemy import select, insert, func
-from sqlalchemy.orm import selectinload, load_only, contains_eager
+from sqlalchemy import select, insert, func, desc, asc
+from sqlalchemy.orm import selectinload, load_only, contains_eager, with_loader_criteria
 import bcrypt
 
 from src.database import (
@@ -247,6 +247,20 @@ class AsyncORM:
             return student_schema
         
     @staticmethod
+    async def select_student_name_by_id(student_id: int) -> str:
+        async with async_session_factory() as session:
+            query = (
+                select(StudentsOrm.first_name)
+                .filter(StudentsOrm.id == student_id))
+            result = await session.execute(query)
+            student_name = result.scalar_one_or_none()
+            
+            if not student_name:
+                return False
+           
+            return student_name
+        
+    @staticmethod
     async def select_employers():
         async with async_session_factory() as session:
             query = (
@@ -365,29 +379,30 @@ class AsyncORM:
             return logo_path
         
     @staticmethod
-    async def select_tasks(limit: int, offset: int) -> tuple[list[TaskGetSchema], int]:
+    async def select_tasks(student_id: int, limit: int, offset: int, reverse: bool = False) -> tuple[list[TaskGetSchema], int]:
         async with async_session_factory() as session:
             query = (
                 select(TestTasksOrm)
                 .options(
                     selectinload(TestTasksOrm.files),
                     selectinload(TestTasksOrm.solutions)
-                    .selectinload(TaskSolutionsOrm.files),
-                    )
+                    .options(selectinload(TaskSolutionsOrm.files)),
+                    with_loader_criteria(TaskSolutionsOrm, TaskSolutionsOrm.student_id == student_id, include_aliases=True)
+                )
+                .order_by(desc(TestTasksOrm.id) if reverse else asc(TestTasksOrm.id))
                 .limit(limit)
                 .offset(offset)
             )
+
             result = await session.execute(query)
-            tasks = result.scalars().all()
+            tasks = result.scalars().unique().all()
             tasks_schemas = [TaskGetSchema.model_validate(task) for task in tasks]
-            
+
             count_query = select(func.count()).select_from(TestTasksOrm)
             total_result = await session.execute(count_query)
             total_count = total_result.scalar_one()
 
             return tasks_schemas, total_count
-    
-    from sqlalchemy.orm import contains_eager
 
     @staticmethod
     async def select_tasks_by_ids(

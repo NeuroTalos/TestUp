@@ -14,22 +14,22 @@ const Footer = () => {
           </Col>
 
           <Col span={24}>
-            <a href="#" className="footer-link">О нас</a> |{' '}
-            <a href="#" className="footer-link">Контакты</a> |{' '}
-            <a href="#" className="footer-link">Политика конфиденциальности</a>
+            <a className="footer-link">О нас</a> |{' '}
+            <a className="footer-link">Контакты</a> |{' '}
+            <a className="footer-link">Политика конфиденциальности</a>
           </Col>
 
           <Col span={24} className="social-icons-container">
-            <a href="#" target="_blank" rel="noopener noreferrer" className="social-link">
+            <a target="_blank" rel="noopener noreferrer" className="social-link">
               <FaVk className="icon" />
             </a>
-            <a href="#" target="_blank" rel="noopener noreferrer" className="social-link">
+            <a target="_blank" rel="noopener noreferrer" className="social-link">
               <FaTelegramPlane className="icon" />
             </a>
-            <a href="#" target="_blank" rel="noopener noreferrer" className="social-link">
+            <a target="_blank" rel="noopener noreferrer" className="social-link">
               <FaLinkedin className="icon" />
             </a>
-            <a href="#" target="_blank" rel="noopener noreferrer" className="social-link">
+            <a target="_blank" rel="noopener noreferrer" className="social-link">
               <FaGithub className="icon" />
             </a>
           </Col>

@@ -61,7 +61,7 @@ async def login_user(data: AuthSchema, response: Response):
             httponly = True,
             samesite = "strict",
             secure = True,
-            max_age = 3600,
+            max_age = 86400,
             path="/",
         )
         

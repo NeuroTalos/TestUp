@@ -37,6 +37,23 @@ async def select_current_student(request: Request) -> StudentGetSchema:
         raise HTTPException(status_code=403, detail="Доступ к ресурсу ограничен для вашей роли")
 
 
+@router.get("/current_name")
+async def select_current_student_name(request: Request):
+    token_data = await access_token_check(request)
+    role = await current_role(request)
+
+    if role == "student":
+        student_id = int(token_data.sub)
+
+        current_student_name = await AsyncORM.select_student_name_by_id(student_id)
+
+        if current_student_name:
+            return {"name": current_student_name}
+        
+        else:
+            raise HTTPException(status_code=404, detail="Имя студента не найдено")
+
+
 @router.post("/add")
 async def add_student(student: StudentAddSchema):
     await check_faculty(student.faculty_name)

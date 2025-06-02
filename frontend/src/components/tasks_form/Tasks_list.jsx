@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import TaskCard from './TaskCard';
 import Pagination from './Pagination';
-import SolvedTasksListWidget from './SolvedTasksList'; // Подключаем компонент решённых заданий
+import SolvedTasksListWidget from './SolvedTasksList';
 import { Tabs } from 'antd';
 
 axios.defaults.withCredentials = true;

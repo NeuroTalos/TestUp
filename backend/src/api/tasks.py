@@ -24,12 +24,45 @@ async def select_tasks(
     role = await current_role(request)
 
     if role == "student":
+        student_id = int(token_data.sub)
 
         offset = (paggination.page - 1) * paggination.limit
         
         tasks, total_count = await AsyncORM.select_tasks(
+            student_id,
             limit = paggination.limit,
-            offset = offset
+            offset = offset,
+        )
+
+        total_pages = (total_count + paggination.limit - 1) // paggination.limit
+
+        return {
+            "tasks": tasks,
+            "total_pages": total_pages,
+        }
+    
+    else:
+        raise HTTPException(status_code=403, detail="Доступ к ресурсу ограничен для вашей роли")
+    
+
+@router.get("/get_last_tasks")
+async def select_last_tasks(
+    paggination: PaginationDep,
+    request: Request,
+    token_data = Depends(access_token_check),
+    ) -> TaskListResponseSchema:
+    role = await current_role(request)
+
+    if role == "student":
+        student_id = int(token_data.sub)
+
+        offset = (paggination.page - 1) * paggination.limit
+        
+        tasks, total_count = await AsyncORM.select_tasks(
+            student_id,
+            limit = paggination.limit,
+            offset = offset,
+            reverse = True,
         )
 
         total_pages = (total_count + paggination.limit - 1) // paggination.limit
