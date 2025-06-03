@@ -104,7 +104,13 @@ const TaskStudentSolutionForm = ({ taskId }) => {
 
   return (
     <>
-      <div className="flex-grow bg-gray-800 p-6 rounded-lg overflow-y-auto card-scroll" style={{ flexBasis: '65%' }}>
+      <div className="flex-grow bg-gray-800 p-6 rounded-lg overflow-y-auto card-scroll" 
+      style={{ 
+        flexBasis: '65%', 
+        height: '100%', 
+        overflowY: 'auto', 
+      }}
+      >
         <h2 className="text-3xl font-bold mb-4 text-white">Предоставьте своё решение</h2>
         <div className="border-b-2 border-gray-600 mb-10"></div>
         <form onSubmit={handleSubmit}>

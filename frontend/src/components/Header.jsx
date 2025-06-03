@@ -103,20 +103,6 @@ const Header = () => {
           </Link>
         </Menu.Item>
       )}
-
-      <Menu.Item key="companies" style={{ marginLeft: 30 }}>
-        <Link
-          to="/"
-          style={{
-            textDecoration: 'none',
-            fontSize: 20,
-            fontWeight: 400,
-            color: 'inherit',
-          }}
-        >
-          Компании-партнёры
-        </Link>
-      </Menu.Item>
     </Menu>
   );
 
@@ -150,7 +136,6 @@ const Header = () => {
               </span>
             ),
           },
-          // Здесь пункт "Решённые задания" удалён
         ]
       : []),
     ...(role === 'employer'
@@ -169,14 +154,6 @@ const Header = () => {
           },
         ]
       : []),
-    {
-      key: 'companies',
-      label: (
-        <Link to="/" onClick={closeDrawer} style={{ color: 'white' }}>
-          Компании-партнёры
-        </Link>
-      ),
-    },
   ];
 
   return (

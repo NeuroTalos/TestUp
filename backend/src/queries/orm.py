@@ -25,7 +25,7 @@ from src.schemas.faculties import FacultyGetSchema
 from src.schemas.majors import MajorGetSchema, MajorSchema
 from src.schemas.students import StudentSchema, StudentGetSchema, StudentUpdateSchema
 from src.schemas.tasks import TaskGetSchema
-from src.schemas.employers import EmployerGetSchema, EmployerUpdateSchema
+from src.schemas.employers import EmployerGetSchema, EmployerUpdateSchema, EmployerContactsGetSchema
 from src.schemas.solutions import SolutionGetSchema, SolutionGetInTasksSchema
 
 
@@ -332,6 +332,7 @@ class AsyncORM:
             query = (
                 select(TestTasksOrm)
                 .filter(TestTasksOrm.employer_name == employer_name)
+                .order_by(TestTasksOrm.created_at.desc())
                 .options(
                         selectinload(TestTasksOrm.files),
                         selectinload(TestTasksOrm.solutions)
@@ -364,6 +365,30 @@ class AsyncORM:
             return company_name
         
     @staticmethod
+    async def select_employer_contacts_by_name(company_name: str) -> EmployerContactsGetSchema:
+        async with async_session_factory() as session:
+            query = (
+                select(EmployersOrm)
+                .filter(EmployersOrm.company_name == company_name)
+                .options(
+                    load_only(
+                        EmployersOrm.email,
+                        EmployersOrm.phone,
+                        EmployersOrm.telegram,
+                    )
+                )
+             )
+            result = await session.execute(query)
+            company_contacts = result.scalars().one_or_none()
+
+            if not company_contacts:
+                return False
+            
+            company_contacts_schema = EmployerContactsGetSchema.model_validate(company_contacts)
+           
+            return company_contacts_schema
+        
+    @staticmethod
     async def select_employer_logo_path_by_name(company_name: str) -> str:
         async with async_session_factory() as session:
             query = (
@@ -379,7 +404,7 @@ class AsyncORM:
             return logo_path
         
     @staticmethod
-    async def select_tasks(student_id: int, limit: int, offset: int, reverse: bool = False) -> tuple[list[TaskGetSchema], int]:
+    async def select_tasks(student_id: int, limit: int, offset: int, order_created_at: bool = False) -> tuple[list[TaskGetSchema], int]:
         async with async_session_factory() as session:
             query = (
                 select(TestTasksOrm)
@@ -389,7 +414,7 @@ class AsyncORM:
                     .options(selectinload(TaskSolutionsOrm.files)),
                     with_loader_criteria(TaskSolutionsOrm, TaskSolutionsOrm.student_id == student_id, include_aliases=True)
                 )
-                .order_by(desc(TestTasksOrm.id) if reverse else asc(TestTasksOrm.id))
+                .order_by(desc(TestTasksOrm.created_at) if order_created_at else asc(TestTasksOrm.created_at))
                 .limit(limit)
                 .offset(offset)
             )

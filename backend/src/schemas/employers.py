@@ -36,3 +36,12 @@ class EmployerUpdateSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class EmployerContactsGetSchema(BaseModel):
+    email: EmailStr
+    phone: str
+    telegram: Optional[str] = None
+
+    class Config:
+        from_attributes = True

@@ -34,6 +34,7 @@ ALLOWED_LOGO_EXTENSIONS = {'.svg', '.png', '.jpg', '.jpeg'}
 
 # Settings for files
 MAX_FILE_SIZE = 20 * 1024 * 1024 # 20 MB
+MAX_FILE_QUANTITY = 5
 
 
 def validate_logo_extension(filename: str):
@@ -43,7 +44,7 @@ def validate_logo_extension(filename: str):
     return ext
 
 def check_files_quantity(files: list[UploadFile] = File(...)):
-    if len(files) > 5:
+    if len(files) > MAX_FILE_QUANTITY:
         raise HTTPException(
             status_code=413,
             detail="Количество файлов превышает допустимое число. Максиум: 5 файлов",

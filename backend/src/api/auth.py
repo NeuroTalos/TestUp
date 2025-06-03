@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Response, Request
 from authx import AuthX, AuthXConfig
+from datetime import timedelta
 
 from src.queries.orm import AsyncORM
 from src.schemas.auth import AuthSchema
@@ -11,6 +12,7 @@ config.JWT_SECRET_KEY = settings.SECRET_KEY
 config.JWT_ACCESS_COOKIE_NAME = "access_token"
 config.JWT_TOKEN_LOCATION = ["cookies"]
 config.JWT_CSRF_METHODS = ["DELETE"]
+config.JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes = 60)
 
 security = AuthX(config = config)
 

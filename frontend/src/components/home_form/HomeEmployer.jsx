@@ -1,44 +1,72 @@
 import React from 'react';
-import { FaPlusCircle, FaTasks, FaUsers, FaChartLine } from 'react-icons/fa';
+import { FaPlusCircle, FaTasks, FaUsers, FaClipboardList } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const HomeEmployer = () => {
+  const navigate = useNavigate();
+
+  const handleCreateTask = () => {
+    navigate('/tasks/add');
+  };
+
+  const handleViewPostedTasks = () => {
+    navigate('/employer/tasks');
+  };
+
   return (
-    <div className="max-w-6xl mx-auto p-8 text-white" style={{ backgroundColor: '#343F4D', minHeight: '100vh' }}>
+    <div className="bg-gray-800 rounded-lg shadow-md p-8 w-full max-w-6xl mx-auto text-white">
       <h1 className="text-4xl font-bold mb-6">Добро пожаловать, работодатель!</h1>
-      <p className="text-gray-300 mb-10 max-w-xl leading-relaxed">
+
+      <p className="text-gray-300 mb-10 leading-relaxed">
         Здесь вы можете публиковать новые задания, отслеживать их статус и управлять откликами студентов.
       </p>
 
-      <button
-        type="button"
-        className="flex items-center bg-blue-600 hover:bg-blue-700 transition text-white font-semibold py-3 px-6 rounded-lg mb-12 shadow-md"
-      >
-        <FaPlusCircle className="mr-3 text-xl" />
-        Опубликовать новое задание
-      </button>
+      <div className="flex flex-col items-center md:flex-row md:justify-center gap-6 mb-12">
+        <div
+          className="w-full md:w-80 min-h-[220px] rounded-lg p-6 flex flex-col justify-between"
+          style={{ backgroundColor: '#2a2f3a' }}
+        >
+          <div>
+            <FaTasks className="text-blue-400 text-3xl mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Мои задания</h3>
+            <p className="text-gray-300 text-sm">
+              Публикуйте задания в свободной форме — вы можете описать задачу текстом, приложить файлы и указать уровень сложности.
+            </p>
+          </div>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="bg-[#2a2f3a] rounded-lg p-6 shadow-md hover:shadow-lg transition cursor-pointer">
-          <FaTasks className="text-blue-400 text-4xl mb-4" />
-          <h3 className="text-xl font-semibold mb-2">Мои задания</h3>
-          <p className="text-gray-400 text-sm">
-            Просматривайте, редактируйте и отслеживайте статус опубликованных заданий.
-          </p>
+        <div
+          className="w-full md:w-80 min-h-[220px] rounded-lg p-6 flex flex-col justify-between"
+          style={{ backgroundColor: '#2a2f3a' }}
+        >
+          <div>
+            <FaUsers className="text-green-400 text-3xl mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Отклики студентов</h3>
+            <p className="text-gray-300 text-sm">
+              Просматривайте решения студентов, оставляйте комментарии и выходите на связь с авторами лучших решений.
+            </p>
+          </div>
         </div>
-        <div className="bg-[#2a2f3a] rounded-lg p-6 shadow-md hover:shadow-lg transition cursor-pointer">
-          <FaUsers className="text-green-400 text-4xl mb-4" />
-          <h3 className="text-xl font-semibold mb-2">Отклики студентов</h3>
-          <p className="text-gray-400 text-sm">
-            Просматривайте решения, комментарии и выбирайте лучших кандидатов для стажировки.
-          </p>
-        </div>
-        <div className="bg-[#2a2f3a] rounded-lg p-6 shadow-md hover:shadow-lg transition cursor-pointer">
-          <FaChartLine className="text-orange-400 text-4xl mb-4" />
-          <h3 className="text-xl font-semibold mb-2">Статистика</h3>
-          <p className="text-gray-400 text-sm">
-            Анализируйте популярность ваших заданий и эффективность откликов.
-          </p>
-        </div>
+      </div>
+
+      <div className="flex justify-center flex-wrap">
+        <button
+          type="button"
+          onClick={handleCreateTask}
+          className="flex items-center bg-blue-600 hover:bg-blue-700 transition text-white font-semibold py-3 px-6 rounded-lg shadow-md"
+        >
+          <FaPlusCircle className="mr-3 text-xl" />
+          Создать новое задание
+        </button>
+
+        <button
+          type="button"
+          onClick={handleViewPostedTasks}
+          className="flex items-center ml-12 bg-cyan-800 hover:bg-cyan-700 transition text-white font-semibold py-3 px-6 rounded-lg shadow-md"
+        >
+          <FaClipboardList className="mr-3 text-xl" />
+          Посмотреть размещённые задания
+        </button>
       </div>
     </div>
   );

@@ -3,7 +3,7 @@ from math import ceil
 from fastapi import APIRouter, Request, HTTPException, Depends, UploadFile, File
 
 from src.queries.orm import AsyncORM
-from src.schemas.employers import EmployerGetSchema, EmployerAddSchema, EmployerUpdateSchema
+from src.schemas.employers import EmployerGetSchema, EmployerAddSchema, EmployerUpdateSchema, EmployerContactsGetSchema
 from src.schemas.tasks import TaskGetSchema, PaginationsParams
 from src.api.auth import access_token_check, current_role
 
@@ -69,6 +69,18 @@ async def select_current_employer_tasks(request: Request, pagination: Pagination
     else:
         raise HTTPException(status_code=403, detail="Доступ к ресурсу ограничен для вашей роли")
 
+
+@router.get("/employer_contacts")
+async def select_employer_contacts(request: Request, company_name: str) -> EmployerContactsGetSchema:
+    token_data = await access_token_check(request)
+
+    employer_contacts = await AsyncORM.select_employer_contacts_by_name(company_name)
+
+    if employer_contacts:
+        return employer_contacts
+    
+    else:
+        raise HTTPException(status_code=404, detail="Контакты работодателя не найдены")
 
 
 @router.post("/add")
