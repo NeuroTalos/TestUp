@@ -80,7 +80,6 @@ const ProfileWidget = () => {
                 });
 
                 setProfile(response.data);
-                console.log(response.data)
                 setError(null);
             } catch (error) {
                 setError('Ошибка при загрузке профиля');
@@ -116,7 +115,6 @@ const ProfileWidget = () => {
     const displayedTasks = tasks.slice((currentPage - 1) * tasksPerPage, currentPage * tasksPerPage);
 
     const logoUrl = role === 'employer' && profile?.company_name ? getLogoUrl(profile.company_name) : null;
-    console.log(logoUrl)
 
     return (
         <div className="flex w-screen h-screen" style={{ backgroundColor: '#002040' }}>
@@ -134,7 +132,7 @@ const ProfileWidget = () => {
             <div className="flex-1 overflow-auto">
                 {selectedTab === 'info' && (
                     <div className="grid grid-cols-1">
-                        <AuthInfo />
+                        <AuthInfo email={profile.email} />
                         {role === 'student' ? (
                             <StudentPersonalInfo
                                 profile={{

@@ -16,6 +16,13 @@ class Settings(BaseSettings):
     MINIO_BUCKET_SOLUTIONS: str
     ADMIN_LOGIN: str
     ADMIN_PASSWORD: str
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM: str
+    MAIL_PORT: int
+    MAIL_SERVER: str
+    FRONTEND_HOST: str
+    FRONTEND_PORT: int
 
     @property
     def DATABASE_URL_asyncpg(self):

@@ -83,6 +83,27 @@ async def select_employer_contacts(request: Request, company_name: str) -> Emplo
         raise HTTPException(status_code=404, detail="Контакты работодателя не найдены")
 
 
+@router.get("/current_login")
+async def select_employer_login(request: Request):
+    token_data = await access_token_check(request)
+    role = await current_role(request)
+
+    if role == "employer":
+        employer_id = int(token_data.sub)
+
+        employer_login = await AsyncORM.select_employer_login_by_id(employer_id)
+
+        if employer_login:
+            return {"login": employer_login}
+        
+        else:
+            raise HTTPException(status_code=404, detail="Контакты работодателя не найдены")
+    
+    else:
+        raise HTTPException(status_code=403, detail="Доступ к ресурсу ограничен для вашей роли")
+
+
+
 @router.post("/add")
 async def add_employer(employer: EmployerAddSchema):
     new_employer = {

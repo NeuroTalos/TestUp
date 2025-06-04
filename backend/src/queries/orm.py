@@ -261,6 +261,20 @@ class AsyncORM:
             return student_name
         
     @staticmethod
+    async def select_student_login_by_id(student_id: int) -> str:
+        async with async_session_factory() as session:
+            query = (
+                select(StudentsOrm.login)
+                .filter(StudentsOrm.id == student_id))
+            result = await session.execute(query)
+            student_login = result.scalar_one_or_none()
+            
+            if not student_login:
+                return False
+           
+            return student_login
+        
+    @staticmethod
     async def select_employers():
         async with async_session_factory() as session:
             query = (
@@ -387,6 +401,22 @@ class AsyncORM:
             company_contacts_schema = EmployerContactsGetSchema.model_validate(company_contacts)
            
             return company_contacts_schema
+    
+    @staticmethod
+    async def select_employer_login_by_id(employer_id: int) -> str:
+        async with async_session_factory() as session:
+            query = (
+                select(EmployersOrm.login)
+                .filter(EmployersOrm.id == employer_id)
+             )
+            
+            result = await session.execute(query)
+            employer_login = result.scalar_one_or_none()
+
+            if not employer_login:
+                return False
+           
+            return employer_login
         
     @staticmethod
     async def select_employer_logo_path_by_name(company_name: str) -> str:
@@ -604,6 +634,25 @@ class AsyncORM:
                 employer_id = result.scalars().one()
 
                 return employer_id
+            
+    @staticmethod
+    async def check_email_exist(email: str) -> bool:
+        async with async_session_factory() as session:
+            students_query = select(StudentsOrm).where(StudentsOrm.email == email)
+            result = await session.execute(students_query)
+            student = result.scalar_one_or_none()
+
+            if student:
+                return True
+            
+            employer_query = select(EmployersOrm).where(EmployersOrm.email == email)
+            result = await session.execute(employer_query)
+            employer = result.scalar_one_or_none()
+
+            if employer:
+                return True
+
+            return False
         
 
     # --------------UPDATE--------------
@@ -654,3 +703,29 @@ class AsyncORM:
 
             await session.commit()
     
+    @staticmethod
+    async def update_user_password(email: str, new_password: str) -> bool:
+        def encrypt_password(password: str) -> str:
+                return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+        async with async_session_factory() as session:
+            hashed_password = encrypt_password(new_password)
+            query_student = select(StudentsOrm).where(StudentsOrm.email == email)
+            result = await session.execute(query_student)
+            student = result.scalar_one_or_none()
+
+            if student:
+                student.password = hashed_password
+                await session.commit()
+                return True
+            
+            query_employer = select(EmployersOrm).where(EmployersOrm.email == email)
+            result = await session.execute(query_employer)
+            employer = result.scalar_one_or_none()
+
+            if employer:
+                employer.password = hashed_password
+                await session.commit()
+                return True
+
+            return False

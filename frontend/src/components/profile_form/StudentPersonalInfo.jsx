@@ -23,34 +23,10 @@ const StudentPersonalInfo = ({ profile }) => {
         date_of_birth: formatDateToDisplay(profile.date_of_birth)
     });
 
-    // const [faculties, setFaculties] = useState([]);
-    // const [majors, setMajors] = useState([]);
-    // const [selectedFaculty, setSelectedFaculty] = useState(profile.faculty_name || '');
     const [isChanged, setIsChanged] = useState(false);
 
     const genderOptions = ['Мужской', 'Женский'];
     const courseOptions = ['1', '2', '3', '4', '5'];
-
-    // useEffect(() => {
-    //     fetchFacultiesAndMajors();
-    // }, []);
-
-     // useEffect(() => {
-    //     if (selectedFaculty) {
-    //         const selectedFacultyData = faculties.find(faculty => faculty.name === selectedFaculty);
-    //         const filteredMajors = selectedFacultyData ? selectedFacultyData.majors.map(major => major.name) : [];
-    //         setMajors(filteredMajors);
-
-    //         if (filteredMajors.length > 0 && !filteredMajors.includes(formData.major_name)) {
-    //             setFormData(prev => ({
-    //                 ...prev,
-    //                 major_name: filteredMajors[0],
-    //             }));
-    //         }
-    //     } else {
-    //         setMajors([]);
-    //     }
-    // }, [selectedFaculty, faculties]);
 
     useEffect(() => {
         const normalizedFormData = {
@@ -66,21 +42,6 @@ const StudentPersonalInfo = ({ profile }) => {
 
         setIsChanged(!isEqual(normalizedFormData, normalizedProfile));
     }, [formData, profile]);
-
-   
-    // const fetchFacultiesAndMajors = async () => {
-    //     try {
-    //         const response = await axios.get('http://127.0.0.1:8000/faculties');
-    //         const data = response.data;
-
-    //         setFaculties(data);
-    //         if (data.length > 0 && selectedFaculty === '') {
-    //             setSelectedFaculty(data[0].name);
-    //         }
-    //     } catch (err) {
-    //         console.error('Ошибка при загрузке факультетов и направлений', err);
-    //     }
-    // };
 
     const handleChange = (key, value) => {
         setFormData(prev => ({ ...prev, [key]: value }));
@@ -109,11 +70,6 @@ const StudentPersonalInfo = ({ profile }) => {
             message.error('Ошибка при обновлении данных');
         }
     };
-
-    // const handleFacultyChange = (value) => {
-    //     setSelectedFaculty(value);
-    //     setFormData(prev => ({ ...prev, faculty_name: value }));
-    // };
 
     return (
         <div className="p-6 w-full">

@@ -32,7 +32,7 @@ default_students = [
         "last_name": "Чертков",
         "middle_name": "Владимирович",
         "date_of_birth": date(2001, 1, 26),
-        "email": "dima26.chertkov@gmail.com",
+        "email": "dima.chertkov.01@mail.ru",
         "phone": "84532211676",
         "telegram": "@username",
         "gender": "male",

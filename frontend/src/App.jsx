@@ -11,6 +11,7 @@ import TasksListWidget from './components/tasks_form/Tasks_list.jsx';
 import TaskPage from './components/tasks_form/TaskPage.jsx'
 import TaskCreate from './components/tasks_form/TaskCreate.jsx';
 import EmployerTasksPage from './components/tasks_form/EmployerTasksList.jsx';
+import PasswortReset from './components/password_reset/PasswordReset';
 import { ToastContainer } from 'react-toastify';
 
 function App() {
@@ -43,6 +44,9 @@ function App() {
 
               {/* Страница для создания задачи */}
               <Route path="/tasks/add" element={<TaskCreate />} />
+
+              {/* Страница для сброса пароля */}
+              <Route path="/reset-password" element={<PasswortReset />} />
               
             </Route>
           </Routes>
