@@ -1,4 +1,6 @@
-from sqlalchemy import select, insert, func, desc, asc
+from datetime import datetime
+
+from sqlalchemy import select, insert, func, desc, asc, delete
 from sqlalchemy.orm import selectinload, load_only, contains_eager, with_loader_criteria
 import bcrypt
 
@@ -20,6 +22,7 @@ from src.models import (
     TaskSolutionsOrm,
     TestTaskFileLinks,
     TaskSolutionFileLinks,
+    EmailVerificationCodesOrm,
 )
 from src.schemas.faculties import FacultyGetSchema
 from src.schemas.majors import MajorGetSchema, MajorSchema
@@ -27,6 +30,7 @@ from src.schemas.students import StudentSchema, StudentGetSchema, StudentUpdateS
 from src.schemas.tasks import TaskGetSchema
 from src.schemas.employers import EmployerGetSchema, EmployerUpdateSchema, EmployerContactsGetSchema
 from src.schemas.solutions import SolutionGetSchema, SolutionGetInTasksSchema
+from src.schemas.email import EmailVeficitaionCodesSchema
 
 
 class AsyncORM:
@@ -127,6 +131,13 @@ class AsyncORM:
         async with async_session_factory() as session:   
             insert_task_file_paths = insert(TaskSolutionFileLinks).values(solution_file_links)
             await session.execute(insert_task_file_paths)
+            await session.commit()
+
+    @staticmethod
+    async def store_email_code(email_verification_codes: list[EmailVerificationCodesOrm]):
+        async with async_session_factory() as session:
+            insert_email_verification_codes = insert(EmailVerificationCodesOrm).values(email_verification_codes)
+            await session.execute(insert_email_verification_codes)
             await session.commit()
 
     # --------------SELECT--------------
@@ -654,6 +665,15 @@ class AsyncORM:
 
             return False
         
+    @staticmethod
+    async def get_verification_code_by_email(email: str) -> EmailVerificationCodesOrm | None:
+        async with async_session_factory() as session:
+            result = await session.execute(
+                select(EmailVerificationCodesOrm)
+                .filter(EmailVerificationCodesOrm.email == email)
+            )
+
+            return result.scalar_one_or_none()   
 
     # --------------UPDATE--------------
     
@@ -718,7 +738,7 @@ class AsyncORM:
                 student.password = hashed_password
                 await session.commit()
                 return True
-            
+
             query_employer = select(EmployersOrm).where(EmployersOrm.email == email)
             result = await session.execute(query_employer)
             employer = result.scalar_one_or_none()
@@ -729,3 +749,25 @@ class AsyncORM:
                 return True
 
             return False
+        
+    @staticmethod
+    async def update_email_code(email: str, code: int, expires_at: datetime) -> None:
+        async with async_session_factory() as session:
+            query = select(EmailVerificationCodesOrm).where(EmailVerificationCodesOrm.email == email)
+            result = await session.execute(query)
+            email_code_info = result.scalar_one_or_none()
+
+            if email_code_info:
+                email_code_info.code = code
+                email_code_info.expires_at = expires_at
+                await session.commit()
+        
+    # --------------DELETE--------------
+
+    @staticmethod
+    async def delete_verification_code(email: str):
+        async with async_session_factory() as session:
+            await session.execute(
+                delete(EmailVerificationCodesOrm).where(EmailVerificationCodesOrm.email == email)
+            )
+            await session.commit()

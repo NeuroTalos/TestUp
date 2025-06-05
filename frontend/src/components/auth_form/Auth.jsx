@@ -41,7 +41,7 @@ const AuthWidget = () => {
   };
 
   const handlePasswordReset = () => {
-    axios.post('http://127.0.0.1:8000/password_reset/send_email', { email: emailInput })
+    axios.post('http://127.0.0.1:8000/email/send_email', { email: emailInput })
       .then(() => {
         setResetSuccess(true);
         setAuthError(false);

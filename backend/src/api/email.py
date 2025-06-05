@@ -1,5 +1,6 @@
 import os
 from datetime import datetime, timedelta, timezone
+from random import randint
 
 import jwt
 from fastapi import APIRouter, HTTPException, BackgroundTasks, Request
@@ -7,13 +8,13 @@ from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from src.config import settings
-from src.schemas.password_reset import PasswordResetSchema
+from src.schemas.email import EmailSchema
 from src.queries.orm import AsyncORM
 
 
 router = APIRouter(
-    prefix = "/password_reset",
-    tags = ["Password_reset"],
+    prefix = "/email",
+    tags = ["Email"],
 )
 
 
@@ -42,7 +43,7 @@ def render_reset_email(reset_link: str) -> str:
 
 
 @router.post("/send_email")
-async def send_reset_password_email(email_request: PasswordResetSchema, background_tasks: BackgroundTasks):
+async def send_reset_password_email(email_request: EmailSchema, background_tasks: BackgroundTasks):
     result = await AsyncORM.check_email_exist(email_request.email)
 
     if not result:
@@ -98,3 +99,42 @@ async def update_password(request: Request):
         raise HTTPException(status_code=404, detail="Пользователь не найден")
 
     return {"msg": "Пароль успешно обновлён"}
+
+
+@router.post("/send_verification_code")
+async def send_verification_code(email_request: EmailSchema, background_tasks: BackgroundTasks):
+    email = email_request.email
+
+    if not email:
+        raise HTTPException(status_code=400, detail="Email обязателен")
+
+    code = randint(1000, 9999)
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
+
+    existing = await AsyncORM.get_verification_code_by_email(email)
+
+    email_verification_code = {
+            "email": email,
+            "code": code,
+            "expires_at": expires_at,
+        }
+
+    if existing:
+        await AsyncORM.update_email_code(email, code, expires_at)
+    else:
+        await AsyncORM.store_email_code(email_verification_code)
+
+    template = env.get_template("email_verification_code.html")
+    email_body = template.render(code=code)
+
+    message = MessageSchema(
+        subject="Код подтверждения регистрации на TestUP",
+        recipients=[email],
+        body=email_body,
+        subtype="html",
+    )
+
+    fm = FastMail(conf)
+    background_tasks.add_task(fm.send_message, message)
+
+    return {"msg": "Код отправлен на почту"}

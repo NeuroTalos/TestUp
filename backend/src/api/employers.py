@@ -105,7 +105,15 @@ async def select_employer_login(request: Request):
 
 
 @router.post("/add")
-async def add_employer(employer: EmployerAddSchema):
+async def add_employer(employer: EmployerAddSchema, verification_code: int):
+    code_record = await AsyncORM.get_verification_code_by_email(employer.email)
+    
+    if not code_record or code_record.code != verification_code:
+        raise HTTPException(status_code=400, detail="Неверный или истекший код подтверждения")
+    if code_record.is_expired():
+        raise HTTPException(status_code=400, detail="Код подтверждения истёк")
+    await AsyncORM.delete_verification_code(employer.email)
+
     new_employer = {
         "login": employer.login,
         "password": employer.password,

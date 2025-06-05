@@ -78,10 +78,19 @@ async def select_current_student_login(request: Request):
 
 
 @router.post("/add")
-async def add_student(student: StudentAddSchema):
+async def add_student(student: StudentAddSchema, verification_code: int):
     await check_faculty(student.faculty_name)
     
     formatted_date = await data_transform(student.date_of_birth)
+
+    code_record = await AsyncORM.get_verification_code_by_email(student.email)
+    
+    if not code_record or code_record.code != verification_code:
+        raise HTTPException(status_code=400, detail="Неверный или истекший код подтверждения")
+    if code_record.is_expired():
+        raise HTTPException(status_code=400, detail="Код подтверждения истёк")
+    
+    await AsyncORM.delete_verification_code(student.email)
 
     new_student = {
         "login" : student.login,

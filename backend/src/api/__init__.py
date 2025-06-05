@@ -8,7 +8,7 @@ from src.api.files import router as files_router
 from src.api.tasks import router as tasks_router
 from src.api.employers import router as employers_router
 from src.api.solutions import router as solutions_router
-from src.api.password_reset import router as password_router
+from src.api.email import router as password_router
 
 
 main_router = APIRouter()

@@ -246,3 +246,14 @@ class TaskSolutionFileLinks(Base):
 
     def __str__(self) -> str:
         return f"{self.file_path} (решение)"
+    
+
+class EmailVerificationCodesOrm(Base):
+    __tablename__ = 'email_verification_codes'
+
+    email: Mapped[str] = Column(String(100), primary_key=True)
+    code: Mapped[int] = Column(Integer, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    def is_expired(self) -> bool:
+        return datetime.now(timezone.utc) > self.expires_at

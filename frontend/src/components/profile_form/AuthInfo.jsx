@@ -31,7 +31,7 @@ const AuthInfo = ({ email }) => {
 
     const handlePasswordChange = async () => {
         try {
-            await axios.post('http://127.0.0.1:8000/password_reset/send_email', { email });
+            await axios.post('http://127.0.0.1:8000/email/send_email', { email });
             logout();
             navigate('/');
         } catch (error) {

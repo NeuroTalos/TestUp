@@ -1,11 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Card, Space, Typography, Tabs } from 'antd';
+import { Card, Space, Typography, Tabs, Button, Input } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 import LabeledInput from '../profile_form/LabeledInput';
 import PasswordInput from './Password_input';
-import RegistrationButton from './Registration_button';
 import DropdownSelect from '../profile_form/DropdownSelect';
 import EmployerLogoUpload from './EmployerLogoUpload';
 
@@ -13,8 +12,8 @@ const { TabPane } = Tabs;
 
 const RegistrationWidget = () => {
   const [activeTab, setActiveTab] = useState('student');
-  
-  // Student
+
+  // Student fields
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -29,8 +28,8 @@ const RegistrationWidget = () => {
   const [group, setGroup] = useState('');
   const [faculty, setFaculty] = useState(null);
   const [major, setMajor] = useState(null);
-  
-  // Employer
+
+  // Employer fields
   const [employerLogin, setEmployerLogin] = useState('');
   const [employerPassword, setEmployerPassword] = useState('');
   const [companyName, setCompanyName] = useState('');
@@ -43,6 +42,11 @@ const RegistrationWidget = () => {
   const [majors, setMajors] = useState([]);
   const [registrationError, setRegistrationError] = useState(false);
 
+  const [verificationStep, setVerificationStep] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
+  const [cooldown, setCooldown] = useState(60);
+  const cooldownRef = useRef(null);
+
   const cardRef = useRef(null);
   const navigate = useNavigate();
 
@@ -50,10 +54,8 @@ const RegistrationWidget = () => {
   const handleCourseChange = (value) => setCourse(value);
   const handleFacultyChange = (value) => {
     setFaculty(value);
-  
     const selectedFacultyData = faculties.find(fac => fac.name === value);
     const majorsList = selectedFacultyData ? selectedFacultyData.majors.map(m => m.name) : [];
-  
     setMajors(majorsList);
     setMajor(majorsList[0] || null);
   };
@@ -76,8 +78,28 @@ const RegistrationWidget = () => {
     setMajors(selectedFacultyData ? selectedFacultyData.majors.map(m => m.name) : []);
   }, [faculty, faculties]);
 
+  useEffect(() => {
+    if (cooldown === 0) {
+      clearInterval(cooldownRef.current);
+    }
+  }, [cooldown]);
+
+  const startCooldown = () => {
+    setCooldown(60);
+    cooldownRef.current = setInterval(() => {
+      setCooldown(prev => {
+        if (prev <= 1) {
+          clearInterval(cooldownRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
   const handleTabChange = (key) => {
     setRegistrationError(false);
+    setVerificationStep(false);
     setActiveTab(key);
   };
 
@@ -87,74 +109,100 @@ const RegistrationWidget = () => {
     return gender;
   };
 
-  const handleSubmit = async () => {
-  if (activeTab === 'student') {
-    const studentData = {
-      login: login,
-      password: password,
-      first_name: firstName,
-      last_name: lastName,
-      middle_name: middleName,
-      date_of_birth: dob,
-      email: email,
-      phone: phone,
-      telegram: telegram,
-      gender: convertGenderToBackendFormat(gender),
-      course: course,
-      group: group,
-      faculty_name: faculty,
-      major_name: major,
-    };
+  const sendVerificationCode = async () => {
+    setRegistrationError(false);
+    let targetEmail = activeTab === 'student' ? email : employerEmail;
+
+    if (!targetEmail) {
+      setRegistrationError(true);
+      return;
+    }
 
     try {
-      await axios.post('http://127.0.0.1:8000/students/add', studentData);
+      await axios.post('http://127.0.0.1:8000/email/send_verification_code', { email: targetEmail });
+      setVerificationStep(true);
+      startCooldown();
+    } catch (error) {
+      setRegistrationError(true);
+      if (cardRef.current) cardRef.current.scrollTop = 0;
+    }
+  };
+
+  const handleResendCode = () => {
+    if (cooldown === 0) {
+      sendVerificationCode();
+    }
+  };
+
+  const handleConfirm = async () => {
+    setRegistrationError(false);
+
+    try {
+      if (activeTab === 'student') {
+        const studentData = {
+          login,
+          password,
+          first_name: firstName,
+          last_name: lastName,
+          middle_name: middleName,
+          date_of_birth: dob,
+          email,
+          phone,
+          telegram,
+          gender: convertGenderToBackendFormat(gender),
+          course,
+          group,
+          faculty_name: faculty,
+          major_name: major,
+        };
+
+        await axios.post(
+          `http://127.0.0.1:8000/students/add?verification_code=${verificationCode}`,
+          studentData
+        );
+
+      } else if (activeTab === 'employer') {
+        const employerData = {
+          login: employerLogin,
+          password: employerPassword,
+          company_name: companyName,
+          email: employerEmail,
+          phone: employerPhone,
+          telegram: employerTelegram,
+        };
+
+        await axios.post(
+          `http://127.0.0.1:8000/employers/add?verification_code=${verificationCode}`,
+          employerData
+        );
+
+        if (employerLogo && employerLogo.size <= 200 * 1024) {
+          const formData = new FormData();
+          formData.append('file', employerLogo);
+
+          try {
+            await axios.post(`http://127.0.0.1:8000/files/upload_logo/${companyName}`, formData);
+          } catch (uploadError) {
+            console.error('Ошибка загрузки логотипа:', uploadError);
+          }
+        }
+      }
+
       setRegistrationError(false);
       navigate('/auth');
     } catch (error) {
       setRegistrationError(true);
       if (cardRef.current) cardRef.current.scrollTop = 0;
     }
-
-  } else if (activeTab === 'employer') {
-    const employerData = {
-      login: employerLogin,
-      password: employerPassword,
-      company_name: companyName,
-      email: employerEmail,
-      phone: employerPhone,
-      telegram: employerTelegram,
-    };
-
-    try {
-      await axios.post('http://127.0.0.1:8000/employers/add', employerData);
-      setRegistrationError(false);
-
-      if (employerLogo && employerLogo.size <= 200 * 1024) {
-        const formData = new FormData();
-        formData.append('file', employerLogo);
-
-        try {
-          await axios.post(`http://127.0.0.1:8000/files/upload_logo/${companyName}`, formData);
-        } catch (uploadError) {
-          console.error('Ошибка загрузки логотипа:', uploadError);
-        }
-      }
-
-      navigate('/auth');
-    } catch (registrationError) {
-      setRegistrationError(true);
-      if (cardRef.current) cardRef.current.scrollTop = 0;
-    }
-  }
-};
+  };
 
   return (
     <div className="w-screen h-screen grid place-content-center px-4" style={{ backgroundColor: '#002040' }}>
       <Space direction="vertical" size={16}>
         <Card
           ref={cardRef}
-          title="Регистрация"
-          className="w-[90vw] sm:w-[500px] md:w-[570px] lg:w-[700px] xl:w-[750px] rounded-lg overflow-y-auto card-scroll"
+          title={<div style={{ textAlign: "center", fontWeight: "bold", fontSize: 24, color: 'white' }}>Регистрация</div>}
+          className="w-[90vw] sm:w-[500px] md:w-[570px] lg:w-[700px] xl:w-[750px] border-2 border-black rounded-lg overflow-y-auto card-scroll"
           style={{
             maxHeight: '80vh',
             backgroundColor: '#343F4D',
@@ -166,24 +214,20 @@ const RegistrationWidget = () => {
               borderBottom: '2px solid #283144',
               color: 'white',
               backgroundColor: '#343F4D',
-              fontWeight: 'bold',
-              fontSize: 24,
-              textAlign: 'center',
-            },
-            body: {
-              overflowX: 'auto',
-              paddingBottom: '16px',
             },
           }}
         >
-          <Tabs 
-            className="custom-tabs"
-            defaultActiveKey="student" 
-            onChange={handleTabChange} 
-            centered>
+          {!verificationStep ? (
+            <Tabs
+              className="custom-tabs"
+              defaultActiveKey="student"
+              onChange={handleTabChange}
+              centered
+              activeKey={activeTab}
+            >
               <TabPane tab="Студент" key="student">
                 {registrationError && (
-                  <div className="mb-4 ml-42">
+                  <div style={{ marginBottom: 16, textAlign: 'center' }}>
                     <Typography.Text type="danger">
                       Введены некорректные данные
                     </Typography.Text>
@@ -204,11 +248,17 @@ const RegistrationWidget = () => {
                 <LabeledInput label="Группа" maxLength={15} value={group} onChange={handleInputChange(setGroup)} />
                 <DropdownSelect label="Факультет" options={faculties.map(fac => fac.name)} value={faculty} onChange={handleFacultyChange} />
                 <DropdownSelect label="Направление" options={majors} value={major} onChange={handleMajorChange} />
+
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
+                  <Button type="primary" onClick={sendVerificationCode}>
+                    Зарегистрироваться
+                  </Button>
+                </div>
               </TabPane>
 
               <TabPane tab="Работодатель" key="employer">
                 {registrationError && (
-                  <div className="mb-4 ml-42">
+                  <div style={{ marginBottom: 16, textAlign: 'center' }}>
                     <Typography.Text type="danger">
                       Введены некорректные данные
                     </Typography.Text>
@@ -221,13 +271,107 @@ const RegistrationWidget = () => {
                 <LabeledInput label="Электронная почта" maxLength={100} value={employerEmail} onChange={handleInputChange(setEmployerEmail)} />
                 <LabeledInput label="Телефон" maxLength={11} value={employerPhone} onChange={handleInputChange(setEmployerPhone)} />
                 <LabeledInput label="Телеграм (опционально)" maxLength={100} value={employerTelegram} onChange={handleInputChange(setEmployerTelegram)} />
-                <EmployerLogoUpload onFileSelect={setEmployerLogo} />
-              </TabPane>
-          </Tabs>
 
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <RegistrationButton onClick={handleSubmit} />
-          </div>
+                <EmployerLogoUpload logo={employerLogo} setLogo={setEmployerLogo} />
+
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
+                  <Button type="primary" onClick={sendVerificationCode}>
+                    Зарегистрироваться
+                  </Button>
+                </div>
+              </TabPane>
+            </Tabs>
+          ) : (
+            <>
+              <Typography.Title
+                level={4}
+                style={{ color: 'white', textAlign: 'center', marginBottom: 24 }}
+              >
+                Введите 4-значный код, отправленный на вашу почту
+              </Typography.Title>
+
+              <Input
+                maxLength={4}
+                value={verificationCode}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (/^\d{0,4}$/.test(val)) setVerificationCode(val);
+                }}
+                autoFocus
+                style={{
+                  fontSize: 28,
+                  letterSpacing: 20,
+                  textAlign: 'center',
+                  borderRadius: 6,
+                  border: '1.5px solid #555',
+                  backgroundColor: '#2A2F3A',
+                  color: 'white',
+                  marginBottom: 24,
+                }}
+                placeholder="----"
+              />
+
+              {registrationError && (
+                <Typography.Text type="danger" style={{ display: 'block', marginBottom: 16, textAlign: 'center' }}>
+                  Неверный код
+                </Typography.Text>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
+                <Button
+                  disabled={cooldown > 0}
+                  onClick={handleResendCode}
+                  style={{
+                    flex: 1,
+                    backgroundColor: cooldown > 0 ? '#555' : '#002040',
+                    color: cooldown > 0 ? '#999' : '#3399FF',
+                    fontWeight: 'bold',
+                    height: 40,
+                    borderRadius: 6,
+                    border: '1.5px solid',
+                    borderColor: cooldown > 0 ? '#999' : '#3b82f6',
+                    transition: 'all 0.3s ease',
+                    cursor: cooldown > 0 ? 'not-allowed' : 'pointer',
+                    boxShadow: cooldown > 0 ? 'none' : undefined,
+                  }}
+                  type="default"
+                  onMouseEnter={e => {
+                    if (cooldown === 0) {
+                      e.currentTarget.style.backgroundColor = '#3b82f6';
+                      e.currentTarget.style.color = '#fff';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(59,130,246,0.4)';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (cooldown === 0) {
+                      e.currentTarget.style.backgroundColor = '#002040';
+                      e.currentTarget.style.color = '#3399FF';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }
+                  }}
+                >
+                  {cooldown > 0 ? `Отправить повторно (${cooldown})` : 'Отправить повторно'}
+                </Button>
+
+                <Button
+                  type="primary"
+                  disabled={verificationCode.length !== 4}
+                  onClick={handleConfirm}
+                  style={{ flex: 1, height: 40 }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.backgroundColor = '#004080';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(30,64,175,0.4)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.backgroundColor = '';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  Подтвердить
+                </Button>
+              </div>
+            </>
+          )}
         </Card>
       </Space>
     </div>
