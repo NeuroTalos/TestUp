@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaBriefcase, FaFileAlt, FaFilePdf, FaFileImage, FaFileExcel, FaDownload, FaEnvelope, FaPhone, FaTelegram, FaCopy, FaCheck } from 'react-icons/fa';
 import { saveAs } from 'file-saver';
+import { useNavigate } from 'react-router-dom';
 import JSZip from 'jszip';
 
 const TaskInfo = ({ task, taskFiles = [], isEmployer }) => {
@@ -10,6 +11,31 @@ const TaskInfo = ({ task, taskFiles = [], isEmployer }) => {
   const [loadingContacts, setLoadingContacts] = useState(true);
   const [contactsError, setContactsError] = useState(null);
   const [copiedField, setCopiedField] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [loadingFinish, setLoadingFinish] = useState(false);
+  const navigate = useNavigate();
+
+  const handleFinishClick = () => {
+  setShowModal(true);
+  };
+
+  const handleConfirmFinish = async () => {
+  setShowModal(false);
+  setLoadingFinish(true);
+
+  try {
+      await axios.patch(`http://127.0.0.1:8000/tasks/update_status?task_id=${task.id}`);
+      navigate('/employer/tasks');
+    } catch (error) {
+      console.error('Ошибка при завершении задания:', error);
+    } finally {
+      setLoadingFinish(false);
+    }
+  };
+
+  const handleCancelFinish = () => {
+    setShowModal(false);
+  };
 
   useEffect(() => {
     if (task?.employer_name) {
@@ -199,7 +225,7 @@ const TaskInfo = ({ task, taskFiles = [], isEmployer }) => {
                   {getIconByExtension(filename)}
                   <span>{filename}</span>
                   <button
-                    className="ml-auto bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded"
+                    className="ml-auto bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded cursor-pointer"
                     onClick={() => saveAs(content, filename)}
                   >
                     Скачать
@@ -209,7 +235,7 @@ const TaskInfo = ({ task, taskFiles = [], isEmployer }) => {
             </ul>
 
             <button
-              className="w-full sm:w-auto flex items-center justify-center bg-blue-600 hover:bg-indigo-500 text-white py-2 px-4 rounded"
+              className="w-full sm:w-auto flex items-center justify-center bg-blue-600 hover:bg-indigo-500 text-white py-2 px-4 rounded cursor-pointer"
               onClick={handleDownloadZip}
             >
               <FaDownload className="mr-2" />
@@ -221,14 +247,38 @@ const TaskInfo = ({ task, taskFiles = [], isEmployer }) => {
         )}
       </div>
 
-      {isEmployer && (
-        <div className="mt-20">
+      {isEmployer && task.status === 'active' && (
+        <div className="mt-10">
           <button
-            className="w-full py-3 bg-yellow-600 text-white rounded-md hover:bg-yellow-500"
-            onClick={(e) => e.preventDefault()}
+            className="w-full py-3 text-white rounded-md bg-amber-800 hover:bg-red-700 transition-colors cursor-pointer"
+            onClick={handleFinishClick}
           >
-            Редактировать задачу
+            Завершить задание
           </button>
+        </div>
+      )}
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="absolute inset-0 backdrop-blur-sm bg-black/30"></div>
+          <div className="bg-gray-800 text-white rounded-md p-6 w-80 text-center shadow-2xl z-10">
+            <h2 className="text-lg font-semibold mb-4">Вы уверены, что хотите завершить задание?</h2>
+            <p className="text-sm text-gray-300 mb-4">Студенты больше не смогут отправлять свои решения</p>
+            <p className="text-sm text-gray-300 mb-6">Это действие необратимо</p>
+            <div className="flex justify-between space-x-4">
+              <button
+                onClick={handleConfirmFinish}
+                className="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500 transition cursor-pointer"
+              >
+                Подтвердить
+              </button>
+              <button
+                onClick={handleCancelFinish}
+                className="w-full bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-500 transition cursor-pointer"
+              >
+                Отмена
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

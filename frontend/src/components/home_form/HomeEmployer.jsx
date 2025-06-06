@@ -53,7 +53,7 @@ const HomeEmployer = () => {
         <button
           type="button"
           onClick={handleCreateTask}
-          className="flex items-center bg-blue-600 hover:bg-blue-700 transition text-white font-semibold py-3 px-6 rounded-lg shadow-md"
+          className="flex items-center bg-blue-600 hover:bg-blue-700 transition text-white font-semibold py-3 px-6 rounded-lg shadow-md cursor-pointer"
         >
           <FaPlusCircle className="mr-3 text-xl" />
           Создать новое задание
@@ -62,7 +62,7 @@ const HomeEmployer = () => {
         <button
           type="button"
           onClick={handleViewPostedTasks}
-          className="flex items-center ml-12 bg-cyan-800 hover:bg-cyan-700 transition text-white font-semibold py-3 px-6 rounded-lg shadow-md"
+          className="flex items-center ml-12 bg-cyan-800 hover:bg-cyan-700 transition text-white font-semibold py-3 px-6 rounded-lg shadow-md cursor-pointer"
         >
           <FaClipboardList className="mr-3 text-xl" />
           Посмотреть размещённые задания

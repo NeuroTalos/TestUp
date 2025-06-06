@@ -123,11 +123,11 @@ async def select_solved_tasks(
         if not task_id_list:
             raise HTTPException(status_code=404, detail="Решённые задания не найдены")
 
-        tasks, total_count = await AsyncORM.select_tasks_by_ids(
+        tasks, total_count = await AsyncORM.select_solved_tasks_by_ids(
             student_id=student_id,
             task_ids=task_id_list,
             limit=paggination.limit,
-            offset=offset
+            offset=offset,
         )
 
         total_pages = (total_count + paggination.limit - 1) // paggination.limit
@@ -136,6 +136,63 @@ async def select_solved_tasks(
             "tasks": tasks,
             "total_pages": total_pages,
         }
+    
+    else:
+        raise HTTPException(status_code=403, detail="Доступ к ресурсу ограничен для вашей роли")
+
+
+@router.get("/get_unsolved_tasks")
+async def select_unsolved_tasks(
+    paggination: PaginationDep,
+    request: Request,
+    token_data = Depends(access_token_check),
+    ) -> TaskListResponseSchema:
+    role = await current_role(request)
+
+    if role == "student":
+        student_id = int(token_data.sub)
+        offset = (paggination.page - 1) * paggination.limit
+
+        task_id_list = await AsyncORM.select_unsolved_task_list(student_id)
+
+        if not task_id_list:
+            raise HTTPException(status_code=404, detail="Нерешённые задания не найдены")
+
+        tasks, total_count = await AsyncORM.select_unsolved_tasks_by_ids(
+            student_id=student_id,
+            task_ids=task_id_list,
+            limit=paggination.limit,
+            offset=offset,
+        )
+
+        total_pages = (total_count + paggination.limit - 1) // paggination.limit
+
+        return {
+            "tasks": tasks,
+            "total_pages": total_pages,
+        }
+    
+    else:
+        raise HTTPException(status_code=403, detail="Доступ к ресурсу ограничен для вашей роли")    
+    
+
+@router.patch("/update_status")
+async def update_status(
+    task_id: int,
+    request: Request,
+    token_data = Depends(access_token_check),
+    ):
+    role = await current_role(request)
+
+    if role == "employer":
+        result = await AsyncORM.update_task_status(task_id)
+
+        if result:
+            return {"msg": "Статус задания успешно обновлён"}
+        else:
+            raise HTTPException(status_code=404, detail="Задание не найдено или уже завершено") 
+
 
     else:
-        raise HTTPException(status_code=403, detail="Доступ к ресурсу ограничен для вашей роли")  
+        raise HTTPException(status_code=403, detail="Доступ к ресурсу ограничен для вашей роли") 
+        

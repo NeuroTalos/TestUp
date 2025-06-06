@@ -104,7 +104,7 @@ const TaskCard = ({ id, employer_name, title, difficulty, status, created_at, fu
     return (
         <div
             onClick={handleClick}
-            className="rounded-lg shadow-md p-4 w-full max-w-md transition hover:shadow-lg hover:scale-[1.01]"
+            className="rounded-lg shadow-md p-4 w-full max-w-md transition hover:shadow-lg hover:scale-[1.01] cursor-pointer"
             style={{ backgroundColor: '#343F4D', color: '#ffffff' }}
         >
             <div className="flex items-center mb-2">

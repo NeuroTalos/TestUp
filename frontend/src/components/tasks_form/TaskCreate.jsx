@@ -206,7 +206,7 @@ const TaskCreate = () => {
             <div>
               <button
                 type="submit"
-                className="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition"
+                className="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition cursor-pointer"
                 disabled={loading}
               >
                 {loading ? 'Создание...' : 'Создать'}
@@ -223,13 +223,13 @@ const TaskCreate = () => {
               <div className="flex justify-between space-x-4">
                 <button
                   onClick={handleConfirm}
-                  className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 transition"
+                  className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 transition cursor-pointer"
                 >
                   Создать
                 </button>
                 <button
                   onClick={handleCancel}
-                  className="w-full bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-500 transition"
+                  className="w-full bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-500 transition cursor-pointer"
                 >
                   Отмена
                 </button>

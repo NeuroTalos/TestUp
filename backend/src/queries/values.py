@@ -133,7 +133,7 @@ default_tasks = [
         "title": "Банковский чат-бот",
         "description": "Создать телеграм-бота для консультации клиентов банка. Бот должен уметь определять тему вопроса и давать базовый ответ",
         "difficulty": "medium",
-        "status": "active",
+        "status": "completed",
         "employer_name": "Т-Банк"
     },
     {

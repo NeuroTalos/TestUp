@@ -24,7 +24,7 @@ class PaginationsParams(BaseModel):
     page: int = Field(1, ge=0, description="Номер страницы")
 
 
-class TaskGetSchema(BaseModel):
+class UnsolvedTaskGetSchema(BaseModel):
     id: int
     title: str
     description: str 
@@ -36,14 +36,16 @@ class TaskGetSchema(BaseModel):
 
     files: Optional[list[FileLinksSchema]]
 
-    solutions: Optional[list[SolutionGetInTasksSchema]]
-
     class Config:
         from_attributes = True
 
+class TaskGetSchema(UnsolvedTaskGetSchema):
+    
+    solutions: Optional[list[SolutionGetInTasksSchema]]
 
+    
 class TaskListResponseSchema(BaseModel):
-    tasks: list[TaskGetSchema]
+    tasks: list[UnsolvedTaskGetSchema | TaskGetSchema]
     total_pages: int
 
 

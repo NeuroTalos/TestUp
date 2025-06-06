@@ -69,7 +69,10 @@ async def add_solution(
 
         solution_id = await AsyncORM.insert_one_solution([new_solution])
 
-        return {"ok": True, "solution_id": solution_id}
+        if solution_id:
+            return {"ok": True, "solution_id": solution_id}
+        else:
+            raise HTTPException(status_code=409, detail="Добавление решения невозможно, так как задание уже завершено")  
 
     else:
         raise HTTPException(status_code=403, detail="Доступ к ресурсу ограничен для вашей роли")  

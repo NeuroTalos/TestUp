@@ -12,6 +12,7 @@ from src.models import (
     TestTaskFileLinks,
     TaskSolutionsOrm,
     TaskSolutionFileLinks,
+    EmailVerificationCodesOrm,
 )
 from src.config import settings
 
@@ -96,6 +97,13 @@ class SolutionFilesAdmin(ModelView, model=TaskSolutionFileLinks):
     name = "Файлы решения"
     name_plural = "Файлы решений"
 
+class EmailVerificationCodesAdmin(ModelView, model=EmailVerificationCodesOrm):
+    can_create = False
+    can_edit = False
+
+    name = "Код верификации"
+    name_plural = "Коды верификации"
+
 
 class AdminAuth(AuthenticationBackend):
     async def login(self, request: Request) -> bool:
@@ -133,3 +141,4 @@ def setup_admin(app: FastAPI):
     admin.add_view(TaskFilesAdmin)
     admin.add_view(SolutionsAdmin)
     admin.add_view(SolutionFilesAdmin)
+    admin.add_view(EmailVerificationCodesAdmin)
