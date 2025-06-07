@@ -199,24 +199,28 @@ default_solutions = [
         "employer_comment": huge_comment,
         "task_id": 1,
         "student_id": 1,
+        "viewed": True,
     },
     {
         "solution_description": "Решение №1",
         "employer_comment": None,
         "task_id": 1,
         "student_id": 2,
+        "viewed": False,
     },
     {
         "solution_description": "Лучшее решение этой задачи",
         "employer_comment": None,
         "task_id": 1,
         "student_id": 3,
+        "viewed": False,
     },
     {
         "solution_description": "Это решение!",
         "employer_comment": None,
         "task_id": 2,
         "student_id": 1,
+        "viewed": False,
     },
 ]
 

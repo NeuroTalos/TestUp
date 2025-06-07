@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import (
     case, select, insert, 
     func, desc, asc, delete,
-    not_, exists,
+    not_, exists, literal,
 )
 from sqlalchemy.orm import selectinload, load_only, contains_eager, with_loader_criteria
 import bcrypt
@@ -380,10 +380,23 @@ class AsyncORM:
     @staticmethod
     async def select_employer_tasks_by_name(employer_name: str) -> list[TaskGetSchema]:
         async with async_session_factory() as session:
+            unviewed_solution_exists = (
+                select(literal(True))
+                .select_from(TaskSolutionsOrm)
+                .where(
+                    TaskSolutionsOrm.task_id == TestTasksOrm.id,
+                    TaskSolutionsOrm.viewed == False
+                )
+                .exists()
+            )
+
             query = (
                 select(TestTasksOrm)
                 .filter(TestTasksOrm.employer_name == employer_name)
-                .order_by(TestTasksOrm.created_at.desc())
+                .order_by(
+                    case((unviewed_solution_exists, 0), else_=1),
+                    TestTasksOrm.created_at.desc(),
+                )
                 .options(
                         selectinload(TestTasksOrm.files),
                         selectinload(TestTasksOrm.solutions)
@@ -471,7 +484,7 @@ class AsyncORM:
             return logo_path
         
     @staticmethod
-    async def select_tasks(student_id: int, limit: int, offset: int, order_created_at: bool = False) -> tuple[list[TaskGetSchema], int]:
+    async def select_tasks(student_id: int, limit: int, offset: int) -> tuple[list[TaskGetSchema], int]:
         async with async_session_factory() as session:
 
             query = (
@@ -517,7 +530,11 @@ class AsyncORM:
                     TestTasksOrm.id.in_(task_ids),
                     TaskSolutionsOrm.student_id == student_id
                 )
-                .order_by(status_order, order_created)
+                .order_by(
+                    TaskSolutionsOrm.viewed.desc(),
+                    status_order, 
+                    order_created,
+                )
                 .limit(limit)
                 .offset(offset)
             )
@@ -609,7 +626,10 @@ class AsyncORM:
                             StudentsOrm.major_name
                             )
                         )
-                .order_by(TaskSolutionsOrm.id)
+                .order_by(
+                    asc(TaskSolutionsOrm.viewed),
+                    asc(TaskSolutionsOrm.created_at),
+                )
             )  
             result = await session.execute(query)
             solutions = result.scalars().all()
@@ -839,6 +859,7 @@ class AsyncORM:
 
             if solution:
                 solution.employer_comment = comment
+                solution.viewed = True
 
                 await session.commit()
     

@@ -9,7 +9,6 @@ const SolutionCard = ({ solution, files = [] }) => {
   const [commentText, setCommentText] = useState('');
   const [loadingComment, setLoadingComment] = useState(false);
 
-  // Состояние для отображения галочки рядом с иконкой копирования для каждого поля
   const [copiedField, setCopiedField] = useState(null);
 
   const handleDownloadZip = () => {
@@ -71,6 +70,17 @@ const SolutionCard = ({ solution, files = [] }) => {
         <h4 className="text-2xl font-semibold text-white break-words">
           {student.last_name} {student.first_name} {student.middle_name || ''}
         </h4>
+
+        {/* Дата отправки */}
+        {solution.created_at && (
+          <p className="text-white text-sm">
+            Дата отправки: {new Date(solution.created_at).toLocaleString('ru-RU', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+            })}
+          </p>
+        )}
 
         {/* Контактные данные */}
         <div>

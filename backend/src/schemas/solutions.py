@@ -28,7 +28,8 @@ class SolutionGetInTasksSchema(BaseModel):
     employer_comment: Optional[str] = None 
     task_id: int
     student_id: int
-    created_at: datetime   
+    created_at: datetime
+    viewed: bool 
 
     files: Optional[list[FileLinksSchema]]
 

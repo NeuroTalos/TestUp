@@ -12,7 +12,8 @@ from sqlalchemy import (
     Text,
     Enum,
     DateTime,
-    func
+    Boolean,
+    func,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -210,6 +211,7 @@ class TaskSolutionsOrm(Base):
     task_id: Mapped[int] = mapped_column(ForeignKey("test_tasks.id", ondelete = "CASCADE", onupdate = "CASCADE"))
     student_id: Mapped[int] = mapped_column(ForeignKey("students.id", ondelete = "CASCADE", onupdate = "CASCADE"))
     employer_comment: Mapped[Optional[str]] = Column(Text)
+    viewed: Mapped[bool] = Column(Boolean, default=False, nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

@@ -4,7 +4,7 @@ from enum import Enum
 
 from pydantic import BaseModel, Field, EmailStr
 
-from src.schemas.solutions import SolutionGetSchema, SolutionGetInTasksSchema
+from src.schemas.solutions import SolutionGetInTasksSchema
 
 
 class Gender(str, Enum):

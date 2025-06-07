@@ -108,7 +108,7 @@ async def upload_solution_comment(
     token_data = Depends(access_token_check),
     ):
     role = await current_role(request)
-    # b=1
+
     if role == "employer":
         await AsyncORM.update_solution_comment(solution_id, employer_comment)
         

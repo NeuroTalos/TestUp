@@ -32,7 +32,6 @@ async def select_tasks(
             student_id,
             limit = paggination.limit,
             offset = offset,
-            order_created_at = True,
         )
 
         total_pages = (total_count + paggination.limit - 1) // paggination.limit
@@ -63,7 +62,6 @@ async def select_last_tasks(
             student_id,
             limit = paggination.limit,
             offset = offset,
-            order_created_at = True,
         )
 
         total_pages = (total_count + paggination.limit - 1) // paggination.limit
