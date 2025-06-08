@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Request, HTTPException
 
 from src.queries.orm import AsyncORM
-from src.schemas.tasks import TaskListResponseSchema, PaginationsParams, TeskAddSchema
+from src.schemas.tasks import TaskListResponseSchema, PaginationsParams, TaskAddSchema
 from src.api.auth import access_token_check, current_role
 
 router = APIRouter(
@@ -77,7 +77,7 @@ async def select_last_tasks(
 
 @router.post("/add")
 async def add_task(
-    task: TeskAddSchema,
+    task: TaskAddSchema,
     request: Request,
     token_data = Depends(access_token_check),
     ):
@@ -96,7 +96,7 @@ async def add_task(
             "employer_name": company_name,
         }
 
-        task_id = await AsyncORM.insert_one_task([new_task])
+        task_id = await AsyncORM.insert_one_task([new_task], task.days_until_due)
 
         return {"ok": True, "task_id": task_id}
     

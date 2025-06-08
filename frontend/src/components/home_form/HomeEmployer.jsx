@@ -21,7 +21,7 @@ const HomeEmployer = () => {
         Здесь вы можете публиковать новые задания, отслеживать их статус и управлять откликами студентов.
       </p>
 
-      <div className="flex flex-col items-center md:flex-row md:justify-center gap-6 mb-12">
+      <div className="flex flex-col items-stretch md:flex-row md:justify-center gap-6 mb-12">
         <div
           className="w-full md:w-80 min-h-[220px] rounded-lg p-6 flex flex-col justify-between"
           style={{ backgroundColor: '#2a2f3a' }}
@@ -30,7 +30,7 @@ const HomeEmployer = () => {
             <FaTasks className="text-blue-400 text-3xl mb-4" />
             <h3 className="text-xl font-semibold mb-2">Мои задания</h3>
             <p className="text-gray-300 text-sm">
-              Публикуйте задания в свободной форме — вы можете описать задачу текстом, приложить файлы и указать уровень сложности.
+              Публикуйте задания в свободной форме — вы можете описать задачу текстом, приложить файлы, указать уровень сложности и дату завершения, после которой студенты не смогут отправлять свои решения.
             </p>
           </div>
         </div>
@@ -49,7 +49,7 @@ const HomeEmployer = () => {
         </div>
       </div>
 
-      <div className="flex justify-center flex-wrap">
+      <div className="flex flex-col md:flex-row justify-center gap-4">
         <button
           type="button"
           onClick={handleCreateTask}
@@ -62,7 +62,7 @@ const HomeEmployer = () => {
         <button
           type="button"
           onClick={handleViewPostedTasks}
-          className="flex items-center ml-12 bg-cyan-800 hover:bg-cyan-700 transition text-white font-semibold py-3 px-6 rounded-lg shadow-md cursor-pointer"
+          className="flex items-center bg-cyan-800 hover:bg-cyan-700 transition text-white font-semibold py-3 px-6 rounded-lg shadow-md cursor-pointer"
         >
           <FaClipboardList className="mr-3 text-xl" />
           Посмотреть размещённые задания

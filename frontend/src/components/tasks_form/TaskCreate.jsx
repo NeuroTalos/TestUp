@@ -18,6 +18,9 @@ const TaskCreate = () => {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [daysUntilDue, setDaysUntilDue] = useState('');
+  const [daysUntilDueError, setDaysUntilDueError] = useState(null);
+
   const onDrop = useCallback(
     (acceptedFiles) => {
       let rejectedFiles = [];
@@ -71,9 +74,31 @@ const TaskCreate = () => {
     }
   };
 
+  const handleDaysUntilDueChange = (e) => {
+    const val = e.target.value;
+
+    if (val === '') {
+      setDaysUntilDue('');
+      setDaysUntilDueError(null);
+      return;
+    }
+
+    const intVal = Number(val);
+
+    if (!/^\d+$/.test(val) || intVal < 1 || intVal > 90) {
+      setDaysUntilDueError('Введите целое число от 1 до 90 или оставьте поле пустым.');
+    } else {
+      setDaysUntilDueError(null);
+    }
+
+    setDaysUntilDue(val);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    setShowModal(true);
+    if (!daysUntilDueError) {
+      setShowModal(true);
+    }
   };
 
   const handleConfirm = async () => {
@@ -83,16 +108,17 @@ const TaskCreate = () => {
     try {
       const difficultyMapped = convertDifficulty(difficulty);
 
-      // 1. Создание задания
+      const days_until_due_to_send = daysUntilDue === '' ? null : Number(daysUntilDue);
+
       const taskResponse = await axios.post('http://127.0.0.1:8000/tasks/add', {
         title,
         description,
         difficulty: difficultyMapped,
+        days_until_due: days_until_due_to_send,
       });
 
       const taskId = taskResponse.data.task_id;
 
-      // 2. Если есть файлы — загружаем
       if (files.length > 0) {
         const formData = new FormData();
         files.forEach((file) => formData.append('files', file));
@@ -107,6 +133,7 @@ const TaskCreate = () => {
       setDescription('');
       setDifficulty('Легко');
       setFiles([]);
+      setDaysUntilDue('');
     } catch (err) {
       console.error(err);
       toast.error('Ошибка при создании задания.');
@@ -121,7 +148,7 @@ const TaskCreate = () => {
 
   return (
     <>
-      <div className="w-screen h-screen p-4 sm:p-8 overflow-y-auto card-scroll flex justify-center items-start bg-[#002040]">
+      <div className="min-h-screen w-screen p-4 sm:p-8 flex justify-center items-start bg-[#002040]">
         <div className="bg-gray-800 rounded-lg shadow-lg px-4 sm:px-8 py-8 w-full max-w-3xl box-border">
           <h1 className="text-3xl font-bold mb-6 text-white text-center">Создать новое задание</h1>
 
@@ -166,13 +193,34 @@ const TaskCreate = () => {
             </div>
 
             <div>
+              <label htmlFor="days_until_due" className="block text-white font-semibold mb-2">
+                Срок выполнения в днях (от 1 до 90, опционально)
+              </label>
+              <input
+                id="days_until_due"
+                type="text"
+                value={daysUntilDue}
+                onChange={handleDaysUntilDueChange}
+                className={`w-full p-2 rounded-md bg-gray-700 text-white border ${
+                  daysUntilDueError ? 'border-red-500' : 'border-gray-600'
+                } focus:outline-none focus:border-blue-500`}
+                placeholder="Введите количество дней или оставьте пустым"
+                maxLength={2}
+                inputMode="numeric"
+              />
+              {daysUntilDueError && (
+                <p className="mt-1 text-red-500 text-sm">{daysUntilDueError}</p>
+              )}
+            </div>
+
+            <div>
               <label className="block text-white font-semibold mb-2">Прикрепить файлы</label>
               <div
                 {...getRootProps()}
                 className="w-full p-3 mt-2 bg-gray-700 border-dashed border-2 border-gray-500 text-white rounded-md cursor-pointer max-w-md"
               >
                 <input {...getInputProps()} />
-                <p >Перетащите файлы сюда или нажмите для выбора</p>
+                <p>Перетащите файлы сюда или нажмите для выбора</p>
                 <p className="text-xs mt-1 text-gray-400">Максимальный размер файла — 20 МБ.</p>
                 <p className="text-xs text-gray-400">Можно прикрепить не более {MAX_FILES} файлов.</p>
               </div>
@@ -206,8 +254,8 @@ const TaskCreate = () => {
             <div>
               <button
                 type="submit"
-                className="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition cursor-pointer"
-                disabled={loading}
+                className="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition cursor-pointer disabled:opacity-50"
+                disabled={loading || daysUntilDueError !== null}
               >
                 {loading ? 'Создание...' : 'Создать'}
               </button>
@@ -220,6 +268,13 @@ const TaskCreate = () => {
             <div className="absolute inset-0 backdrop-blur-sm bg-black/30"></div>
             <div className="bg-gray-800 text-white rounded-md p-6 w-80 text-center shadow-2xl z-10">
               <h2 className="text-lg font-semibold mb-4">Создать тестовое задание?</h2>
+              
+              <p className="mb-8 text-sm">
+                После создания задание изменить нельзя.<br />
+                Если указано количество дней, статус изменится автоматически.<br />
+                Иначе статус можно будет изменить вручную на форме задания.
+              </p>
+
               <div className="flex justify-between space-x-4">
                 <button
                   onClick={handleConfirm}
@@ -239,7 +294,6 @@ const TaskCreate = () => {
         )}
       </div>
 
-      {/* Контейнер для уведомлений */}
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
     </>
   );

@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Upload, Button, Typography } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { UploadOutlined, PaperClipOutlined, DeleteOutlined } from '@ant-design/icons';
 
 const EmployerLogoUpload = ({ onFileSelect }) => {
   const [fileName, setFileName] = useState(null);
   const [error, setError] = useState(null);
+  const [fileList, setFileList] = useState([]);
 
   const MAX_SIZE = 200 * 1024; // 200 КБ
 
-  // Автоматически скрываем ошибку через 10 секунд
   useEffect(() => {
     if (error) {
       const timer = setTimeout(() => {
         setError(null);
-      }, 10000); // 10000 мс = 10 секунд
-
-      return () => clearTimeout(timer); // очистка таймера при смене ошибки или размонтировании
+      }, 10000);
+      return () => clearTimeout(timer);
     }
   }, [error]);
 
@@ -30,19 +29,31 @@ const EmployerLogoUpload = ({ onFileSelect }) => {
     return true;
   };
 
-  const handleChange = ({ file }) => {
+  const handleChange = ({ file, fileList }) => {
+    // Фильтруем только валидные по размеру файлы
+    const filteredList = fileList.filter(item => item.originFileObj && item.originFileObj.size <= MAX_SIZE);
+
     if (file.status === 'removed') {
+      setFileList([]);
       setFileName(null);
       setError(null);
       onFileSelect(null);
-    } else if (file.originFileObj) {
-      if (file.originFileObj.size <= MAX_SIZE) {
-        setFileName(file.name);
+    } else if (file.originFileObj && file.originFileObj.size > MAX_SIZE) {
+      // Ошибка, не добавляем в список
+      setError('Размер файла превышает 200 КБ. Пожалуйста, выберите файл меньшего размера.');
+      setFileName(null);
+      onFileSelect(null);
+      // Не обновляем fileList, чтобы файл не отображался
+    } else {
+      setFileList(filteredList);
+      if (filteredList.length > 0) {
+        const lastFile = filteredList[filteredList.length - 1];
+        lastFile.status = 'done'; // убираем спиннер
+        setFileName(lastFile.name);
         setError(null);
-        onFileSelect(file.originFileObj);
+        onFileSelect(lastFile.originFileObj);
       } else {
         setFileName(null);
-        setError('Размер файла превышает 200 КБ. Пожалуйста, выберите файл меньшего размера.');
         onFileSelect(null);
       }
     }
@@ -51,7 +62,7 @@ const EmployerLogoUpload = ({ onFileSelect }) => {
   return (
     <div style={{ marginTop: 14, marginBottom: 16, position: 'relative' }}>
       <Typography.Text
-        className='font-bold'
+        className="font-bold"
         style={{ color: 'white', display: 'block', marginBottom: 8 }}
       >
         Логотип компании (опционально)
@@ -64,9 +75,22 @@ const EmployerLogoUpload = ({ onFileSelect }) => {
           }, 0);
         }}
         onChange={handleChange}
+        fileList={fileList}
         maxCount={1}
         accept="image/*"
-        showUploadList={{ showRemoveIcon: true, showPreviewIcon: false }}
+        showUploadList={{
+          showRemoveIcon: true,
+          showPreviewIcon: false,
+          removeIcon: (
+            <DeleteOutlined
+              style={{ color: 'red', fontSize: 16 }}
+              onClick={e => e.stopPropagation()}
+            />
+          ),
+          iconRender: () => (
+            <PaperClipOutlined style={{ fontSize: 18, color: 'rgba(0,0,0,0.45)' }} />
+          ),
+        }}
       >
         <Typography.Text
           type="secondary"

@@ -1,4 +1,5 @@
 from datetime import datetime
+import asyncio
 
 from fastapi import HTTPException
 
@@ -16,4 +17,13 @@ async def data_transform(uncorrect_date):
         formatted_date = datetime.strptime(uncorrect_date, "%d.%m.%Y").date()
         return formatted_date
     except ValueError:
-        raise HTTPException(status_code=400, detail="Неверный формат даты. Используйте ДД.ММ.ГГГГ.")  
+        raise HTTPException(status_code=400, detail="Неверный формат даты. Используйте ДД.ММ.ГГГГ.") 
+
+
+async def run_task_due_date_checker():
+     while True:
+        try:
+            await AsyncORM.update_expired_tasks()
+        except:
+            pass
+        await asyncio.sleep(10800)

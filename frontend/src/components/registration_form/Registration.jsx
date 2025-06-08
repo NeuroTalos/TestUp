@@ -234,15 +234,15 @@ const RegistrationWidget = () => {
                   </div>
                 )}
 
-                <LabeledInput label="Логин" maxLength={40} value={login} onChange={handleInputChange(setLogin)} />
-                <PasswordInput onChange={handleInputChange(setPassword)} />
-                <LabeledInput label="Имя" maxLength={100} value={firstName} onChange={handleInputChange(setFirstName)} />
-                <LabeledInput label="Фамилия" maxLength={100} value={lastName} onChange={handleInputChange(setLastName)} />
-                <LabeledInput label="Отчество (опционально)" maxLength={100} value={middleName} onChange={handleInputChange(setMiddleName)} />
+                <LabeledInput label="Логин" minLength={6} maxLength={40} value={login} onChange={handleInputChange(setLogin)} />
+                <PasswordInput minLength={6} onChange={handleInputChange(setPassword)} />
+                <LabeledInput label="Имя" maxLength={40} value={firstName} onChange={handleInputChange(setFirstName)} />
+                <LabeledInput label="Фамилия" maxLength={40} value={lastName} onChange={handleInputChange(setLastName)} />
+                <LabeledInput label="Отчество (опционально)" maxLength={40} value={middleName} onChange={handleInputChange(setMiddleName)} />
                 <LabeledInput label="Дата рождения (ДД.ММ.ГГГГ)" maxLength={10} value={dob} onChange={handleInputChange(setDob)} mask="00.00.0000" />
-                <LabeledInput label="Электронная почта" maxLength={100} value={email} onChange={handleInputChange(setEmail)} />
+                <LabeledInput label="Электронная почта" maxLength={50} value={email} onChange={handleInputChange(setEmail)} />
                 <LabeledInput label="Телефон" maxLength={11} value={phone} onChange={handleInputChange(setPhone)} />
-                <LabeledInput label="Телеграм (опционально)" maxLength={100} value={telegram} onChange={handleInputChange(setTelegram)} />
+                <LabeledInput label="Телеграм (опционально)" maxLength={40} value={telegram} onChange={handleInputChange(setTelegram)} />
                 <DropdownSelect label="Пол" options={['Мужской', 'Женский']} value={gender} onChange={setGender} />
                 <DropdownSelect label="Курс" options={['1', '2', '3', '4', '5']} value={course} onChange={handleCourseChange} />
                 <LabeledInput label="Группа" maxLength={15} value={group} onChange={handleInputChange(setGroup)} />
@@ -265,14 +265,14 @@ const RegistrationWidget = () => {
                   </div>
                 )}
 
-                <LabeledInput label="Логин" maxLength={40} value={employerLogin} onChange={handleInputChange(setEmployerLogin)} />
+                <LabeledInput label="Логин" minLength={6} maxLength={40} value={employerLogin} onChange={handleInputChange(setEmployerLogin)} />
                 <PasswordInput onChange={handleInputChange(setEmployerPassword)} />
-                <LabeledInput label="Название компании" maxLength={100} value={companyName} onChange={handleInputChange(setCompanyName)} />
-                <LabeledInput label="Электронная почта" maxLength={100} value={employerEmail} onChange={handleInputChange(setEmployerEmail)} />
+                <LabeledInput label="Название компании" maxLength={50} value={companyName} onChange={handleInputChange(setCompanyName)} />
+                <LabeledInput label="Электронная почта" maxLength={50} value={employerEmail} onChange={handleInputChange(setEmployerEmail)} />
                 <LabeledInput label="Телефон" maxLength={11} value={employerPhone} onChange={handleInputChange(setEmployerPhone)} />
-                <LabeledInput label="Телеграм (опционально)" maxLength={100} value={employerTelegram} onChange={handleInputChange(setEmployerTelegram)} />
+                <LabeledInput label="Телеграм (опционально)" maxLength={40} value={employerTelegram} onChange={handleInputChange(setEmployerTelegram)} />
 
-                <EmployerLogoUpload logo={employerLogo} setLogo={setEmployerLogo} />
+                <EmployerLogoUpload onFileSelect={setEmployerLogo} />
 
                 <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
                   <Button type="primary" onClick={sendVerificationCode}>

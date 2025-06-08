@@ -101,6 +101,9 @@ const TaskCard = ({ id, employer_name, title, difficulty, status, created_at, fu
         ? fullTask.solutions.some(solution => solution.viewed === true)
         : false;
 
+    // Цвет для дат, чтобы немного выделялись
+    const dateTextColor = "text-gray-300";
+
     return (
         <div
             onClick={handleClick}
@@ -110,11 +113,11 @@ const TaskCard = ({ id, employer_name, title, difficulty, status, created_at, fu
             {hasUnviewedSolutions && (
                 <div className="absolute top-2 right-2 flex items-center gap-1 bg-yellow-400 text-black text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-md animate-pulse z-10">
                     <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
-                    <path d="M10 2C5.58 2 2 5.58 2 10s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm1 13H9v-2h2v2zm0-4H9V7h2v4z" />
+                        <path d="M10 2C5.58 2 2 5.58 2 10s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm1 13H9v-2h2v2zm0-4H9V7h2v4z" />
                     </svg>
                     Новые решения
                 </div>
-                )}
+            )}
             
             {hasViewedByEmployer && (
                 <div className="absolute top-2 right-2 flex items-center gap-1 bg-blue-500 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-md z-10">
@@ -147,10 +150,16 @@ const TaskCard = ({ id, employer_name, title, difficulty, status, created_at, fu
                 <span className="text-white">Статус:</span>
                 <span className={`ml-2 ${statusColor()}`}>{status}</span>
             </div>
-            <div className="text-sm mb-1 ml-4">
+            <div className={`text-sm mb-1 ml-4 ${dateTextColor}`}>
                 <span className="text-white">Дата создания:</span>
                 <span className="ml-2">{formatDate(created_at)}</span>
             </div>
+            {fullTask.due_date && (
+                <div className={`text-sm mb-1 ml-4 ${dateTextColor}`}>
+                    <span className="text-white">Дата завершения:</span>
+                    <span className="ml-2">{formatDate(fullTask.due_date)}</span>
+                </div>
+            )}
         </div>
     );
 };

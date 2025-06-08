@@ -113,7 +113,7 @@ default_tasks = [
         "description": "Разработать микросервис для анализа тональности текстов. Необходимо реализовать API и базовую статистику",
         "difficulty": "medium",
         "status": "active",
-        "employer_name": "Яндекс"
+        "employer_name": "Яндекс",
     },
     {
         "title": "Парсер новостей",

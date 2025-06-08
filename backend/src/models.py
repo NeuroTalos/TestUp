@@ -167,6 +167,10 @@ class TestTasksOrm(Base):
         default = lambda: datetime.now(timezone.utc),
         onupdate = lambda: datetime.now(timezone.utc)
     )
+    due_date: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        nullable = True,
+    )
 
     employer_name: Mapped[str] = mapped_column(ForeignKey("employers.company_name", ondelete = "CASCADE", onupdate = "CASCADE"))
     

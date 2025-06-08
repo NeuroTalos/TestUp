@@ -95,28 +95,28 @@ const StudentPersonalInfo = ({ profile }) => {
                 <div className="grid gap-6 grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 auto-rows-auto">
                     <LabeledInput
                         label="Имя"
-                        maxLength={100}
+                        maxLength={40}
                         value={formData.first_name}
                         onChange={e => handleChange('first_name', e.target.value)}
                     />
                     <LabeledInput
                         label="Фамилия"
-                        maxLength={100}
+                        maxLength={40}
                         value={formData.last_name}
                         onChange={e => handleChange('last_name', e.target.value)}
                     />
                     <LabeledInput
                         label="Отчество"
-                        maxLength={100}
+                        maxLength={40}
                         value={formData.middle_name}
                         onChange={e => handleChange('middle_name', e.target.value)}
                     />
-                    <LabeledInput
+                    {/* <LabeledInput
                         label="Email"
                         maxLength={100}
                         value={formData.email}
                         onChange={e => handleChange('email', e.target.value)}
-                    />
+                    /> */}
                     <LabeledInput
                         label="Телефон"
                         maxLength={11}
@@ -125,9 +125,13 @@ const StudentPersonalInfo = ({ profile }) => {
                     />
                     <LabeledInput
                         label="Телеграм"
-                        maxLength={100}
+                        maxLength={50}
                         value={formData.telegram}
                         onChange={e => handleChange('telegram', e.target.value)}
+                    />
+                    <ReadOnlyField
+                        label="Email"
+                        value={formData.email}
                     />
                     <ReadOnlyField
                         label="Дата рождения"

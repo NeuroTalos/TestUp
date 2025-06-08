@@ -33,6 +33,7 @@ class UnsolvedTaskGetSchema(BaseModel):
     employer_name: str
     created_at: datetime
     updated_at: datetime
+    due_date: Optional[datetime]
 
     files: Optional[list[FileLinksSchema]]
 
@@ -49,10 +50,11 @@ class TaskListResponseSchema(BaseModel):
     total_pages: int
 
 
-class TeskAddSchema(BaseModel):
+class TaskAddSchema(BaseModel):
     title: str
     description: str 
     difficulty: Difficulty = Field(default = "easy")
+    days_until_due: Optional[int] 
 
     class Config:
         from_attributes = True

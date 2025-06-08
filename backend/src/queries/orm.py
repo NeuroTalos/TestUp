@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import (
     case, select, insert, 
@@ -97,11 +97,16 @@ class AsyncORM:
             await session.commit()
     
     @staticmethod
-    async def insert_one_task(tasks: list[dict]) -> int:
+    async def insert_one_task(tasks: list[dict], days_until_due: int = None) -> int:
         async with async_session_factory() as session:
             task_dict = tasks[0]
             task_obj = TestTasksOrm(**task_dict)
             session.add(task_obj)
+            await session.flush()
+
+            if days_until_due is not None:
+                task_obj.due_date = task_obj.created_at + timedelta(days=days_until_due)
+                
             await session.flush()
             inserted_id = task_obj.id 
             await session.commit()
@@ -269,6 +274,7 @@ class AsyncORM:
                             TaskSolutionsOrm.task_id,
                             TaskSolutionsOrm.created_at,
                             TaskSolutionsOrm.student_id,
+                            TaskSolutionsOrm.viewed,
                         ),
                         selectinload(TaskSolutionsOrm.files)
                     )
@@ -395,6 +401,7 @@ class AsyncORM:
                 .filter(TestTasksOrm.employer_name == employer_name)
                 .order_by(
                     case((unviewed_solution_exists, 0), else_=1),
+                    status_order,
                     TestTasksOrm.created_at.desc(),
                 )
                 .options(
@@ -901,6 +908,25 @@ class AsyncORM:
                 email_code_info.code = code
                 email_code_info.expires_at = expires_at
                 await session.commit()
+
+    async def update_expired_tasks():
+        async with async_session_factory() as session:
+            now = datetime.now(timezone.utc)
+
+            query = (
+                select(TestTasksOrm)
+                .filter(
+                    TestTasksOrm.due_date.is_not(None),
+                    TestTasksOrm.due_date < now,
+                    TestTasksOrm.status != Status.completed
+                )
+            )
+
+            result = await session.execute(query)
+            for task in result.scalars().all():
+                task.status = Status.completed
+            
+            await session.commit()
         
     # --------------DELETE--------------
 

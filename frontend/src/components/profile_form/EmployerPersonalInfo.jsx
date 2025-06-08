@@ -3,6 +3,7 @@ import { Card, Button, message } from 'antd';
 import axios from 'axios';
 import isEqual from 'lodash.isequal';
 import LabeledInput from './LabeledInput';
+import ReadOnlyField from './ReadOnlyField';
 
 const EmployerPersonalInfo = ({ profile }) => {
     const [formData, setFormData] = useState({ ...profile });
@@ -55,16 +56,16 @@ const EmployerPersonalInfo = ({ profile }) => {
                 <div className="grid gap-3 grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 auto-rows-auto">
                     <LabeledInput
                         label="Название компании"
-                        maxLength={100}
+                        maxLength={50}
                         value={formData.company_name}
                         onChange={e => handleChange('company_name', e.target.value)}
                     />
-                    <LabeledInput
+                    {/* <LabeledInput
                         label="Email"
                         maxLength={100}
                         value={formData.email}
                         onChange={e => handleChange('email', e.target.value)}
-                    />
+                    /> */}
                     <LabeledInput
                         label="Телефон"
                         maxLength={11}
@@ -73,9 +74,13 @@ const EmployerPersonalInfo = ({ profile }) => {
                     />
                     <LabeledInput
                         label="Телеграм"
-                        maxLength={100}
+                        maxLength={40}
                         value={formData.telegram}
                         onChange={e => handleChange('telegram', e.target.value)}
+                    />
+                    <ReadOnlyField
+                        label="Email"
+                        value={formData.email}
                     />
                 </div>
                 <div className="mt-6 text-right">

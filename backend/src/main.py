@@ -1,5 +1,6 @@
 import sys
 import os
+import asyncio
 
 # Add root directory to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -21,6 +22,7 @@ from src.queries.values import(
     default_task_solution_file_links,
     )
 from src.api import main_router
+from src.api.functions import run_task_due_date_checker
 
 
 @asynccontextmanager
@@ -36,7 +38,17 @@ async def lifespan(app: FastAPI):
     await AsyncORM.insert_task_file_links(default_test_task_file_links)
     await AsyncORM.insert_solution_file_links(default_task_solution_file_links)
 
-    yield
+    task = asyncio.create_task(run_task_due_date_checker())
+
+    try:
+        yield
+    finally:
+        task.cancel()
+
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
 
 
 app = FastAPI(lifespan=lifespan)
