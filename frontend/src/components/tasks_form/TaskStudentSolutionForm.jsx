@@ -7,6 +7,7 @@ const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 МБ
 const MAX_FILES = 5;
 
 const TaskStudentSolutionForm = ({ taskId }) => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [files, setFiles] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -66,7 +67,7 @@ const TaskStudentSolutionForm = ({ taskId }) => {
     const description = document.getElementById('description').value;
 
     try {
-      const response = await axios.post(`http://127.0.0.1:8000/solutions/add/${taskId}`, {
+      const response = await axios.post(`${API_URL}/solutions/add/${taskId}`, {
         solution_description: description,
       });
 
@@ -82,7 +83,7 @@ const TaskStudentSolutionForm = ({ taskId }) => {
           formData.append('files', file);
         });
 
-        await axios.post(`http://127.0.0.1:8000/files/upload_solution_files/${solution_id}`, formData, {
+        await axios.post(`${API_URL}/files/upload_solution_files/${solution_id}`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },

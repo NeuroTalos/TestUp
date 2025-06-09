@@ -9,12 +9,15 @@ import axios from 'axios';
 const { Text, Link } = Typography;
 
 const AuthWidget = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [loginInput, setLoginInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
   const [emailInput, setEmailInput] = useState('');
   const [authError, setAuthError] = useState(false);
   const [isResetMode, setIsResetMode] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
 
@@ -28,7 +31,7 @@ const AuthWidget = () => {
       password: passwordInput,
     };
 
-    axios.post('http://127.0.0.1:8000/auth/login', formData)
+    axios.post(`${API_URL}/auth/login`, formData)
       .then((response) => {
         const userRole = response.data.role;
         setAuthError(false);
@@ -41,10 +44,23 @@ const AuthWidget = () => {
   };
 
   const handlePasswordReset = () => {
-    axios.post('http://127.0.0.1:8000/email/send_email', { email: emailInput })
+    axios.post(`${API_URL}/email/send_email`, { email: emailInput })
       .then(() => {
         setResetSuccess(true);
         setAuthError(false);
+        setIsButtonDisabled(true);
+        setCooldown(60);
+
+        const interval = setInterval(() => {
+          setCooldown(prev => {
+            if (prev <= 1) {
+              clearInterval(interval);
+              setIsButtonDisabled(false);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
       })
       .catch(() => {
         setResetSuccess(false);
@@ -121,8 +137,12 @@ const AuthWidget = () => {
               )}
               <Row gutter={8} justify="start" style={{ marginTop: 16 }}>
                 <Col>
-                  <Button type="primary" onClick={handlePasswordReset}>
-                    Отправить
+                  <Button
+                    type="primary"
+                    onClick={handlePasswordReset}
+                    disabled={isButtonDisabled}
+                  >
+                    {isButtonDisabled ? `Повтор через ${cooldown}с` : 'Отправить'}
                   </Button>
                 </Col>
                 <Col>

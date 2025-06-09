@@ -5,6 +5,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const AuthInfo = ({ email }) => {
+    const API_URL = import.meta.env.VITE_API_URL;
+
     const { role, logout } = useContext(AuthContext);
     const [login, setLogin] = useState('Загрузка...');
     const [showModal, setShowModal] = useState(false);
@@ -16,8 +18,8 @@ const AuthInfo = ({ email }) => {
             try {
                 const endpoint =
                     role === 'student'
-                        ? 'http://127.0.0.1:8000/students/current_login'
-                        : 'http://127.0.0.1:8000/employers/current_login';
+                        ? `${API_URL}/students/current_login`
+                        : `${API_URL}/employers/current_login`;
 
                 const response = await axios.get(endpoint, { withCredentials: true });
                 setLogin(response.data.login);
@@ -32,7 +34,7 @@ const AuthInfo = ({ email }) => {
 
     const handlePasswordChange = async () => {
         try {
-            await axios.post('http://127.0.0.1:8000/email/send_email', { email });
+            await axios.post(`${API_URL}/email/send_email`, { email });
             logout();
             navigate('/');
         } catch (error) {

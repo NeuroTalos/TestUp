@@ -6,6 +6,7 @@ import { FaInbox } from 'react-icons/fa';
 import JSZip from 'jszip';
 
 const SolutionList = ({ taskId }) => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [solutions, setSolutions] = useState([]);
   const [parsedFiles, setParsedFiles] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
@@ -19,7 +20,7 @@ const SolutionList = ({ taskId }) => {
   const fetchSolutions = async (page) => {
     setLoading(true);
     try {
-      const res = await axios.get(`http://127.0.0.1:8000/solutions/task_solutions/${taskId}`, {
+      const res = await axios.get(`${API_URL}/solutions/task_solutions/${taskId}`, {
         params: { limit: 1, page },
         withCredentials: true,
       });
@@ -43,7 +44,7 @@ const SolutionList = ({ taskId }) => {
   const fetchAndUnzipFiles = async (filePaths) => {
     try {
       const res = await axios.post(
-        'http://127.0.0.1:8000/files/get_solution_files/',
+        `${API_URL}/files/get_solution_files/`,
         filePaths,
         {
           responseType: 'blob',

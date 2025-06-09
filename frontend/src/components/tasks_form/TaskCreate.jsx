@@ -10,6 +10,7 @@ const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 МБ
 const MAX_FILES = 5;
 
 const TaskCreate = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [difficulty, setDifficulty] = useState('Легко');
@@ -110,7 +111,7 @@ const TaskCreate = () => {
 
       const days_until_due_to_send = daysUntilDue === '' ? null : Number(daysUntilDue);
 
-      const taskResponse = await axios.post('http://127.0.0.1:8000/tasks/add', {
+      const taskResponse = await axios.post(`${API_URL}/tasks/add`, {
         title,
         description,
         difficulty: difficultyMapped,
@@ -123,7 +124,7 @@ const TaskCreate = () => {
         const formData = new FormData();
         files.forEach((file) => formData.append('files', file));
 
-        await axios.post(`http://127.0.0.1:8000/files/upload_task_files/${taskId}`, formData, {
+        await axios.post(`${API_URL}/files/upload_task_files/${taskId}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       }

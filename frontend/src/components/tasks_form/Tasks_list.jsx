@@ -9,6 +9,7 @@ import { useSearchParams } from 'react-router-dom';
 axios.defaults.withCredentials = true;
 
 const TasksListWidget = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [tasks, setTasks] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const tasksPerPage = 6;
@@ -33,7 +34,7 @@ const TasksListWidget = () => {
   useEffect(() => {
     if (activeTab === 'all') {
       axios
-        .get(`http://127.0.0.1:8000/tasks?page=${currentPage}&limit=${tasksPerPage}`)
+        .get(`${API_URL}/tasks?page=${currentPage}&limit=${tasksPerPage}`)
         .then((response) => {
           setTasks(response.data.tasks);
           setTotalPages(response.data.total_pages);
@@ -73,7 +74,7 @@ const TasksListWidget = () => {
 
   const getLogoUrl = (companyName) => {
     if (!companyName) return null;
-    return `http://127.0.0.1:8000/files/get_logo/${encodeURIComponent(companyName)}`;
+    return `${API_URL}/files/get_logo/${encodeURIComponent(companyName)}`;
   };
 
   return (

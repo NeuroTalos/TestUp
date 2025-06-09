@@ -11,6 +11,7 @@ import EmployerLogoUpload from './EmployerLogoUpload';
 const { TabPane } = Tabs;
 
 const RegistrationWidget = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [activeTab, setActiveTab] = useState('student');
 
   // Student fields
@@ -64,7 +65,7 @@ const RegistrationWidget = () => {
   useEffect(() => {
     const fetchFaculties = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/faculties');
+        const response = await axios.get(`${API_URL}/faculties`);
         setFaculties(response.data);
       } catch (error) {
         console.error('Ошибка при загрузке факультетов:', error);
@@ -119,7 +120,7 @@ const RegistrationWidget = () => {
     }
 
     try {
-      await axios.post('http://127.0.0.1:8000/email/send_verification_code', { email: targetEmail });
+      await axios.post(`${API_URL}/email/send_verification_code`, { email: targetEmail });
       setVerificationStep(true);
       startCooldown();
     } catch (error) {
@@ -157,7 +158,7 @@ const RegistrationWidget = () => {
         };
 
         await axios.post(
-          `http://127.0.0.1:8000/students/add?verification_code=${verificationCode}`,
+          `${API_URL}/students/add?verification_code=${verificationCode}`,
           studentData
         );
 
@@ -172,7 +173,7 @@ const RegistrationWidget = () => {
         };
 
         await axios.post(
-          `http://127.0.0.1:8000/employers/add?verification_code=${verificationCode}`,
+          `${API_URL}/employers/add?verification_code=${verificationCode}`,
           employerData
         );
 
@@ -181,7 +182,7 @@ const RegistrationWidget = () => {
           formData.append('file', employerLogo);
 
           try {
-            await axios.post(`http://127.0.0.1:8000/files/upload_logo/${companyName}`, formData);
+            await axios.post(`${API_URL}/files/upload_logo/${companyName}`, formData);
           } catch (uploadError) {
             console.error('Ошибка загрузки логотипа:', uploadError);
           }

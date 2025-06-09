@@ -4,8 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import { toast } from 'react-toastify';
 import JSZip from 'jszip';
+import axios from 'axios';
 
 const TaskCard = ({ id, employer_name, title, difficulty, status, created_at, fullTask, logoUrl }) => {
+    const API_URL = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
     const { isAuthenticated, role } = useContext(AuthContext);
     const [imgError, setImgError] = useState(false);
@@ -35,18 +37,19 @@ const TaskCard = ({ id, employer_name, title, difficulty, status, created_at, fu
                 return;
             }
 
-            const res = await fetch("http://127.0.0.1:8000/files/get_task_files/", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(filePaths),
-                credentials: "include",
-            });
+            const res = await axios.post(
+                `${API_URL}/files/get_task_files/`,
+                filePaths,
+                {
+                    withCredentials: true,
+                    responseType: 'blob',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
 
-            if (!res.ok) {
-                throw new Error("Не удалось загрузить архив файлов");
-            }
-
-            const blob = await res.blob();
+            const blob = res.data;
             const zip = await JSZip.loadAsync(blob);
             const files = [];
 
@@ -69,6 +72,7 @@ const TaskCard = ({ id, employer_name, title, difficulty, status, created_at, fu
             toast.error("Ошибка при загрузке файлов задания");
         }
     };
+
 
     const difficultyColor = () => {
         switch (difficulty) {
@@ -101,7 +105,6 @@ const TaskCard = ({ id, employer_name, title, difficulty, status, created_at, fu
         ? fullTask.solutions.some(solution => solution.viewed === true)
         : false;
 
-    // Цвет для дат, чтобы немного выделялись
     const dateTextColor = "text-gray-300";
 
     return (
@@ -154,12 +157,12 @@ const TaskCard = ({ id, employer_name, title, difficulty, status, created_at, fu
                 <span className="text-white">Дата создания:</span>
                 <span className="ml-2">{formatDate(created_at)}</span>
             </div>
-            {fullTask.due_date && (
-                <div className={`text-sm mb-1 ml-4 ${dateTextColor}`}>
-                    <span className="text-white">Дата завершения:</span>
-                    <span className="ml-2">{formatDate(fullTask.due_date)}</span>
-                </div>
-            )}
+            <div className={`text-sm mb-1 ml-4 ${dateTextColor}`}>
+                <span className="text-white">Дата завершения:</span>
+                <span className="ml-2">
+                    {fullTask.due_date ? formatDate(fullTask.due_date) : 'не указана'}
+                </span>
+            </div>
         </div>
     );
 };

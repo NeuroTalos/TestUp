@@ -10,6 +10,7 @@ import { useMediaQuery } from 'react-responsive';
 import axios from 'axios';
 
 const TaskDetails = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const { state } = useLocation();
   const { task, taskFiles } = state || {};
   const { role } = useContext(AuthContext);
@@ -30,7 +31,7 @@ const TaskDetails = () => {
     const fetchStudentSolution = async () => {
       if (role === 'student') {
         try {
-          const res = await axios.get(`http://127.0.0.1:8000/solutions/check_student_solution/${task.id}`, {
+          const res = await axios.get(`${API_URL}/solutions/check_student_solution/${task.id}`, {
             withCredentials: true,
           });
           if (res.data.solution) {

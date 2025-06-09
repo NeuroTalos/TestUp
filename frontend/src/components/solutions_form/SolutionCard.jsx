@@ -4,6 +4,7 @@ import { saveAs } from 'file-saver';
 import axios from 'axios';
 
 const SolutionCard = ({ solution, files = [] }) => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const { student = {} } = solution;
   const [showCommentModal, setShowCommentModal] = useState(false);
   const [commentText, setCommentText] = useState('');
@@ -49,7 +50,7 @@ const SolutionCard = ({ solution, files = [] }) => {
     setLoadingComment(true);
 
     try {
-      await axios.patch(`http://127.0.0.1:8000/solutions/upload_solution_comment/${solution.id}`, null, {
+      await axios.patch(`${API_URL}/solutions/upload_solution_comment/${solution.id}`, null, {
         params: { employer_comment: commentText.trim() }
       });
 

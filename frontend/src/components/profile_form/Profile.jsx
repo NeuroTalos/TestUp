@@ -12,6 +12,7 @@ import SolvedTasksListWidget from '../tasks_form/SolvedTasksList';
 import { AuthContext } from '../contexts/AuthContext';
 
 const ProfileWidget = () => {
+    const API_URL = import.meta.env.VITE_API_URL;
     const { role } = useContext(AuthContext);
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -47,7 +48,7 @@ const ProfileWidget = () => {
 
     const getLogoUrl = (companyName) => {
         if (!companyName) return null;
-        return `http://127.0.0.1:8000/files/get_logo/${encodeURIComponent(companyName)}`;
+        return `${API_URL}/files/get_logo/${encodeURIComponent(companyName)}`;
     };
 
     useEffect(() => {
@@ -56,9 +57,9 @@ const ProfileWidget = () => {
                 let url;
 
                 if (role === 'student') {
-                    url = 'http://127.0.0.1:8000/students/current_student';
+                    url = `${API_URL}/students/current_student`;
                 } else if (role === 'employer') {
-                    url = 'http://127.0.0.1:8000/employers/current_employer';
+                    url = `${API_URL}/employers/current_employer`;
                 } else {
                     setError('Неизвестная роль');
                     setLoading(false);

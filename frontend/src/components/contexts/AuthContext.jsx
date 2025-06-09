@@ -4,6 +4,7 @@ import axios from 'axios';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [role, setRole] = useState(null);
 
@@ -12,7 +13,7 @@ export const AuthProvider = ({ children }) => {
     if (savedRole) {
       setRole(savedRole);
     }
-    axios.get('http://127.0.0.1:8000/auth/check', {
+    axios.get(`${API_URL}/auth/check`, {
       withCredentials: true,
     })
       .then(() => {
@@ -31,7 +32,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.delete('http://127.0.0.1:8000/auth/logout', {
+      await axios.delete(`${API_URL}/auth/logout`, {
         withCredentials: true,
       });
     } catch (err) {

@@ -6,6 +6,7 @@ import Pagination from './Pagination';
 axios.defaults.withCredentials = true;
 
 const SolvedTasksListWidget = ({ compact = false }) => {
+    const API_URL = import.meta.env.VITE_API_URL;
     const [tasks, setTasks] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -14,7 +15,7 @@ const SolvedTasksListWidget = ({ compact = false }) => {
     useEffect(() => {
         const fetchSolvedTasks = async () => {
             try {
-                const response = await axios.get(`http://127.0.0.1:8000/tasks/get_solved_tasks?page=${currentPage}&limit=${tasksPerPage}`);
+                const response = await axios.get(`${API_URL}/tasks/get_solved_tasks?page=${currentPage}&limit=${tasksPerPage}`);
                 setTasks(response.data.tasks);
                 setTotalPages(response.data.total_pages);
             } catch (error) {
@@ -44,7 +45,7 @@ const SolvedTasksListWidget = ({ compact = false }) => {
 
     const getLogoUrl = (companyName) => {
         if (!companyName) return null;
-        return `http://127.0.0.1:8000/files/get_logo/${encodeURIComponent(companyName)}`;
+        return `${API_URL}/files/get_logo/${encodeURIComponent(companyName)}`;
     };
 
     const handlePageChange = (newPage) => {

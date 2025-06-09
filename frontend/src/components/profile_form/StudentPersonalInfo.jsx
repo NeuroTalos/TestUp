@@ -60,7 +60,7 @@ const StudentPersonalInfo = ({ profile }) => {
                 gender: convertGenderToBackendFormat(formData.gender),
             };
             await axios.patch(
-                'http://127.0.0.1:8000/students/update_personal_info',
+                `${API_URL}/students/update_personal_info`,
                 updatedData,
                 { withCredentials: true }
             );

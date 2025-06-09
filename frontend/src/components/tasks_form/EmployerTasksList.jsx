@@ -9,6 +9,7 @@ import { PlusOutlined } from '@ant-design/icons';
 
 
 const EmployerTasksPage = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const { role } = useContext(AuthContext);
   const [tasks, setTasks] = useState([]);
@@ -37,7 +38,7 @@ const EmployerTasksPage = () => {
 
   const getLogoUrl = (companyName) => {
     if (!companyName) return null;
-    return `http://127.0.0.1:8000/files/get_logo/${encodeURIComponent(companyName)}`;
+    return `${API_URL}/files/get_logo/${encodeURIComponent(companyName)}`;
   };
 
   useEffect(() => {
@@ -50,7 +51,7 @@ const EmployerTasksPage = () => {
     setLoading(true);
     setError(null);
 
-    axios.get(`http://127.0.0.1:8000/employers/current_tasks?page=${currentPage}&limit=${tasksPerPage}`, {
+    axios.get(`${API_URL}/employers/current_tasks?page=${currentPage}&limit=${tasksPerPage}`, {
       withCredentials: true,
     })
       .then((response) => {

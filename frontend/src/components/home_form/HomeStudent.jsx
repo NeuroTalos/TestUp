@@ -4,13 +4,14 @@ import { FaClipboardList, FaSearch, FaCheckCircle } from 'react-icons/fa';
 import TaskCard from '../tasks_form/TaskCard';
 
 const HomeStudent = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [name, setName] = useState('студент');
   const [loadingName, setLoadingName] = useState(true);
   const [tasks, setTasks] = useState([]);
   const [loadingTasks, setLoadingTasks] = useState(true);
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:8000/students/current_name')
+    axios.get(`${API_URL}/students/current_name`)
       .then(response => {
         if (response.data && response.data.name) {
           setName(response.data.name);
@@ -21,7 +22,7 @@ const HomeStudent = () => {
       })
       .finally(() => setLoadingName(false));
 
-    axios.get('http://127.0.0.1:8000/tasks/get_last_tasks?limit=3&page=1')
+    axios.get(`${API_URL}/tasks/get_last_tasks?limit=3&page=1`)
       .then(response => {
         if (response.data && Array.isArray(response.data.tasks)) {
           setTasks(response.data.tasks);
@@ -37,7 +38,7 @@ const HomeStudent = () => {
 
   const getLogoUrl = (companyName) => {
     if (!companyName) return null;
-    return `http://127.0.0.1:8000/files/get_logo/${encodeURIComponent(companyName)}`;
+    return `${API_URL}/files/get_logo/${encodeURIComponent(companyName)}`;
   };
 
   const getDifficultyLabel = (difficulty) => {

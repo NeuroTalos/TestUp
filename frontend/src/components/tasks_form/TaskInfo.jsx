@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import JSZip from 'jszip';
 
 const TaskInfo = ({ task, taskFiles = [], isEmployer }) => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [logoError, setLogoError] = useState(false);
   const [contacts, setContacts] = useState(null);
   const [loadingContacts, setLoadingContacts] = useState(true);
@@ -24,7 +25,7 @@ const TaskInfo = ({ task, taskFiles = [], isEmployer }) => {
   setLoadingFinish(true);
 
   try {
-      await axios.patch(`http://127.0.0.1:8000/tasks/update_status?task_id=${task.id}`);
+      await axios.patch(`${API_URL}/tasks/update_status?task_id=${task.id}`);
       navigate('/employer/tasks');
     } catch (error) {
       console.error('Ошибка при завершении задания:', error);
@@ -40,7 +41,7 @@ const TaskInfo = ({ task, taskFiles = [], isEmployer }) => {
   useEffect(() => {
     if (task?.employer_name) {
       setLoadingContacts(true);
-      axios.get('http://127.0.0.1:8000/employers/employer_contacts', {
+      axios.get(`${API_URL}/employers/employer_contacts`, {
         params: { company_name: task.employer_name }
       }).then(({ data }) => {
         setContacts(data);
@@ -126,7 +127,7 @@ const TaskInfo = ({ task, taskFiles = [], isEmployer }) => {
       <div className="flex items-center mb-8">
         {!logoError ? (
           <img
-            src={`http://127.0.0.1:8000/files/get_logo/${companyNameEncoded}`}
+            src={`${API_URL}/files/get_logo/${companyNameEncoded}`}
             alt={`${task.employer_name} логотип`}
             className="w-20 h-20 object-contain rounded mr-4"
             onError={() => setLogoError(true)}

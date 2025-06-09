@@ -5,6 +5,7 @@ import { saveAs } from 'file-saver';
 import { FaDownload, FaFileAlt, FaFilePdf, FaFileImage, FaFileExcel } from 'react-icons/fa';
 
 const StudentSolutionView = ({ solution }) => {
+    const API_URL = import.meta.env.VITE_API_URL;
     const [parsedFiles, setParsedFiles] = useState([]);
 
     useEffect(() => {
@@ -16,7 +17,7 @@ const StudentSolutionView = ({ solution }) => {
     const fetchAndUnzipFiles = async (filePaths) => {
         try {
             const res = await axios.post(
-                'http://127.0.0.1:8000/files/get_solution_files/',
+                `${API_URL}/files/get_solution_files/`,
                 filePaths,
                 {
                     responseType: 'blob',

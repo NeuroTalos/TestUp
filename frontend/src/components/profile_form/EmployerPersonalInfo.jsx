@@ -6,6 +6,7 @@ import LabeledInput from './LabeledInput';
 import ReadOnlyField from './ReadOnlyField';
 
 const EmployerPersonalInfo = ({ profile }) => {
+    const API_URL = import.meta.env.VITE_API_URL;
     const [formData, setFormData] = useState({ ...profile });
     const [isChanged, setIsChanged] = useState(false);
 
@@ -20,7 +21,7 @@ const EmployerPersonalInfo = ({ profile }) => {
     const handleSave = async () => {
         try {
             await axios.patch(
-                'http://127.0.0.1:8000/employers/update_company_info',
+                `${API_URL}/employers/update_company_info`,
                 formData,
                 { withCredentials: true }
             );
