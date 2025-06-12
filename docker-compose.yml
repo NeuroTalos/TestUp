@@ -15,5 +15,7 @@ services:
       dockerfile: dockerfile
     ports:
       - "4173:4173"
+    env_file:
+      - ./frontend/.env
     depends_on:
       - backend

@@ -4,7 +4,6 @@ from sqlalchemy.orm import DeclarativeBase
 from src.config import settings
 
 
-# we create async engine
 async_engine = create_async_engine(
     url = settings.DATABASE_URL_asyncpg,
     echo = False,
