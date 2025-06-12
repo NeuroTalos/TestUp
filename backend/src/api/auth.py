@@ -62,7 +62,7 @@ async def login_user(data: AuthSchema, response: Response):
             value = token,
             httponly = True,
             samesite = "strict",
-            secure = True,
+            secure = True, # False if doesnt have SSL
             max_age = 86400,
             path="/",
         )
