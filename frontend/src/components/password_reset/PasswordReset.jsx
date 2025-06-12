@@ -7,6 +7,7 @@ import axios from 'axios';
 const { Title, Text } = Typography;
 
 const PasswordSetPage = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get('token');
