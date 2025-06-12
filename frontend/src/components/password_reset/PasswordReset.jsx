@@ -18,7 +18,7 @@ const PasswordSetPage = () => {
     }
 
     try {
-      await axios.post('http://localhost:8000/email/update_password', {
+      await axios.post(`http://${API_URL}/email/update_password`, {
         token,
         new_password: password,
       });
