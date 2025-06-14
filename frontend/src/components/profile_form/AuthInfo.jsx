@@ -11,7 +11,6 @@ const AuthInfo = ({ email }) => {
     const [login, setLogin] = useState('Загрузка...');
     const [showModal, setShowModal] = useState(false);
     const navigate = useNavigate();
-    console.log(email)
 
     useEffect(() => {
         const fetchLogin = async () => {

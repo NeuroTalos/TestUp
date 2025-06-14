@@ -191,44 +191,7 @@ const Header = () => {
           </Button>
         )}
 
-        {isAuthenticated ? (
-          <Dropdown
-            overlay={
-              <Menu
-                items={profileMenuItems}
-                onClick={handleProfileMenuClick}
-                style={{ backgroundColor: '#001529', borderRadius: 8, minWidth: 140 }}
-              />
-            }
-            trigger={['click']}
-            placement="bottomRight"
-            arrow
-          >
-            <Button
-              type="text"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 0,
-                width: 40,
-                height: 40,
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                color: 'white',
-                boxShadow: '0 2px 8px rgba(59, 130, 246, 0.5)',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'box-shadow 0.3s ease',
-                marginRight: 12,
-              }}
-              onClick={e => e.preventDefault()}
-              aria-label="Меню пользователя"
-            >
-              <UserOutlined style={{ fontSize: 20, color: 'white' }} />
-            </Button>
-          </Dropdown>
-        ) : (
+        {!isSmallScreen && !isAuthenticated ? (
           <>
             <Button
               icon={<UserAddOutlined />}
@@ -280,7 +243,44 @@ const Header = () => {
               Войти
             </Button>
           </>
-        )}
+        ) : isAuthenticated ? (
+          <Dropdown
+            overlay={
+              <Menu
+                items={profileMenuItems}
+                onClick={handleProfileMenuClick}
+                style={{ backgroundColor: '#001529', borderRadius: 8, minWidth: 140 }}
+              />
+            }
+            trigger={['click']}
+            placement="bottomRight"
+            arrow
+          >
+            <Button
+              type="text"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 0,
+                width: 40,
+                height: 40,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                color: 'white',
+                boxShadow: '0 2px 8px rgba(59, 130, 246, 0.5)',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'box-shadow 0.3s ease',
+                marginRight: 12,
+              }}
+              onClick={e => e.preventDefault()}
+              aria-label="Меню пользователя"
+            >
+              <UserOutlined style={{ fontSize: 20, color: 'white' }} />
+            </Button>
+          </Dropdown>
+        ) : null}
       </div>
 
       <Drawer
@@ -289,7 +289,22 @@ const Header = () => {
         open={drawerVisible}
         bodyStyle={{ padding: 0, backgroundColor: '#002040', color: 'white' }}
         headerStyle={{ backgroundColor: '#002040', borderBottom: 'none' }}
-        closeIcon={null}
+        closeIcon={
+          <span
+            style={{
+              color: 'white',
+              fontSize: 24,
+              position: 'absolute',
+              top: 16,
+              right: 20,
+              zIndex: 1000,
+              cursor: 'pointer',
+            }}
+            onClick={closeDrawer}
+          >
+            &times;
+          </span>
+        }
         aria-label="Боковое меню"
       >
         <Menu

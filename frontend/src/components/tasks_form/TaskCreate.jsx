@@ -205,7 +205,7 @@ const TaskCreate = () => {
                 className={`w-full p-2 rounded-md bg-gray-700 text-white border ${
                   daysUntilDueError ? 'border-red-500' : 'border-gray-600'
                 } focus:outline-none focus:border-blue-500`}
-                placeholder="Введите количество дней или оставьте пустым"
+                placeholder="Введите количество дней"
                 maxLength={2}
                 inputMode="numeric"
               />

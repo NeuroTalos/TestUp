@@ -7,8 +7,7 @@ const HomeGuest = () => {
 
   return (
     <div
-      className="rounded-lg shadow-md p-6 sm:p-8 w-full max-w-[95vw] sm:max-w-2xl text-white mx-auto"
-      style={{ backgroundColor: '#343F4D' }}
+      className="bg-[#343F4D] rounded-lg shadow-md p-6 sm:p-8 w-full max-w-3xl mx-auto text-white overflow-hidden"
     >
       <h1 className="text-3xl sm:text-4xl font-bold mb-6 text-center sm:text-left">
         Добро пожаловать на TestUP!

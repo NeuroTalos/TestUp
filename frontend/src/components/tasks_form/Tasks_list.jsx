@@ -89,9 +89,10 @@ const TasksListWidget = () => {
         style={{
           display: 'flex',
           justifyContent: 'center',
-          gap: 24,
+          gap: 12,
           borderBottom: '2px solid #4f46e5',
           marginBottom: 16,
+          overflowX: 'auto', 
         }}
         role="tablist"
       >
@@ -102,15 +103,20 @@ const TasksListWidget = () => {
             role="tab"
             aria-selected={activeTab === key}
             style={{
-              padding: '8px 24px',
+              padding: '8px 16px',
               cursor: 'pointer',
               borderBottom: activeTab === key ? '4px solid #6366f1' : '4px solid transparent',
               background: 'transparent',
               color: activeTab === key ? '#6366f1' : '#d1d5db',
               fontWeight: activeTab === key ? '700' : '500',
-              fontSize: 18,
+              fontSize: 16,
               borderRadius: 4,
               transition: 'all 0.3s ease',
+              flexShrink: 1, 
+              maxWidth: 220,
+              minWidth: 80,          
+              whiteSpace: 'normal',    
+              textAlign: 'center',
             }}
           >
             {label}

@@ -36,15 +36,24 @@ const PasswordSetPage = () => {
   };
 
   return (
-    <div className="w-screen min-h-screen grid place-content-center px-4" style={{ backgroundColor: '#002040' }}>
+    <div className="w-screen h-screen grid place-content-center px-4" style={{ backgroundColor: '#002040' }}>
       <Card
         title={
-          <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 24, color: 'white' }}>
+          <div style={{ 
+            textAlign: 'center', 
+            fontWeight: 'bold', 
+            fontSize: 24, 
+            color: 'white',
+            whiteSpace: 'normal',
+            wordWrap: 'break-word', 
+          }}
+          >
             Установка нового пароля
           </div>
         }
         style={{
-          width: 450,
+          width: '90vw', 
+          maxWidth: 450, 
           backgroundColor: '#343F4D',
           border: '1px solid #283144',
           color: 'white',

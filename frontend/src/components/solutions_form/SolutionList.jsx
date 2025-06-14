@@ -73,8 +73,8 @@ const SolutionList = ({ taskId }) => {
   };
 
   return (
-    <div className="flex flex-col h-full max-h-screen bg-gray-800 text-white px-6 py-4 rounded-lg card-scroll overflow-y-auto w-full">
-      <h3 className="text-3xl font-bold mb-6">Решения студентов</h3>
+    <div className="flex flex-col h-full max-h-screen bg-gray-800 text-white px-4 sm:px-6 py-4 rounded-lg card-scroll overflow-y-auto w-full">
+      <h3 className="text-xl sm:text-3xl font-bold mb-4 sm:mb-6">Решения студентов</h3>
 
       {loading ? (
         <p className="text-gray-400">Загрузка...</p>
@@ -84,7 +84,7 @@ const SolutionList = ({ taskId }) => {
             solution={solutions[0]}
             files={parsedFiles}
           />
-          <div className="mt-6">
+          <div className="mt-4 sm:mt-6">
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
@@ -94,7 +94,7 @@ const SolutionList = ({ taskId }) => {
         </>
       ) : (
         <div className="flex flex-col items-center text-gray-500 mt-8">
-          <FaInbox className="text-4xl mb-2" />
+          <FaInbox className="text-3xl sm:text-4xl mb-2" />
           <p>Решения пока не загружены</p>
         </div>
       )}

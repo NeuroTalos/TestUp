@@ -105,83 +105,99 @@ const ProfileWidget = () => {
     const logoUrl = role === 'employer' && profile?.company_name ? getLogoUrl(profile.company_name) : null;
 
     return (
-        <div className="flex w-screen h-screen" style={{ backgroundColor: '#002040' }}>
-            <Sidebar
+        // Добавляем горизонтальный скролл и запрещаем сжатие дочерних блоков
+        <div
+          className="w-screen h-screen overflow-x-auto"
+          style={{ backgroundColor: '#002040', whiteSpace: 'nowrap' }}
+        >
+          <div
+            className="flex h-full"
+            style={{ minWidth: 800 /* минимум ширины контейнера */, whiteSpace: 'normal' }}
+          >
+            <div
+              style={{ minWidth: 250, flexShrink: 0 }}
+            >
+              <Sidebar
                 fullName={
-                    role === 'employer'
-                        ? profile.company_name
-                        : `${profile.first_name} ${profile.middle_name ? profile.middle_name + ' ' : ''}${profile.last_name}`
+                  role === 'employer'
+                    ? profile.company_name
+                    : `${profile.first_name} ${profile.middle_name ? profile.middle_name + ' ' : ''}${profile.last_name}`
                 }
                 selectedKey={selectedTab}
                 onSelect={setSelectedTab}
                 logoUrl={logoUrl}
                 role={role}
-            />
-            <div className="flex-1 overflow-auto">
-                {selectedTab === 'info' && (
-                    <div className="grid grid-cols-1">
-                        <AuthInfo email={profile.email} />
-                        {role === 'student' ? (
-                            <StudentPersonalInfo profile={{ ...profile, gender: getGenderText(profile.gender) }} />
-                        ) : role === 'employer' ? (
-                            <EmployerPersonalInfo profile={profile} />
-                        ) : null}
-                    </div>
-                )}
-
-                {selectedTab === 'tasks' && role === 'employer' && (
-                    <div className="w-full p-8 overflow-y-auto flex flex-col" style={{ backgroundColor: '#002040' }}>
-                        <h2 className="text-2xl font-bold mb-14 text-center text-white">Список размещённых заданий</h2>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-0.5 md:gap-x-2 place-items-center">
-                            {Array.isArray(displayedTasks) && displayedTasks.length === 0 ? (
-                                <div className="text-center col-span-full">
-                                    <p className="text-white text-lg mb-2">Нет размещённых заданий</p>
-                                    <p className="text-gray-300 mt-10 mb-6">Вы можете добавить своё первое задание </p>
-                                    <button
-                                        onClick={() => window.location.href = '/tasks/add'}
-                                        className="inline-flex items-center bg-blue-600 hover:bg-blue-700 transition-colors text-white font-semibold py-3 px-6 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                    >
-                                        <PlusOutlined className="mr-2 text-lg" />
-                                        Добавить задание
-                                    </button>
-                                </div>
-                            ) : (
-                                displayedTasks.map((task) => (
-                                    <TaskCard
-                                        key={task.id}
-                                        id={task.id}
-                                        employer_name={profile.company_name}
-                                        title={task.title}
-                                        difficulty={getDifficultyLabel(task.difficulty)}
-                                        status={getStatusLabel(task.status)}
-                                        created_at={task.created_at}
-                                        fullTask={task}
-                                        logoUrl={logoUrl}
-                                    />
-                                ))
-                            )}
-                        </div>
-
-                        {tasks.length > 0 && (
-                            <div className="mt-auto">
-                                <Pagination
-                                    currentPage={currentPage}
-                                    totalPages={totalPages}
-                                    onPageChange={setCurrentPage}
-                                />
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                {selectedTab === 'tasks' && role === 'student' && (
-                    <div className="w-full p-4 overflow-y-auto flex flex-col" style={{ backgroundColor: '#002040' }}>
-                        <h2 className="text-2xl font-bold mb-10 text-center text-white">Список решённых заданий</h2>
-                        <SolvedTasksListWidget compact />
-                    </div>
-                )}
+              />
             </div>
+            <div
+              className="flex-1 overflow-auto"
+              style={{ minWidth: 550 }}
+            >
+              {selectedTab === 'info' && (
+                <div className="grid grid-cols-1">
+                  <AuthInfo email={profile.email} />
+                  {role === 'student' ? (
+                    <StudentPersonalInfo profile={{ ...profile, gender: getGenderText(profile.gender) }} />
+                  ) : role === 'employer' ? (
+                    <EmployerPersonalInfo profile={profile} />
+                  ) : null}
+                </div>
+              )}
+
+              {selectedTab === 'tasks' && role === 'employer' && (
+                <div className="w-full p-8 overflow-y-auto flex flex-col" style={{ backgroundColor: '#002040' }}>
+                  <h2 className="text-2xl font-bold mb-14 text-center text-white">Список размещённых заданий</h2>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-0.5 md:gap-x-2 place-items-center">
+                    {Array.isArray(displayedTasks) && displayedTasks.length === 0 ? (
+                      <div className="text-center col-span-full">
+                        <p className="text-white text-lg mb-2">Нет размещённых заданий</p>
+                        <p className="text-gray-300 mt-10 mb-6">Вы можете добавить своё первое задание </p>
+                        <button
+                          onClick={() => window.location.href = '/tasks/add'}
+                          className="inline-flex items-center bg-blue-600 hover:bg-blue-700 transition-colors text-white font-semibold py-3 px-6 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        >
+                          <PlusOutlined className="mr-2 text-lg" />
+                          Добавить задание
+                        </button>
+                      </div>
+                    ) : (
+                      displayedTasks.map((task) => (
+                        <TaskCard
+                          key={task.id}
+                          id={task.id}
+                          employer_name={profile.company_name}
+                          title={task.title}
+                          difficulty={getDifficultyLabel(task.difficulty)}
+                          status={getStatusLabel(task.status)}
+                          created_at={task.created_at}
+                          fullTask={task}
+                          logoUrl={logoUrl}
+                        />
+                      ))
+                    )}
+                  </div>
+
+                  {tasks.length > 0 && (
+                    <div className="mt-auto">
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {selectedTab === 'tasks' && role === 'student' && (
+                <div className="w-full p-4 overflow-y-auto flex flex-col" style={{ backgroundColor: '#002040' }}>
+                  <h2 className="text-2xl font-bold mb-10 text-center text-white">Список решённых заданий</h2>
+                  <SolvedTasksListWidget compact />
+                </div>
+              )}
+            </div>
+          </div>
         </div>
     );
 };

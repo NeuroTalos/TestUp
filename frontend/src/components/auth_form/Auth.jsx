@@ -69,12 +69,13 @@ const AuthWidget = () => {
   };
 
   return (
-    <div className="w-screen h-screen grid place-content-center px-4" style={{ backgroundColor: '#002040' }}>
+    <div className="w-screen h-screen grid place-content-center px-4 overflow-hidden" style={{ backgroundColor: '#002040' }}>
       <Space direction="vertical" size={16}>
         <Card
           title={<div style={{ textAlign: "center", fontWeight: "bold", fontSize: 24, color: 'white' }}>Авторизация</div>}
           style={{
-            width: 450,
+            width: '90vw', 
+            maxWidth: 450, 
             maxHeight: "80vh",
             backgroundColor: '#343F4D',
             border: '1px solid #283144',
