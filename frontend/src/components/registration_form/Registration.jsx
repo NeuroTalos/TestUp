@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Card, Space, Typography, Tabs, Button, Input } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { Card, Space, Typography, Tabs, Button, Input, Checkbox, message } from 'antd';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 
 import LabeledInput from '../profile_form/LabeledInput';
@@ -47,6 +47,8 @@ const RegistrationWidget = () => {
   const [verificationCode, setVerificationCode] = useState('');
   const [cooldown, setCooldown] = useState(60);
   const cooldownRef = useRef(null);
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [termsError, setTermsError] = useState(false);
 
   const cardRef = useRef(null);
   const navigate = useNavigate();
@@ -112,9 +114,53 @@ const RegistrationWidget = () => {
 
   const sendVerificationCode = async () => {
     setRegistrationError(false);
+    setTermsError(false);
+
     let targetEmail = activeTab === 'student' ? email : employerEmail;
 
+    const validateStudentFields = () => {
+      return (
+        login.trim() &&
+        password.trim() &&
+        firstName.trim() &&
+        lastName.trim() &&
+        dob.trim() &&
+        email.trim() &&
+        phone.trim() &&
+        gender &&
+        course &&
+        group.trim() &&
+        faculty &&
+        major
+      );
+    };
+
+    const validateEmployerFields = () => {
+      return (
+        employerLogin.trim() &&
+        employerPassword.trim() &&
+        companyName.trim() &&
+        employerEmail.trim() &&
+        employerPhone.trim()
+      );
+    };
+
     if (!targetEmail) {
+      setRegistrationError(true);
+      return;
+    }
+
+    if (!agreeToTerms) {
+      setTermsError(true);
+      return;
+    }
+
+    if (activeTab === 'student' && !validateStudentFields()) {
+      setRegistrationError(true);
+      return;
+    }
+
+    if (activeTab === 'employer' && !validateEmployerFields()) {
       setRegistrationError(true);
       return;
     }
@@ -128,6 +174,7 @@ const RegistrationWidget = () => {
       if (cardRef.current) cardRef.current.scrollTop = 0;
     }
   };
+
 
   const handleResendCode = () => {
     if (cooldown === 0) {
@@ -242,13 +289,29 @@ const RegistrationWidget = () => {
                 <LabeledInput label="Отчество (опционально)" maxLength={40} value={middleName} onChange={handleInputChange(setMiddleName)} />
                 <LabeledInput label="Дата рождения (ДД.ММ.ГГГГ)" maxLength={10} value={dob} onChange={handleInputChange(setDob)} mask="00.00.0000" />
                 <LabeledInput label="Электронная почта" maxLength={50} value={email} onChange={handleInputChange(setEmail)} />
-                <LabeledInput label="Телефон" maxLength={11} value={phone} onChange={handleInputChange(setPhone)} />
+                <LabeledInput label="Телефон" maxLength={11} value={phone} only_number={true} onChange={handleInputChange(setPhone)} />
                 <LabeledInput label="Телеграм (опционально)" maxLength={40} value={telegram} onChange={handleInputChange(setTelegram)} />
                 <DropdownSelect label="Пол" options={['Мужской', 'Женский']} value={gender} onChange={setGender} />
                 <DropdownSelect label="Курс" options={['1', '2', '3', '4', '5']} value={course} onChange={handleCourseChange} />
                 <LabeledInput label="Группа" maxLength={15} value={group} onChange={handleInputChange(setGroup)} />
                 <DropdownSelect label="Факультет" options={faculties.map(fac => fac.name)} value={faculty} onChange={handleFacultyChange} />
                 <DropdownSelect label="Направление" options={majors} value={major} onChange={handleMajorChange} />
+                
+                {!registrationError && termsError && (
+                  <div style={{ marginBottom: 16, textAlign: 'center' }}>
+                    <Typography.Text type="danger">
+                      Необходимо согласиться с правилами пользования и политикой конфиденциальности
+                    </Typography.Text>
+                  </div>
+                )}
+
+                <Checkbox
+                  checked={agreeToTerms}
+                  onChange={(e) => setAgreeToTerms(e.target.checked)}
+                  style={{ color: 'white', marginTop: 16 }}
+                >
+                  Я соглашаюсь с <Link to="/terms" style={{ color: '#1890ff' }}>правилами пользования</Link> и <Link to="/privacy" style={{ color: '#1890ff' }}>политикой конфиденциальности</Link>
+                </Checkbox>
 
                 <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
                   <Button type="primary" onClick={sendVerificationCode}>
@@ -270,10 +333,26 @@ const RegistrationWidget = () => {
                 <PasswordInput onChange={handleInputChange(setEmployerPassword)} />
                 <LabeledInput label="Название компании" maxLength={50} value={companyName} onChange={handleInputChange(setCompanyName)} />
                 <LabeledInput label="Электронная почта" maxLength={50} value={employerEmail} onChange={handleInputChange(setEmployerEmail)} />
-                <LabeledInput label="Телефон" maxLength={11} value={employerPhone} onChange={handleInputChange(setEmployerPhone)} />
+                <LabeledInput label="Телефон" maxLength={11} value={employerPhone} only_number={true} onChange={handleInputChange(setEmployerPhone)} />
                 <LabeledInput label="Телеграм (опционально)" maxLength={40} value={employerTelegram} onChange={handleInputChange(setEmployerTelegram)} />
 
                 <EmployerLogoUpload onFileSelect={setEmployerLogo} />
+
+                {!registrationError && termsError && (
+                  <div style={{ marginBottom: 16, textAlign: 'center' }}>
+                    <Typography.Text type="danger">
+                      Необходимо согласиться с правилами пользования и политикой конфиденциальности
+                    </Typography.Text>
+                  </div>
+                )}
+
+                <Checkbox
+                  checked={agreeToTerms}
+                  onChange={(e) => setAgreeToTerms(e.target.checked)}
+                  style={{ color: 'white', marginTop: 16 }}
+                >
+                  Я соглашаюсь с <Link to="/terms" style={{ color: '#1890ff' }}>правилами пользования</Link> и <Link to="/privacy" style={{ color: '#1890ff' }}>политикой конфиденциальности</Link>
+                </Checkbox>
 
                 <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
                   <Button type="primary" onClick={sendVerificationCode}>

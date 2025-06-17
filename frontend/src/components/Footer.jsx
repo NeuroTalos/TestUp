@@ -1,7 +1,8 @@
 import React from 'react';
-import { FaVk, FaTelegramPlane, FaLinkedin, FaGithub } from 'react-icons/fa'; // Импортируем иконки
+import { FaVk, FaTelegramPlane, FaLinkedin, FaGithub } from 'react-icons/fa';
 import { Row, Col } from 'antd';
-import './Footer.css'; 
+import { Link } from 'react-router-dom'; // Добавляем импорт Link
+import './Footer.css';
 
 const Footer = () => {
   return (
@@ -10,13 +11,16 @@ const Footer = () => {
         <Row justify="center" gutter={[16, 16]}>
           <Col span={24}>
             <h3 style={{ margin: 0, color: '#fff' }}>TestUP</h3>
-            <p style={{ color: '#fff', margin: '5px 0' }}>© {new Date().getFullYear()} Все права защищены</p>
+            <p style={{ color: '#fff', margin: '5px 0' }}>
+              © {new Date().getFullYear()} Все права защищены
+            </p>
           </Col>
 
           <Col span={24}>
             <a className="footer-link">О нас</a> |{' '}
             <a className="footer-link">Контакты</a> |{' '}
-            <a className="footer-link">Политика конфиденциальности</a>
+            <Link to="/privacy" className="footer-link">Политика конфиденциальности</Link> |{' '}
+            <Link to="/terms" className="footer-link">Правила пользования</Link>
           </Col>
 
           <Col span={24} className="social-icons-container">

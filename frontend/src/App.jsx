@@ -12,6 +12,8 @@ import TaskPage from './components/tasks_form/TaskPage.jsx'
 import TaskCreate from './components/tasks_form/TaskCreate.jsx';
 import EmployerTasksPage from './components/tasks_form/EmployerTasksList.jsx';
 import PasswortReset from './components/password_reset/PasswordReset';
+import TermsOfUse from './components/info_components/TermsOfUse.jsx';
+import PrivacyPolicyPage from './components/info_components/PrivacyPolicy.jsx';
 import { ToastContainer } from 'react-toastify';
 
 function App() {
@@ -47,6 +49,12 @@ function App() {
 
               {/* Страница для сброса пароля */}
               <Route path="/reset-password" element={<PasswortReset />} />
+
+              {/* Страница с правилами пользования */}
+              <Route path="/terms" element={<TermsOfUse />} />
+
+              {/* Страница с политикой конфиденциальности */}
+              <Route path="/privacy" element={<PrivacyPolicyPage />} />
               
             </Route>
           </Routes>
